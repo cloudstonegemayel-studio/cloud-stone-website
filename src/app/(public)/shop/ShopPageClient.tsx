@@ -268,7 +268,7 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
   index: number;
   onSelect: (item: ShopItem) => void;
   onPositionChange?: (id: string, pos: [number, number]) => void;
-  stageRef?: React.RefObject<HTMLDivElement | null>;
+  stageRef?: { current: HTMLDivElement | null };
   mode: ViewMode;
 }) {
   const [hovered, setHovered] = useState(false);
