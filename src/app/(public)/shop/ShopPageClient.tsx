@@ -635,7 +635,7 @@ export function ShopPageClient() {
   const [filter,   setFilter]   = useState<Filter>("All");
   const [selected, setSelected] = useState<ShopItem | null>(null);
 
-  const stageRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
   const [chaosPositions, setChaosPositions] = useState<Record<string, [number, number]>>(() =>
     Object.fromEntries(SHOP_ITEMS.map((item, i) => [
       item.id,
