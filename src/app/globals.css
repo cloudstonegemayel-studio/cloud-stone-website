@@ -1,0 +1,327 @@
+@import "tailwindcss";
+
+/* ─── PP Rader (Pangram Pangram) — add files to /public/fonts/ ─────
+   Falls back to Inter Tight → DM Sans until font files are supplied.
+   Files expected: PPRader-Regular.woff2, PPRader-Bold.woff2          */
+@font-face {
+  font-family: "PP Rader";
+  src: url("/fonts/PPRader-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style:  normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Rader";
+  src: url("/fonts/PPRader-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style:  normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Rader";
+  src: url("/fonts/PPRader-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style:  normal;
+  font-display: swap;
+}
+
+/* ─── Tailwind v4 Theme ─────────────────────────────────────────── */
+@theme inline {
+  /* ── Fonts ────────────────────────────────────────────────────── */
+  --font-display:      var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans:         var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-rader:        "PP Rader", var(--font-inter-tight), "Inter Tight", "DM Sans", sans-serif;
+  --font-inter-tight:  var(--font-inter-tight), "Inter Tight", "DM Sans", sans-serif;
+
+  /* ── Colors — Figma tokens ────────────────────────────────────── */
+  --color-bg:           #F6F5F2; /* Cloud Dancer */
+  --color-dark:         #392D2B; /* Mole */
+  --color-accent:       #7AB6D9; /* Baltic Sea */
+  --color-cta:          #C86733; /* Burnt Orange */
+  --color-grey:         #BCB7B8; /* Alabaster Gray */
+  --color-grey-light:   #D9D9D9; /* Soft Light Grey */
+  --color-surface:      #F5F1EC; /* slightly lighter bg */
+  --color-border:       rgba(57,45,43,0.1);
+
+  /* Text opacity layers */
+  --color-text-primary:    #392D2B;
+  --color-text-secondary:  rgba(57,45,43,0.60);
+  --color-text-muted:      rgba(57,45,43,0.40);
+
+  /* ── Breakpoints ──────────────────────────────────────────────── */
+  --breakpoint-xs:   375px;
+  --breakpoint-sm:   640px;
+  --breakpoint-md:   768px;
+  --breakpoint-lg:   1024px;
+  --breakpoint-xl:   1280px;
+  --breakpoint-2xl:  1440px;
+  --breakpoint-3xl:  1920px;
+
+  /* ── Border radius ────────────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-pill: 999px;
+
+  /* ── Easing (Tailwind v4 uses these in transition-timing utilities) */
+  --ease-expo-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-drawer:      cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ─── CSS Custom Properties (runtime) ──────────────────────────── */
+:root {
+  /* Grid — Figma: 8 cols, 20px gutter, 30px margin, 1920px wide */
+  --grid-cols:       8;
+  --grid-margin:     30px;
+  --grid-gutter:     20px;
+  --grid-max-width:  1920px;
+
+  /* Durations */
+  --dur-fast:    150ms;
+  --dur-normal:  250ms;
+  --dur-slow:    400ms;
+  --dur-slower:  600ms;
+  --dur-page:    800ms;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    -webkit-font-smoothing:   antialiased;
+    -moz-osx-font-smoothing:  grayscale;
+    text-rendering:           optimizeLegibility;
+    scroll-behavior:          smooth;
+  }
+
+  body {
+    background-color: #F6F5F2;
+    color:            #392D2B;
+    font-family:      var(--font-sans);
+  }
+
+  /* Branded text selection */
+  ::selection {
+    background-color: #392D2B;
+    color:            #EEE9E3;
+  }
+
+  /* Branded focus ring */
+  :focus-visible {
+    outline:        2px solid #C86733;
+    outline-offset: 3px;
+    border-radius:  2px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration:       0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration:      0.01ms !important;
+    }
+  }
+}
+
+/* ─── Component Layer ───────────────────────────────────────────── */
+@layer components {
+  /* Site container — matches Figma 1920px max, 30px margin */
+  .container-site {
+    margin-left:  auto;
+    margin-right: auto;
+    width:        100%;
+    max-width:    var(--grid-max-width);
+    padding-left:  var(--grid-margin);
+    padding-right: var(--grid-margin);
+  }
+  @media (max-width: 768px) {
+    .container-site {
+      padding-left:  20px;
+      padding-right: 20px;
+    }
+  }
+  @media (max-width: 640px) {
+    .container-site {
+      padding-left:  16px;
+      padding-right: 16px;
+    }
+  }
+
+  /* 8-col grid */
+  .grid-site {
+    display:               grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap:                   var(--grid-gutter);
+  }
+  @media (max-width: 1024px) {
+    .grid-site { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .grid-site { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Button base */
+  .btn {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    font-weight:     500;
+    font-family:     var(--font-sans);
+    letter-spacing:  0.04em;
+    text-transform:  uppercase;
+    font-size:       11px;
+    transition-property: opacity, transform, background-color, color;
+    transition-duration: var(--dur-normal);
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    cursor:          pointer;
+    user-select:     none;
+  }
+  .btn:focus-visible {
+    outline:        2px solid #C86733;
+    outline-offset: 3px;
+  }
+  .btn:disabled {
+    opacity:        0.5;
+    cursor:         not-allowed;
+    pointer-events: none;
+  }
+  @media (hover: hover) {
+    .btn:hover { opacity: 0.85; }
+  }
+  .btn:active { transform: scale(0.97); }
+
+  /* Pixel-textured nav button (from MWPixel assets) */
+  .btn-pixel {
+    position:        relative;
+    padding:         7px 20px;
+    color:           #392D2B;
+    background:      transparent;
+    white-space:     nowrap;
+  }
+  .btn-pixel::before,
+  .btn-pixel::after {
+    content:       "";
+    position:      absolute;
+    top:           0;
+    height:        100%;
+    width:         calc(100% + 0px);
+    background-repeat: no-repeat;
+    background-size:   auto 100%;
+    pointer-events: none;
+  }
+  .btn-pixel::before {
+    left:                    0;
+    background-image:        url("/btn-left.svg");
+    background-position:     left center;
+  }
+  .btn-pixel::after {
+    right:                   0;
+    background-image:        url("/btn-right.svg");
+    background-position:     right center;
+  }
+
+  /* Pixel-textured nav pill (MWPixel nav-left / nav-right assets) */
+  .nav-pixel {
+    position:   relative;
+    height:     26px;
+    display:    flex;
+    align-items: center;
+    white-space: nowrap;
+    /* inner padding keeps content clear of the pixel-art end caps */
+    padding-left:  30px;
+    padding-right: 20px;
+  }
+  .nav-pixel::before,
+  .nav-pixel::after {
+    content:         "";
+    position:        absolute;
+    top:             0;
+    height:          26px;
+    background-repeat: no-repeat;
+    background-size:   auto 26px;
+    pointer-events:  none;
+    z-index:         -1;
+    transition:      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-pixel::before {
+    left:                 20px;
+    width:                58px;
+    background-image:     url("/nav-right-texture.svg");
+    background-position:  left center;
+  }
+  .nav-pixel::after {
+    right:                0;
+    width:                100px;
+    background-image:     url("/nav-right-texture.svg");
+    background-position:  right center;
+  }
+  .nav-pixel:hover::before {
+    transform: translateX(-4px);
+  }
+  .nav-pixel:hover::after {
+    transform: translateX(4px);
+  }
+
+  /* Nav-pixel — inverted caps when header sits over a dark section */
+  .nav-pixel--light::before,
+  .nav-pixel--light::after {
+    filter: brightness(10);
+    transition: filter 350ms ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Filter bar variant — right cap extends beyond container */
+  .filter-nav-pixel::after {
+    right: -42px;
+  }
+
+  /* Display font utility */
+  .font-display { font-family: var(--font-display); }
+  .font-sans    { font-family: var(--font-sans); }
+
+  /* Text balance for headlines */
+  .text-balance { text-wrap: balance; }
+
+  /* Pixel dot background (signature brand element) */
+  .pixel-bg {
+    background-image:    url("/pixel-bg.svg");
+    background-repeat:   repeat;
+    background-size:     auto;
+  }
+}
+
+/* ─── 404 stone texture drift ───────────────────────────────────── */
+@keyframes stone-drift {
+  0%   { background-position: 36% 70%; }
+  33%  { background-position: 65% 50%; }
+  66%  { background-position: 40% 60%; }
+  100% { background-position: 60% 75%; }
+}
+
+/* ─── Service card entrance (4 rotation variants) ───────────────── */
+@keyframes cs-card-enter-kf-1 {
+  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(1.30) rotate(4deg); }
+  80%  { transform: scale(0.94) rotate(-1.5deg); }
+  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+}
+@keyframes cs-card-enter-kf-2 {
+  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(1.30) rotate(-4deg); }
+  80%  { transform: scale(0.94) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+}
+@keyframes cs-card-enter-kf-3 {
+  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(1.30) rotate(2deg); }
+  80%  { transform: scale(0.94) rotate(-2.5deg); }
+  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+}
+@keyframes cs-card-enter-kf-4 {
+  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(1.30) rotate(-2deg); }
+  80%  { transform: scale(0.94) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+}
