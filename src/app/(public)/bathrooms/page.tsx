@@ -204,7 +204,7 @@ export default function BathroomsPage() {
           width: 100%; max-width: 100vw; height: 100vh; min-height: 600px;
           display: grid; grid-template-columns: 1fr 1fr;
           overflow: hidden; position: relative;
-          background: var(--color-surface,#f0eee9); contain: layout;
+          background: var(--color-surface,#392D2B); contain: layout;
         }
         .s5-panel {
           position: relative; overflow: hidden;
@@ -306,7 +306,7 @@ export default function BathroomsPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
         @media (max-width: 768px) {
-          .s5-section { grid-template-columns: 1fr; height: auto; min-height: unset; }
+          .s5-section { grid-template-columns: 1fr; height: 100vh; min-height: unset; }
           .s5-panel { height: 50vw; min-height: 220px; cursor: pointer; }
           .s5-info-text { max-width: min(82%,520px); }
           #s5-cursor { display: none !important; }

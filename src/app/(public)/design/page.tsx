@@ -460,7 +460,7 @@ function CTASection() {
   const DELAY = 0.15;
 
   return (
-    <section ref={sectionRef} style={{ display: "flex", height: "100vh", minHeight: 600, overflow: "hidden", position: "relative" }}>
+    <section ref={sectionRef} style={{ display: "flex", height: "100vh", minHeight: 600, overflow: "hidden", position: "relative"}}>
       {/* Left: photo — slides up from below when section enters viewport */}
       <div style={{ flex: "0 0 50%", position: "relative", overflow: "hidden" }}>
         <div style={{
@@ -683,7 +683,7 @@ function FAQItem({ item, index, entered }: {
           <span style={{ fontFamily: "var(--font-rader,'PP Rader',sans-serif)", fontWeight: 400, fontSize: 70, lineHeight: "80px", letterSpacing: "-0.7px", width: 80, flexShrink: 0 }}>
             {String(index + 1).padStart(2, "0")}
           </span>
-          <span style={{ fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 400, fontSize: 20, lineHeight: 1.2, whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 400, fontSize: 20, lineHeight: 1.2, whiteSpace: "pre-wrap" md:whiteSpace: "nowrap" }}>
             {item.q}
           </span>
         </div>
