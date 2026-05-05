@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { contactSchema } from "@/lib/validations";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: NextRequest) {
   try {
     const body      = await request.json();
@@ -32,6 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Send emails (only when Resend is configured)
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_...") {
+      const resend = new Resend(process.env.RESEND_API_KEY);
       const domain = process.env.RESEND_DOMAIN ?? "cloudstonestudio.com";
       const sourceInfo = validated.source_page
         ? `<p><strong>Source:</strong> ${validated.source_page}</p>`
