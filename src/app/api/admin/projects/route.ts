@@ -12,17 +12,14 @@ export async function POST(request: NextRequest) {
   const { data, error } = await (supabase as any)
     .from("projects")
     .insert({
-      title:       body.title,
-      slug:        body.slug,
-      category:    body.category    || null,
-      year:        body.year        || null,
-      location:    body.location    || null,
-      area:        body.area        || null,
-      description: body.description || null,
-      content:     body.content     || null,
-      published:   body.published   ?? false,
+      title:          body.title,
+      slug:           body.slug,
+      status:         "draft",
+      sort_order:     0,
+      content_blocks: [],
+      slider_items:   [],
     })
-    .select()
+    .select("id")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 function autoSlug(title: string) {
   return title
@@ -48,23 +47,14 @@ export function NewProjectClient() {
     setError("");
 
     try {
-      const supabase = createClient();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error: err } = await (supabase as any)
-        .from("projects")
-        .insert({
-          title:          title.trim(),
-          slug:           slug.trim(),
-          status:         "draft",
-          sort_order:     0,
-          content_blocks: [],
-          slider_items:   [],
-        })
-        .select("id")
-        .single() as { data: { id: string } | null; error: { message: string } | null };
+      const res = await fetch("/api/admin/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), slug: slug.trim() }),
+      });
 
-      if (err) throw new Error(err.message);
-      if (!data) throw new Error("No data returned");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Create failed");
 
       router.push(`/admin/projects/${data.id}/edit`);
     } catch (e) {
