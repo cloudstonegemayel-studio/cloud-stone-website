@@ -12,13 +12,16 @@ export default async function AdminProjectsPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: projects } = await (supabase as any)
     .from("projects")
-    .select("id, title, slug, category, year, published, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, title, slug, project_type, project_year, status, sort_order, created_at")
+    .order("sort_order", { ascending: true }) as {
+      data: Array<{
+        id: string; title: string; slug: string;
+        project_type: string | null; project_year: number | null;
+        status: string; sort_order: number;
+      }> | null
+    };
 
-  const rows = (projects ?? []) as Array<{
-    id: string; title: string; slug: string;
-    category: string; year: string; published: boolean; created_at: string;
-  }>;
+  const rows = projects ?? [];
 
   return (
     <div className="min-h-screen bg-[#F5F1EC]">
@@ -49,7 +52,7 @@ export default async function AdminProjectsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#392D2B]/10">
-                {["Title", "Category", "Year", "Status", ""].map((h) => (
+                {["#", "Title", "Type", "Year", "Status", ""].map((h) => (
                   <th key={h} className="text-left text-[9px] uppercase tracking-[0.12em] text-[#392D2B]/30 font-sans py-3 pr-6">
                     {h}
                   </th>
@@ -59,24 +62,27 @@ export default async function AdminProjectsPage() {
             <tbody>
               {rows.map((p) => (
                 <tr key={p.id} className="border-b border-[#392D2B]/5 hover:bg-[#392D2B]/[0.02] transition-colors">
+                  <td className="py-4 pr-4 text-[12px] text-[#392D2B]/30 font-sans w-8">
+                    {p.sort_order}
+                  </td>
                   <td className="py-4 pr-6">
                     <p className="font-display italic text-[15px] text-[#392D2B]">{p.title}</p>
                     <p className="text-[11px] text-[#392D2B]/30 font-sans mt-0.5">/design/{p.slug}</p>
                   </td>
-                  <td className="py-4 pr-6 text-[12px] text-[#392D2B]/60 font-sans">{p.category}</td>
-                  <td className="py-4 pr-6 text-[12px] text-[#392D2B]/60 font-sans">{p.year}</td>
+                  <td className="py-4 pr-6 text-[12px] text-[#392D2B]/60 font-sans">{p.project_type ?? "—"}</td>
+                  <td className="py-4 pr-6 text-[12px] text-[#392D2B]/60 font-sans">{p.project_year ?? "—"}</td>
                   <td className="py-4 pr-6">
                     <span className={`text-[10px] uppercase tracking-[0.08em] font-sans px-2 py-0.5 ${
-                      p.published
+                      p.status === "published"
                         ? "bg-green-50 text-green-700 border border-green-200"
                         : "bg-amber-50 text-amber-700 border border-amber-200"
                     }`}>
-                      {p.published ? "Published" : "Draft"}
+                      {p.status === "published" ? "Published" : "Draft"}
                     </span>
                   </td>
                   <td className="py-4 text-right">
                     <Link
-                      href={`/admin/projects/${p.id}`}
+                      href={`/admin/projects/${p.id}/edit`}
                       className="text-[11px] uppercase tracking-[0.08em] text-[#392D2B]/40 hover:text-[#392D2B] transition-colors font-sans"
                     >
                       Edit →

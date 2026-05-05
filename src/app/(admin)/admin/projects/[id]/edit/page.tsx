@@ -1,0 +1,116 @@
+import { redirect, notFound } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { parseContentBlocks, SliderItemSchema } from "@/types/blocks";
+import { EditPageClient } from "./EditPageClient";
+import type { MetaData } from "@/components/admin/ProjectMetaForm";
+
+export const metadata = { title: "Edit Project — Admin" };
+
+type RawProject = {
+  id: string; slug: string; title: string;
+  short_description: string | null; description: string | null;
+  cover_image: string | null; slider_items: unknown;
+  project_year: number | null; project_type: string | null;
+  project_status: string | null; location: string | null;
+  client: string | null; site_area: string | null;
+  content_blocks: unknown; sort_order: number; status: string;
+};
+
+export default async function EditProjectPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: raw } = await (supabase as any)
+    .from("projects")
+    .select("*")
+    .eq("id", id)
+    .single() as { data: RawProject | null };
+
+  if (!raw) notFound();
+
+  const sliderItems = Array.isArray(raw.slider_items)
+    ? (raw.slider_items as unknown[]).flatMap((item) => {
+        const r = SliderItemSchema.safeParse(item);
+        return r.success ? [r.data] : [];
+      })
+    : [];
+
+  const initialMeta: MetaData = {
+    title:             raw.title             ?? "",
+    slug:              raw.slug              ?? "",
+    short_description: raw.short_description ?? "",
+    description:       raw.description       ?? "",
+    cover_image:       raw.cover_image       ?? "",
+    slider_items:      sliderItems,
+    project_year:      String(raw.project_year ?? ""),
+    project_type:      raw.project_type      ?? "",
+    project_status:    raw.project_status    ?? "",
+    location:          raw.location          ?? "",
+    client:            raw.client            ?? "",
+    site_area:         raw.site_area         ?? "",
+    status:            raw.status === "published" ? "published" : "draft",
+    sort_order:        raw.sort_order        ?? 0,
+  };
+
+  const initialBlocks = parseContentBlocks(raw.content_blocks);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#F5F1EC" }}>
+      <header style={{
+        background: "#392D2B",
+        padding: "0 24px",
+        height: 56,
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        flexShrink: 0,
+      }}>
+        <Link
+          href="/admin/projects"
+          style={{ color: "rgba(240,238,233,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", textDecoration: "none" }}
+        >
+          ← Projects
+        </Link>
+        <h1 style={{
+          margin: 0,
+          fontFamily: "var(--font-rader,'PP Rader',serif)",
+          fontWeight: 400,
+          fontSize: 18,
+          fontStyle: "italic",
+          color: "#F0EEE9",
+        }}>
+          {initialMeta.title || "Untitled"}
+        </h1>
+        <Link
+          href={`/design/${initialMeta.slug}`}
+          target="_blank"
+          style={{
+            marginLeft: "auto",
+            color: "rgba(240,238,233,0.5)",
+            fontSize: 11,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            textDecoration: "none",
+          }}
+        >
+          View live →
+        </Link>
+      </header>
+
+      <EditPageClient
+        projectId={id}
+        initialMeta={initialMeta}
+        initialBlocks={initialBlocks}
+      />
+    </div>
+  );
+}

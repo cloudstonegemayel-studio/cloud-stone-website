@@ -11,21 +11,31 @@ export interface Database {
     Tables: {
       projects: {
         Row: {
-          id:          string;
-          slug:        string;
-          title:       string;
-          description: string | null;
-          content:     Json | null;
-          thumbnail:   string | null;
-          images:      string[] | null;
-          tags:        string[] | null;
-          category:    string | null;
-          status:      "draft" | "published";
-          featured:    boolean;
-          sort_order:  number;
-          metadata:    Json;
-          created_at:  string;
-          updated_at:  string;
+          id:                string;
+          slug:              string;
+          title:             string;
+          description:       string | null;
+          short_description: string | null;
+          content:           Json | null;
+          thumbnail:         string | null;
+          images:            string[] | null;
+          tags:              string[] | null;
+          category:          string | null;
+          status:            "draft" | "published";
+          featured:          boolean;
+          sort_order:        number;
+          metadata:          Json;
+          cover_image:       string | null;
+          slider_items:      Json;
+          content_blocks:    Json;
+          project_year:      number | null;
+          project_type:      string | null;
+          project_status:    string | null;
+          location:          string | null;
+          client:            string | null;
+          site_area:         string | null;
+          created_at:        string;
+          updated_at:        string;
         };
         Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "created_at" | "updated_at">;
         Update: Partial<Database["public"]["Tables"]["projects"]["Insert"]>;
