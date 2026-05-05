@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
   async headers() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.elfsight.com https://apps.elfsight.com https://elfsightcdn.com https://unpkg.com https://cdnjs.cloudflare.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.elfsight.com https://apps.elfsight.com https://elfsightcdn.com https://*.elfsightcdn.com https://unpkg.com https://cdnjs.cloudflare.com",
       "frame-src 'self' https://*.elfsight.com",
       "img-src 'self' data: https: blob:",
       "style-src 'self' 'unsafe-inline' https://static.elfsight.com https://elfsightcdn.com",
