@@ -748,14 +748,17 @@ export function HomeHero() {
           style={{
             opacity:    entered ? 1 : 0,
             transition: "opacity 0.7s ease 1.3s",
-            marginTop:  -4, // optical alignment
+            marginTop:  -4,
+            overflow:   "hidden",
           }}
         >
-          <div
-            className="elfsight-app-8294ddb1-6460-4546-8caf-0266985ad33c"
-            data-elfsight-app-lazy
-            style={{ width: 111 }}
-          />
+          <div style={{ marginBottom: -44 }}>
+            <div
+              className="elfsight-app-8294ddb1-6460-4546-8caf-0266985ad33c"
+              data-elfsight-app-lazy
+              style={{ width: 111 }}
+            />
+          </div>
         </div>
       </header>
 

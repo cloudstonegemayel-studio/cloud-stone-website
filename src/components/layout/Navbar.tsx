@@ -278,13 +278,15 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Weather widget */}
-        <div style={{ marginTop: -4 }}>
-          <div
-            className="elfsight-app-8294ddb1-6460-4546-8caf-0266985ad33c"
-            data-elfsight-app-lazy
-            style={{ width: 111 }}
-          />
+        {/* Weather widget — overflow:hidden clips Elfsight branding at bottom */}
+        <div style={{ marginTop: -4, overflow: "hidden" }}>
+          <div style={{ marginBottom: -44 }}>
+            <div
+              className="elfsight-app-8294ddb1-6460-4546-8caf-0266985ad33c"
+              data-elfsight-app-lazy
+              style={{ width: 111 }}
+            />
+          </div>
         </div>
       </header>
 
