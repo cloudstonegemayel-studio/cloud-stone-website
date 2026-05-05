@@ -69,8 +69,7 @@ export default function RootLayout({
         {/* Elfsight — weather widget platform (loaded once globally) */}
         <Script
           src="https://elfsightcdn.com/platform.js"
-          strategy="lazyOnload"
-          async
+          strategy="afterInteractive"
         />
       </body>
     </html>

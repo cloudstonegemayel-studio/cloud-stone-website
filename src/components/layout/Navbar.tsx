@@ -5,6 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
+declare global {
+  interface Window {
+    eapps?: { AppsManager?: { reload?: () => void } };
+  }
+}
+
 const NAV_LINKS = [
   { label: "Cloud Stone", href: "/" },
   { label: "Design",      href: "/design" },
@@ -81,7 +87,11 @@ export function Navbar() {
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
-  useEffect(() => { setExpanded(false); setMobileOpen(false); }, [pathname]);
+  useEffect(() => {
+    setExpanded(false);
+    setMobileOpen(false);
+    window.eapps?.AppsManager?.reload?.();
+  }, [pathname]);
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };

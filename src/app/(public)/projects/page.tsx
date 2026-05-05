@@ -335,7 +335,7 @@ export default function ProjectsPage() {
 
   return (
     <article className="project-page">
-      <section id="hero" className="project-hero">
+      <section id="hero" className="project-hero" data-nav-dark>
         <Image
           className="project-hero-bg-photo"
           src="/images/img2.png"
