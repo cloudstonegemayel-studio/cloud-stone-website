@@ -2,15 +2,14 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { uploadProjectImage } from "@/lib/supabase/storage";
 
 interface Props {
-  projectId: string;
-  value:     string;
-  onChange:  (url: string) => void;
-  scope?:    string;
-  label?:    string;
-  aspect?:   "square" | "wide" | "portrait";
+  projectId?: string;
+  value:      string;
+  onChange:   (url: string) => void;
+  scope?:     string;
+  label?:     string;
+  aspect?:    "square" | "wide" | "portrait";
 }
 
 export function ImageUpload({
@@ -35,8 +34,12 @@ export function ImageUpload({
     setErr("");
     setUploading(true);
     try {
-      const url = await uploadProjectImage(file, projectId, scope);
-      onChange(url);
+      const form = new FormData();
+      form.append("file", file);
+      const res  = await fetch("/api/admin/upload", { method: "POST", body: form });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Upload failed");
+      onChange(json.url);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Upload failed");
     } finally {
