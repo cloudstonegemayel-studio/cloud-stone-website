@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { ProjectForm } from "@/components/admin/ProjectForm";
+import { NewProjectClient } from "./NewProjectClient";
 
 export const metadata = { title: "New Project — Admin" };
 
@@ -11,16 +11,50 @@ export default async function NewProjectPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="min-h-screen bg-[#F5F1EC]">
-      <header className="bg-[#392D2B] px-8 py-4 flex items-center gap-4">
-        <Link href="/admin/projects" className="text-[#EEE9E3]/40 hover:text-[#EEE9E3] transition-colors text-[11px] uppercase tracking-[0.08em] font-sans">
+    <div style={{ minHeight: "100vh", background: "#F5F1EC" }}>
+      <header style={{
+        background: "#392D2B",
+        padding: "0 24px",
+        height: 56,
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        flexShrink: 0,
+      }}>
+        <Link
+          href="/admin/projects"
+          style={{
+            color: "rgba(240,238,233,0.5)",
+            fontSize: 11,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            textDecoration: "none",
+          }}
+        >
           ← Projects
         </Link>
-        <h1 className="font-display text-[20px] italic text-[#EEE9E3]">New Project</h1>
+        <h1 style={{
+          margin: 0,
+          fontFamily: "var(--font-rader,'PP Rader',serif)",
+          fontWeight: 400,
+          fontSize: 18,
+          fontStyle: "italic",
+          color: "#F0EEE9",
+        }}>
+          New Project
+        </h1>
       </header>
 
-      <main className="max-w-5xl mx-auto px-8 py-10">
-        <ProjectForm />
+      <main style={{ maxWidth: 600, margin: "0 auto", padding: "48px 24px" }}>
+        <p style={{
+          margin: "0 0 32px",
+          fontSize: 13,
+          color: "#887870",
+          lineHeight: 1.5,
+        }}>
+          Enter a title and slug to create the project. You&apos;ll be taken to the full editor immediately after.
+        </p>
+        <NewProjectClient />
       </main>
     </div>
   );
