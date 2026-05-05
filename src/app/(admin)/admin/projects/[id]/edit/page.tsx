@@ -17,6 +17,10 @@ type RawProject = {
   content_blocks: unknown; sort_order: number; status: string;
 };
 
+type ProjectListItem = {
+  id: string; title: string; slug: string; status: string; sort_order: number;
+};
+
 export default async function EditProjectPage({
   params,
 }: {
@@ -29,11 +33,19 @@ export default async function EditProjectPage({
   if (!user) redirect("/login");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: raw } = await (supabase as any)
-    .from("projects")
-    .select("*")
-    .eq("id", id)
-    .single() as { data: RawProject | null };
+  const [{ data: raw }, { data: projectList }] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .single() as Promise<{ data: RawProject | null }>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("projects")
+      .select("id, title, slug, status, sort_order")
+      .order("sort_order", { ascending: true }) as Promise<{ data: ProjectListItem[] | null }>,
+  ]);
 
   if (!raw) notFound();
 
@@ -110,6 +122,7 @@ export default async function EditProjectPage({
         projectId={id}
         initialMeta={initialMeta}
         initialBlocks={initialBlocks}
+        projectList={projectList ?? []}
       />
     </div>
   );
