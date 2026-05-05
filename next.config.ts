@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [375, 640, 768, 1024, 1280, 1440, 1920],
@@ -20,7 +24,7 @@ const nextConfig: NextConfig = {
       "frame-src 'self' https://*.elfsight.com",
       "img-src 'self' data: https: blob:",
       "style-src 'self' 'unsafe-inline' https://static.elfsight.com https://elfsightcdn.com",
-      "connect-src 'self' https://static.elfsight.com https://api.elfsight.com https://elfsightcdn.com https://*.supabase.co https://cdnjs.cloudflare.com",
+      "connect-src 'self' https://static.elfsight.com https://api.elfsight.com https://elfsightcdn.com https://core.service.elfsight.com https://*.elfsight.com https://*.supabase.co https://cdnjs.cloudflare.com https://*.public.blob.vercel-storage.com",
       "worker-src 'self' blob: https://cdnjs.cloudflare.com https://unpkg.com",
       "font-src 'self' https://fonts.gstatic.com",
     ].join("; ");
