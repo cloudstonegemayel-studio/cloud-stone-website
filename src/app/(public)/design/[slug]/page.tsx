@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { createClient as createBuildClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { parseContentBlocks, SliderItemSchema } from "@/types/blocks";
 import { ProjectPage } from "@/components/project/ProjectPage";
@@ -18,7 +19,10 @@ type RawProject = {
 type RawAdj = { slug: string; title: string };
 
 export async function generateStaticParams() {
-  const supabase = await createClient();
+  const supabase = createBuildClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("projects")
