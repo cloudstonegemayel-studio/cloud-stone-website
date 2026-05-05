@@ -71,6 +71,20 @@ export default function RootLayout({
           src="https://elfsightcdn.com/platform.js"
           strategy="afterInteractive"
         />
+        {/* Hide Elfsight free-tier branding link via MutationObserver */}
+        <Script id="hide-elfsight-branding" strategy="afterInteractive">{`
+          (function () {
+            function hide(el) {
+              el.style.setProperty('display', 'none', 'important');
+            }
+            function scan() {
+              document.querySelectorAll('a[href*="elfsight.com/weather-widget"]').forEach(hide);
+            }
+            scan();
+            var obs = new MutationObserver(scan);
+            obs.observe(document.body, { childList: true, subtree: true });
+          })();
+        `}</Script>
       </body>
     </html>
   );
