@@ -47,13 +47,19 @@ export function NewProjectClient() {
     setError("");
 
     try {
-      const res = await fetch("/api/admin/projects", {
+      const res  = await fetch("/api/admin/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: title.trim(), slug: slug.trim() }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data: { id?: string; error?: string };
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(text || `Server error ${res.status}`);
+      }
       if (!res.ok) throw new Error(data.error ?? "Create failed");
 
       router.push(`/admin/projects/${data.id}/edit`);
