@@ -277,6 +277,73 @@
     right: -42px;
   }
 
+  /* ── HomeHero service card scaling ─────────────────────────── */
+  .cs-service-card { transform-origin: top left; }
+
+  /* ── HomeHero responsive layout helpers ────────────────────── */
+  .hero-navpill-wrap {
+    position:  absolute;
+    left:      50%;
+    top:       30px;
+    transform: translateX(-50%);
+    z-index:   10;
+  }
+  .hero-tagline {
+    bottom: 30px;
+    width:  clamp(460px, 48vw, 900px);
+  }
+  .hero-footer-row { bottom: 30px; }
+  .hero-cta        { bottom: 30px; }
+
+  @media (max-width: 980px) {
+    .cs-service-card { zoom: 0.78; }
+  }
+  @media (max-width: 768px) {
+    .hero-weather    { display: none; }
+    .hero-navpill-wrap {
+      left:      auto;
+      right:     30px;
+      transform: none;
+    }
+    .hero-tagline {
+      bottom: 64px;
+      width:  min(88vw, 460px);
+    }
+    .hero-cta        { bottom: 64px; }
+    .hero-footer-row { bottom: 16px; }
+  }
+  @media (max-width: 640px) {
+    .cs-service-card { zoom: 0.65; }
+  }
+  @media (max-width: 480px) {
+    .cs-service-card { zoom: 0.52; }
+  }
+
+  /* ── Design page: filter bar + CTA button responsive layout ──── */
+  .design-filter-wrap {
+    position:  absolute;
+    bottom:    30px;
+    left:      50%;
+    transform: translateX(-50%);
+    z-index:   10;
+    white-space: nowrap;
+    display:   flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .design-mobile-btn { display: none; }
+  .design-desktop-btn { display: block; }
+
+  @media (max-width: 768px) {
+    .design-filter-wrap {
+      bottom: 16px;
+      zoom: 0.82;
+    }
+    .design-mobile-btn  { display: block; }
+    .design-desktop-btn { display: none; }
+  }
+
   /* Display font utility */
   .font-display { font-family: var(--font-display); }
   .font-sans    { font-family: var(--font-sans); }

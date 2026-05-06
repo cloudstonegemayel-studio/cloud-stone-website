@@ -809,11 +809,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
       </div>
 
       {/* Filter bar */}
-      <div style={{
-        position: "absolute", zIndex: 5,
-        left: "50%", bottom: 30,
-        transform: "translateX(-50%)",
-      }}>
+      <div className="shop-filter-wrap">
         <FilterBar mode={mode} filter={filter} onMode={setMode} onFilter={setFilter} />
       </div>
 
@@ -839,11 +835,19 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           to   { opacity: 1; transform: translate3d(0,0,0) scale(1); }
         }
 
-        @media (max-width: 1180px) {
-          /* fallback: reuse absolute positioning as grid */
+        .shop-filter-wrap {
+          position: absolute;
+          z-index: 5;
+          left: 50%;
+          bottom: 30px;
+          transform: translateX(-50%);
         }
-        @media (max-width: 760px) {
-          /* mobile handled inline */
+
+        @media (max-width: 768px) {
+          .shop-filter-wrap {
+            bottom: 16px;
+            zoom: 0.82;
+          }
         }
       `}</style>
     </section>

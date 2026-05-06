@@ -101,13 +101,36 @@ export function ImageUpload({
       >
         <div style={{ ...aspectStyle, width: "100%" }} />
         {value ? (
-          <Image
-            src={value}
-            alt={alt ?? ""}
-            fill
-            sizes="(max-width:768px) 100vw, 400px"
-            style={{ objectFit: "cover" }}
-          />
+          <>
+            <Image
+              src={value}
+              alt={alt ?? ""}
+              fill
+              sizes="(max-width:768px) 100vw, 400px"
+              style={{ objectFit: "cover" }}
+            />
+            {/* Hover overlay — shows "Replace" affordance */}
+            <div style={{
+              position: "absolute", inset: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "rgba(57,45,43,0)",
+              transition: "background 180ms ease",
+              pointerEvents: "none",
+            }}
+              className="img-replace-overlay"
+            >
+              <span style={{
+                fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
+                fontSize: 10, fontWeight: 600, letterSpacing: "1px",
+                textTransform: "uppercase", color: "#F0EEE9",
+                opacity: 0, transition: "opacity 180ms ease",
+              }}
+                className="img-replace-label"
+              >
+                Click to replace
+              </span>
+            </div>
+          </>
         ) : (
           <div style={{
             position: "absolute", inset: 0,
@@ -140,9 +163,20 @@ export function ImageUpload({
               borderRadius: "50%", width: 24, height: 24,
               color: "#F0EEE9", cursor: "pointer", fontSize: 14,
               display: "flex", alignItems: "center", justifyContent: "center",
+              zIndex: 2,
             }}
           >×</button>
         )}
+        <style>{`
+          .img-replace-overlay:hover,
+          div:hover > .img-replace-overlay {
+            background: rgba(57,45,43,0.45) !important;
+          }
+          div:hover > .img-replace-overlay .img-replace-label,
+          .img-replace-overlay:hover .img-replace-label {
+            opacity: 1 !important;
+          }
+        `}</style>
       </div>
       {err && <span style={{ fontSize: 11, color: "#C0392B" }}>{err}</span>}
       <input ref={inputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={onInputChange} />

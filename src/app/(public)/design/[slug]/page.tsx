@@ -15,6 +15,8 @@ type RawProject = {
   project_status: string | null; location: string | null;
   client: string | null; site_area: string | null;
   content_blocks: unknown; sort_order: number;
+  section2_image: string | null; section2_image_alt: string | null;
+  section4_image: string | null; section4_image_alt: string | null;
 };
 type RawAdj = { slug: string; title: string };
 
@@ -71,6 +73,10 @@ export default async function ProjectSlugPage({
     client:            raw.client,
     site_area:         raw.site_area,
     content_blocks:    parseContentBlocks(raw.content_blocks),
+    section2_image:    raw.section2_image,
+    section2_image_alt: raw.section2_image_alt,
+    section4_image:    raw.section4_image,
+    section4_image_alt: raw.section4_image_alt,
   };
 
   const sortOrder = raw.sort_order ?? 0;

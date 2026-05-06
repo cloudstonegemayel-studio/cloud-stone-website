@@ -792,14 +792,17 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
           : <GridView  projects={displayProjects} />
         }
 
-        <div style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 10, whiteSpace: "nowrap" }}>
+        {/* Filter bar + mobile button */}
+        <div className="design-filter-wrap">
           <FilterBar mode={mode} onMode={handleMode} filter={filter} onFilter={setFilter} />
+          <div className="design-mobile-btn">
+            <PixelButton href="#footer" label="Let's create" />
+          </div>
         </div>
-        <PixelButton
-          href="#footer"
-          label="Let's create"
-          style={{ position: "absolute", right: 30, bottom: 30, zIndex: 10 }}
-        />
+        {/* Desktop-only button — bottom right */}
+        <div className="design-desktop-btn" style={{ position: "absolute", right: 30, bottom: 30, zIndex: 10 }}>
+          <PixelButton href="#footer" label="Let's create" />
+        </div>
       </section>
 
       {/* Sections 2 + 3: CTA + FAQ with dot background */}

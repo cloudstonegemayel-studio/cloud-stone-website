@@ -77,12 +77,7 @@ function InfoPanel({ copy, active, titleRevealed }: {
           </h2>
           <p className="s5-info-desc">{copy.description}</p>
         </div>
-        {active && (
-          <div className="s5-open-hint">
-            <span>Click to open presentation</span>
-            <span className="s5-hint-arrow">→</span>
-          </div>
-        )}
+        
       </div>
     </div>
   );
@@ -204,7 +199,7 @@ export default function BathroomsPage() {
           width: 100%; max-width: 100vw; height: 100vh; min-height: 600px;
           display: grid; grid-template-columns: 1fr 1fr;
           overflow: hidden; position: relative;
-          background: var(--color-surface,#392D2B); contain: layout;
+          background: var(--color-dark,#392D2B); contain: layout;
         }
         .s5-panel {
           position: relative; overflow: hidden;
@@ -307,7 +302,7 @@ export default function BathroomsPage() {
         }
         @media (max-width: 768px) {
           .s5-section { grid-template-columns: 1fr; height: 100vh; min-height: unset; }
-          .s5-panel { height: 50vw; min-height: 220px; cursor: pointer; }
+          .s5-panel { height: 50vh; min-height: 220px; cursor: pointer; }
           .s5-info-text { max-width: min(82%,520px); }
           #s5-cursor { display: none !important; }
         }

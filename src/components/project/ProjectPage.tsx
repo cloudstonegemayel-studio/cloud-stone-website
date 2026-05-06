@@ -22,6 +22,10 @@ export interface ProjectData {
   client:           string | null;
   site_area:        string | null;
   content_blocks:   ContentBlock[];
+  section2_image:   string | null;
+  section2_image_alt: string | null;
+  section4_image:   string | null;
+  section4_image_alt: string | null;
 }
 
 export interface AdjacentProject { slug: string; title: string }
@@ -366,10 +370,10 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
       <section ref={section2Ref} id="section2" className="project-section-2">
         <div className="project-s2-photo-wrap">
           <div className={`project-s2-photo ${s2PhotoVisible ? "in-view" : ""}`}>
-            {project.cover_image && (
+            {(project.section2_image || project.cover_image) && (
               <Image
-                src={project.cover_image}
-                alt={project.title}
+                src={project.section2_image ?? project.cover_image!}
+                alt={project.section2_image_alt ?? project.title}
                 fill
                 sizes="(max-width:768px) 100vw, 50vw"
                 style={{ objectFit: "cover", objectPosition: "center" }}
@@ -406,10 +410,10 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
       {/* ── Outro ─────────────────────────────────────────────────────── */}
       <section ref={outroRef} id="outro" className="project-section-4">
         <div ref={parallaxBgRef} className="project-s4-bg">
-          {project.cover_image && (
+          {(project.section4_image || project.cover_image) && (
             <Image
-              src={project.cover_image}
-              alt=""
+              src={project.section4_image ?? project.cover_image!}
+              alt={project.section4_image_alt ?? ""}
               fill
               sizes="112vw"
               style={{ objectFit: "cover", objectPosition: "center" }}
