@@ -412,7 +412,7 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
       </div>
 
       {/* CTA Button — overlaps card bottom (Figma: bottom: -13px) */}
-      <div style={{ position: "absolute", bottom: -13, left: "12%" }}>
+      <div style={{ position: "absolute", bottom: -13, justifySelf: "center" }}>
         <PixelButton label="See more" onClick={() => onSelect(item)} />
       </div>
     </article>
@@ -483,6 +483,28 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
   onNext: () => void; onPrevious: () => void;
 }) {
   const [requestOpen, setRequestOpen] = useState(false);
+  const [imgIdx, setImgIdx] = useState(0);
+
+  // Reset slider when item changes
+  useEffect(() => { setImgIdx(0); }, [item.id]);
+
+  const allImages = (item.images && item.images.length > 0) ? item.images : [item.src];
+  const hasMany   = allImages.length > 1;
+
+  const prevImg = () => setImgIdx(i => (i - 1 + allImages.length) % allImages.length);
+  const nextImg = () => setImgIdx(i => (i + 1) % allImages.length);
+
+  // Arrow-key image navigation while popup is open
+  useEffect(() => {
+    if (!hasMany) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft")  prevImg();
+      if (e.key === "ArrowRight") nextImg();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMany, allImages.length]);
 
   return (
     <>
@@ -517,23 +539,54 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
             borderBottom: "1px solid rgba(57,45,43,0.2)",
             height: 55,
           }}>
-            <span style={{
-              fontFamily: "var(--font-rader, 'PP Rader', sans-serif)",
-              fontWeight: 500, fontSize: 9.829, lineHeight: 0.75,
-              letterSpacing: "-0.295px", textTransform: "uppercase", color: "#392D2B",
-            }}>
-              [{item.number}]
-            </span>
+            {/* Prev product */}
+            <button
+              type="button"
+              onClick={onPrevious}
+              aria-label="Previous product"
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontFamily: "var(--font-inter-tight)", fontSize: 14,
+                color: "rgba(57,45,43,0.45)", padding: "0 4px",
+                lineHeight: 1, display: "flex", alignItems: "center",
+              }}
+            >
+              ‹
+            </button>
+
             <h2 id="popup-title" style={{
               margin: 0, flex: 1, textAlign: "center",
               fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
               fontSize: 8.532, fontWeight: 400, lineHeight: 1.2, color: "#392D2B",
               textTransform: "uppercase", letterSpacing: "1px",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              padding: "0 20px",
+              padding: "0 8px",
             }}>
+              <span style={{
+                fontFamily: "var(--font-rader, 'PP Rader', sans-serif)",
+                fontWeight: 500, fontSize: 9, marginRight: 8,
+                letterSpacing: "-0.3px", opacity: 0.5,
+              }}>
+                [{item.number}]
+              </span>
               {item.title}
             </h2>
+
+            {/* Next product */}
+            <button
+              type="button"
+              onClick={onNext}
+              aria-label="Next product"
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontFamily: "var(--font-inter-tight)", fontSize: 14,
+                color: "rgba(57,45,43,0.45)", padding: "0 4px",
+                lineHeight: 1, display: "flex", alignItems: "center",
+              }}
+            >
+              ›
+            </button>
+
             <button
               type="button"
               onClick={onClose}
@@ -542,61 +595,88 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
                 background: "none", border: "none", cursor: "pointer",
                 fontFamily: "var(--font-inter-tight)", fontSize: 9,
                 fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px",
-                color: "rgba(57,45,43,0.5)",
+                color: "rgba(57,45,43,0.5)", marginLeft: 12,
               }}
             >
               Close
             </button>
           </div>
 
-          {/* Image */}
+          {/* Image slider */}
           <div style={{
             position: "relative",
             width: "100%", minHeight: 400,
             background: "rgba(183,209,234,0.2)",
             overflow: "hidden",
             display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "0 15px",
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={(item.images && item.images.length > 0) ? item.images[0] : item.src}
-              alt={item.title}
+              key={allImages[imgIdx]}
+              src={allImages[imgIdx]}
+              alt={`${item.title} — image ${imgIdx + 1}`}
               style={{
                 width: "min(436px, 72%)", height: 400,
                 objectFit: "contain", objectPosition: "center",
+                animation: "sc-fadein 220ms ease both",
               }}
             />
 
-            {/* Nav arrows overlay */}
-            <button
-              type="button"
-              onClick={onPrevious}
-              aria-label="Previous product"
-              style={{
-                position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
-                width: 42, height: 42, background: "rgba(240,238,233,0.6)",
-                border: "1px solid rgba(57,45,43,0.2)", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 16, color: "#392D2B", backdropFilter: "blur(2px)",
-              }}
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={onNext}
-              aria-label="Next product"
-              style={{
-                position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
-                width: 42, height: 42, background: "rgba(240,238,233,0.6)",
-                border: "1px solid rgba(57,45,43,0.2)", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 16, color: "#392D2B", backdropFilter: "blur(2px)",
-              }}
-            >
-              ›
-            </button>
+            {hasMany && (
+              <>
+                <button
+                  type="button"
+                  onClick={prevImg}
+                  aria-label="Previous image"
+                  style={{
+                    position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                    width: 42, height: 42, background: "rgba(240,238,233,0.6)",
+                    border: "1px solid rgba(57,45,43,0.2)", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 16, color: "#392D2B", backdropFilter: "blur(2px)",
+                  }}
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={nextImg}
+                  aria-label="Next image"
+                  style={{
+                    position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                    width: 42, height: 42, background: "rgba(240,238,233,0.6)",
+                    border: "1px solid rgba(57,45,43,0.2)", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 16, color: "#392D2B", backdropFilter: "blur(2px)",
+                  }}
+                >
+                  ›
+                </button>
+
+                {/* Dot indicators */}
+                <div style={{
+                  position: "absolute", bottom: 10,
+                  display: "flex", gap: 5,
+                  left: "50%", transform: "translateX(-50%)",
+                }}>
+                  {allImages.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setImgIdx(i)}
+                      aria-label={`Go to image ${i + 1}`}
+                      style={{
+                        width: i === imgIdx ? 18 : 6, height: 6,
+                        borderRadius: 3, border: "none", padding: 0,
+                        background: i === imgIdx ? "#392D2B" : "rgba(57,45,43,0.3)",
+                        cursor: "pointer",
+                        transition: "width 200ms ease, background 200ms ease",
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Description bar */}

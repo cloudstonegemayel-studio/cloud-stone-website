@@ -217,9 +217,10 @@ function CanvasView({ projects }: { projects: Project[] }) {
   const router    = useRouter();
   const innerRef  = useRef<HTMLDivElement>(null);
   const scrollRef = useRef(0);
-  const dragRef   = useRef<{ x0: number; y0: number; s0: number } | null>(null);
-  const edgeSpdRef = useRef(0);
-  const rafRef    = useRef(0);
+  const dragRef        = useRef<{ x0: number; y0: number; s0: number } | null>(null);
+  const edgeSpdRef     = useRef(0);
+  const rafRef         = useRef(0);
+  const clickTargetRef = useRef<Project | null>(null);
   const [vw, setVw]   = useState(1920);
   const [vpH, setVpH] = useState(900);
   const [hovKey, setHovKey] = useState<string | null>(null);
@@ -265,6 +266,9 @@ function CanvasView({ projects }: { projects: Project[] }) {
   }, [vw]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Snapshot hover target NOW — setPointerCapture below triggers mouseleave
+    // on children, which would set hovProject → null before pointerup fires.
+    clickTargetRef.current = hovProject;
     dragRef.current = { x0: e.clientX, y0: e.clientY, s0: scrollRef.current };
     edgeSpdRef.current = 0;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -279,11 +283,12 @@ function CanvasView({ projects }: { projects: Project[] }) {
   const onPointerUp = (e: React.PointerEvent) => {
     if (dragRef.current) {
       const dist = Math.hypot(e.clientX - dragRef.current.x0, e.clientY - dragRef.current.y0);
-      if (dist < 8 && hovProject) {
-        router.push(`/design/${hovProject.slug}`);
+      if (dist < 8 && clickTargetRef.current) {
+        router.push(`/design/${clickTargetRef.current.slug}`);
       }
     }
     dragRef.current = null;
+    clickTargetRef.current = null;
   };
 
   const numCols   = Math.max(3, Math.floor(vw / CARD_W));
