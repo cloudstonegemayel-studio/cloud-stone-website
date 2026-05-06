@@ -285,7 +285,7 @@ export function Preloader() {
       }}>
         <span style={{
           fontFamily: "var(--font-rader)", fontWeight: 700,
-          fontSize: 22, lineHeight: 1.2, letterSpacing: "-0.03em",
+          fontSize: "clamp(14px,1.2vw,22px)", lineHeight: 1.2, letterSpacing: "-0.03em",
           textTransform: "uppercase", color: "#392D2B", whiteSpace: "nowrap",
         }}>
           Loading
@@ -293,9 +293,9 @@ export function Preloader() {
 
         <div style={{
           display: "flex", alignItems: "flex-start",
-          justifyContent: "space-between", width: 500, flexShrink: 0,
+          justifyContent: "space-between", width: "clamp(200px,26vw,500px)", flexShrink: 0,
         }}>
-          <div style={{ overflow: "hidden", height: MSG_H, width: 260, flexShrink: 0 }}>
+          <div style={{ overflow: "hidden", height: MSG_H, width: "clamp(100px,15vw,260px)", flexShrink: 0 }}>
             <div style={{
               transform:  `translateY(${-msgIdx * MSG_H}px)`,
               transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)",
@@ -303,7 +303,7 @@ export function Preloader() {
               {MSGS.map((msg) => (
                 <div key={msg} style={{
                   height: MSG_H, fontFamily: "var(--font-rader)", fontWeight: 700,
-                  fontSize: 20, lineHeight: `${MSG_H}px`, letterSpacing: "-0.03em",
+                  fontSize: "clamp(12px,1vw,20px)", lineHeight: `${MSG_H}px`, letterSpacing: "-0.03em",
                   textTransform: "uppercase", color: "#392D2B", whiteSpace: "nowrap",
                 }}>
                   {msg}
@@ -313,13 +313,13 @@ export function Preloader() {
           </div>
 
           <div style={{
-            flexShrink: 0, width: 200, height: 26,
+            flexShrink: 0, width: "clamp(80px,11vw,200px)", height: 26,
             overflow: "visible", display: "flex",
             alignItems: "flex-start", justifyContent: "flex-end",
           }}>
             <span style={{
               fontFamily: "var(--font-rader)", fontWeight: 400,
-              fontSize: 70, lineHeight: "80px", letterSpacing: "-0.01em",
+              fontSize: "clamp(40px,3.6vw,70px)", lineHeight: "80px", letterSpacing: "-0.01em",
               color: "#392D2B", whiteSpace: "nowrap",
               fontVariantNumeric: "tabular-nums",
               verticalAlign: "top", display: "block", marginTop: -4,
