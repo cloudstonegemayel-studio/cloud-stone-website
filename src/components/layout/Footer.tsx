@@ -170,7 +170,7 @@ export function Footer() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, source_page: "Footer" }),
       });
       if (res.ok) { setFormStatus("success"); reset(); }
       else setFormStatus("error");

@@ -163,7 +163,13 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
           <input style={inputStyle} {...txt("project_type")} placeholder="Residential" />
         </Field>
         <Field label="Project status">
-          <input style={inputStyle} {...txt("project_status")} placeholder="Completed" />
+          <select style={inputStyle} value={data.project_status}
+            onChange={(e) => set("project_status", e.target.value)}>
+            <option value="">— Not set —</option>
+            <option value="Completed">Completed</option>
+            <option value="Preparatory Stage">Preparatory Stage</option>
+            <option value="In Progress">In Progress</option>
+          </select>
         </Field>
         <Field label="Location">
           <input style={inputStyle} {...txt("location")} />
