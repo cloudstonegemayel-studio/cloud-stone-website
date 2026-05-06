@@ -219,6 +219,7 @@ export function Footer() {
         minHeight: 480,
         overflow: "hidden",
         position: "relative",
+	
       }}
     >
       {/* ── Left section ──────────────────────────────────────────────────── */}
@@ -228,9 +229,9 @@ export function Footer() {
         flexDirection: "column",
         justifyContent: "center",
 	alignItems: "center",
-
+	gap: "30px",
         padding: 30,
-        gap: 0,
+        
         minWidth: 0,
       }}>
 
@@ -287,6 +288,7 @@ export function Footer() {
             display: "flex",
             alignItems: "center",
             gap: 46,
+	    rowGap: "20px",
             flexWrap: "wrap",
           }}>
             {/* Location */}
