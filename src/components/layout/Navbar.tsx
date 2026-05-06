@@ -284,7 +284,7 @@ export function Navbar() {
             <div
               className="elfsight-app-8294ddb1-6460-4546-8caf-0266985ad33c"
               data-elfsight-app-lazy
-              style={{ width: 111 }}
+              style={{ width: 90 }}
             />
           </div>
         </div>

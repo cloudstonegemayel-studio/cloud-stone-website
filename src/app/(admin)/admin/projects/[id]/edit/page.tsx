@@ -10,11 +10,17 @@ export const metadata = { title: "Edit Project — Admin" };
 type RawProject = {
   id: string; slug: string; title: string;
   short_description: string | null; description: string | null;
-  cover_image: string | null; slider_items: unknown;
+  cover_image: string | null; cover_image_alt: string | null;
+  slider_items: unknown; content_blocks: unknown;
   project_year: number | null; project_type: string | null;
   project_status: string | null; location: string | null;
   client: string | null; site_area: string | null;
-  content_blocks: unknown; sort_order: number; status: string;
+  sort_order: number; status: string;
+  project_number: number | null; light_text: boolean | null;
+  card_image: string | null; card_image_alt: string | null;
+  card_hover_image: string | null; card_hover_image_alt: string | null;
+  section2_image: string | null; section2_image_alt: string | null;
+  section4_image: string | null; section4_image_alt: string | null;
 };
 
 type ProjectListItem = {
@@ -61,16 +67,27 @@ export default async function EditProjectPage({
     slug:              raw.slug              ?? "",
     short_description: raw.short_description ?? "",
     description:       raw.description       ?? "",
+    status:            raw.status === "published" ? "published" : "draft",
+    sort_order:        raw.sort_order        ?? 0,
+    project_number:    String(raw.project_number ?? ""),
+    light_text:        raw.light_text        ?? false,
     cover_image:       raw.cover_image       ?? "",
+    cover_image_alt:   raw.cover_image_alt   ?? "",
     slider_items:      sliderItems,
+    card_image:              raw.card_image              ?? "",
+    card_image_alt:          raw.card_image_alt          ?? "",
+    card_hover_image:        raw.card_hover_image        ?? "",
+    card_hover_image_alt:    raw.card_hover_image_alt    ?? "",
+    section2_image:          raw.section2_image          ?? "",
+    section2_image_alt:      raw.section2_image_alt      ?? "",
+    section4_image:          raw.section4_image          ?? "",
+    section4_image_alt:      raw.section4_image_alt      ?? "",
     project_year:      String(raw.project_year ?? ""),
     project_type:      raw.project_type      ?? "",
     project_status:    raw.project_status    ?? "",
     location:          raw.location          ?? "",
     client:            raw.client            ?? "",
     site_area:         raw.site_area         ?? "",
-    status:            raw.status === "published" ? "published" : "draft",
-    sort_order:        raw.sort_order        ?? 0,
   };
 
   const initialBlocks = parseContentBlocks(raw.content_blocks);

@@ -5,24 +5,32 @@ import Image from "next/image";
 
 interface Props {
   projectId?: string;
-  value:      string;
-  onChange:   (url: string) => void;
-  scope?:     string;
-  label?:     string;
-  aspect?:    "square" | "wide" | "portrait";
+  value:       string;
+  onChange:    (url: string) => void;
+  alt?:        string;
+  onAltChange?: (alt: string) => void;
+  scope?:      string;
+  label?:      string;
+  aspect?:     "square" | "wide" | "portrait";
 }
 
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "5px 8px",
+  fontSize: 11, color: "#392D2B",
+  background: "#F5F1EC", border: "1.5px solid #DDD7CF",
+  borderRadius: 4, outline: "none", boxSizing: "border-box",
+};
+
 export function ImageUpload({
-  projectId,
-  value,
-  onChange,
+  value, onChange,
+  alt, onAltChange,
   scope = "misc",
   label = "Upload image",
   aspect = "wide",
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [err, setErr] = useState("");
+  const [err, setErr]             = useState("");
 
   const aspectStyle: React.CSSProperties =
     aspect === "square"   ? { paddingBottom: "100%" } :
@@ -36,6 +44,7 @@ export function ImageUpload({
     try {
       const form = new FormData();
       form.append("file", file);
+      if (alt) form.append("alt", alt);
       const res  = await fetch("/api/admin/upload", { method: "POST", body: form });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Upload failed");
@@ -65,6 +74,18 @@ export function ImageUpload({
           {label}
         </span>
       )}
+
+      {/* Alt text input */}
+      {onAltChange !== undefined && (
+        <input
+          style={inputStyle}
+          value={alt ?? ""}
+          onChange={(e) => onAltChange(e.target.value)}
+          placeholder="Alt text / SEO filename"
+        />
+      )}
+
+      {/* Drop zone */}
       <div
         style={{
           position: "relative",
@@ -82,7 +103,7 @@ export function ImageUpload({
         {value ? (
           <Image
             src={value}
-            alt=""
+            alt={alt ?? ""}
             fill
             sizes="(max-width:768px) 100vw, 400px"
             style={{ objectFit: "cover" }}
@@ -120,9 +141,7 @@ export function ImageUpload({
               color: "#F0EEE9", cursor: "pointer", fontSize: 14,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
-          >
-            ×
-          </button>
+          >×</button>
         )}
       </div>
       {err && <span style={{ fontSize: 11, color: "#C0392B" }}>{err}</span>}
