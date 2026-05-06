@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/sections/ContactForm";
 import { PixelButton } from "@/components/ui/PixelButton";
 
 // ── Types ────────────────────────────────────────────────────────────────────
-type ShopItem = {
+export type ShopItem = {
   id: string;
   slug: string;
   number: string;
@@ -630,14 +630,14 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
 }
 
 // ── Main page component ──────────────────────────────────────────────────────
-export function ShopPageClient() {
+export function ShopPageClient({ items }: { items: ShopItem[] }) {
   const [mode,     setMode]     = useState<ViewMode>("grid");
   const [filter,   setFilter]   = useState<Filter>("All");
   const [selected, setSelected] = useState<ShopItem | null>(null);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [chaosPositions, setChaosPositions] = useState<Record<string, [number, number]>>(() =>
-    Object.fromEntries(SHOP_ITEMS.map((item, i) => [
+    Object.fromEntries(items.map((item, i) => [
       item.id,
       [...CHAOS_POSITIONS[i % CHAOS_POSITIONS.length]] as [number, number],
     ]))
@@ -648,8 +648,8 @@ export function ShopPageClient() {
   }, []);
 
   const filteredItems = useMemo(() =>
-    filter === "All" ? SHOP_ITEMS : SHOP_ITEMS.filter(item => item.availability === filter),
-  [filter]);
+    filter === "All" ? items : items.filter(item => item.availability === filter),
+  [filter, items]);
 
   useEffect(() => {
     if (!selected) return;

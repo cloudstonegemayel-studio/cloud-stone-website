@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { ImageUpload } from "./ImageUpload";
+
+export interface PopupImage {
+  url: string;
+  alt: string;
+}
 
 export interface ShopItemFormData {
   title:            string;
@@ -14,8 +20,10 @@ export interface ShopItemFormData {
   description:      string;
   long_description: string;
   photo_url:        string;
+  photo_alt:        string;
   sketch_url:       string;
-  images:           string;
+  sketch_alt:       string;
+  popup_images:     PopupImage[];
   published:        boolean;
 }
 
@@ -23,6 +31,12 @@ interface ShopItemFormProps {
   initialData?: Partial<ShopItemFormData>;
   itemId?:     string;
 }
+
+const sectionLabel: React.CSSProperties = {
+  fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em",
+  color: "#887870", margin: "8px 0 12px", paddingBottom: 6,
+  borderBottom: "1px solid #DDD7CF",
+};
 
 export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
   const router = useRouter();
@@ -39,12 +53,14 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
     description:      initialData?.description      ?? "",
     long_description: initialData?.long_description ?? "",
     photo_url:        initialData?.photo_url        ?? "",
+    photo_alt:        initialData?.photo_alt        ?? "",
     sketch_url:       initialData?.sketch_url       ?? "",
-    images:           initialData?.images           ?? "",
+    sketch_alt:       initialData?.sketch_alt       ?? "",
+    popup_images:     initialData?.popup_images     ?? [],
     published:        initialData?.published        ?? false,
   });
 
-  function field(key: keyof ShopItemFormData) {
+  function field(key: keyof Pick<ShopItemFormData, "title" | "slug" | "item_number" | "description" | "long_description">) {
     return {
       value: data[key] as string,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -56,6 +72,21 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
     return title.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
   }
 
+  function addPopupImage() {
+    setData(d => ({ ...d, popup_images: [...d.popup_images, { url: "", alt: "" }] }));
+  }
+
+  function removePopupImage(i: number) {
+    setData(d => ({ ...d, popup_images: d.popup_images.filter((_, idx) => idx !== i) }));
+  }
+
+  function updatePopupImage(i: number, patch: Partial<PopupImage>) {
+    setData(d => ({
+      ...d,
+      popup_images: d.popup_images.map((img, idx) => idx === i ? { ...img, ...patch } : img),
+    }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -64,9 +95,6 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
       const payload = {
         ...data,
         item_number: parseInt(data.item_number) || null,
-        images: data.images
-          ? data.images.split(",").map((s) => s.trim()).filter(Boolean)
-          : [],
       };
       const res = await fetch(
         itemId ? `/api/admin/shop/${itemId}` : "/api/admin/shop",
@@ -122,7 +150,6 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
         <Input label="Slug"        placeholder="travertine-slab" {...field("slug")} />
         <Input label="Item number" placeholder="1"               {...field("item_number")} type="number" />
 
-        {/* Category */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[9px] uppercase tracking-[0.12em] text-[#392D2B]/40 font-sans">Category</span>
           <select
@@ -136,7 +163,6 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
           </select>
         </div>
 
-        {/* Availability */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[9px] uppercase tracking-[0.12em] text-[#392D2B]/40 font-sans">Availability</span>
           <select
@@ -163,20 +189,69 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
           />
         </div>
 
-        <div className="col-span-2">
-          <Input label="Card photo URL" placeholder="/images/shop-item-1.png" {...field("photo_url")} />
-        </div>
-        <div className="col-span-2">
-          <Input label="Sketch URL (card background overlay)" placeholder="/images/shop-item-1-sketch.svg" {...field("sketch_url")} />
-        </div>
-        <div className="col-span-2">
-          <Input
-            label="Popup gallery images (comma-separated URLs)"
-            placeholder="/images/gallery-1.png, /images/gallery-2.png"
-            {...field("images")}
-          />
-        </div>
+      </div>
 
+      {/* Card photo */}
+      <p style={sectionLabel}>Card photo</p>
+      <ImageUpload
+        value={data.photo_url}
+        onChange={(u) => setData(d => ({ ...d, photo_url: u }))}
+        alt={data.photo_alt}
+        onAltChange={(a) => setData(d => ({ ...d, photo_alt: a }))}
+        scope="shop-photo"
+        label="Card photo"
+        aspect="portrait"
+      />
+
+      {/* Sketch */}
+      <p style={sectionLabel}>Sketch overlay</p>
+      <ImageUpload
+        value={data.sketch_url}
+        onChange={(u) => setData(d => ({ ...d, sketch_url: u }))}
+        alt={data.sketch_alt}
+        onAltChange={(a) => setData(d => ({ ...d, sketch_alt: a }))}
+        scope="shop-sketch"
+        label="Sketch / blueprint overlay"
+        aspect="portrait"
+      />
+
+      {/* Popup gallery */}
+      <div>
+        <p style={sectionLabel}>Popup gallery images</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 11, color: "#A09890" }}>Images ({data.popup_images.length})</span>
+            <button type="button" onClick={addPopupImage} style={{
+              fontSize: 11, padding: "4px 10px",
+              background: "#392D2B", color: "#F0EEE9",
+              border: "none", borderRadius: 4, cursor: "pointer",
+            }}>
+              + Add image
+            </button>
+          </div>
+          {data.popup_images.map((img, i) => (
+            <div key={i} style={{
+              background: "#F5F1EC", border: "1.5px solid #DDD7CF",
+              borderRadius: 6, padding: 12,
+              display: "grid", gridTemplateColumns: "1fr auto", gap: 10,
+              alignItems: "start",
+            }}>
+              <ImageUpload
+                value={img.url}
+                onChange={(u) => updatePopupImage(i, { url: u })}
+                alt={img.alt}
+                onAltChange={(a) => updatePopupImage(i, { alt: a })}
+                scope={`shop-popup-${i}`}
+                label={`Gallery image ${i + 1}`}
+                aspect="wide"
+              />
+              <button type="button" onClick={() => removePopupImage(i)} style={{
+                background: "none", border: "none", fontSize: 18,
+                color: "#C0392B", cursor: "pointer", marginTop: 22,
+              }}>×</button>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Published toggle */}

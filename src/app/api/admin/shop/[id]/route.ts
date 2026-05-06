@@ -24,8 +24,10 @@ export async function PUT(
       description:      body.description      || null,
       long_description: body.long_description || null,
       photo_url:        body.photo_url        || null,
+      photo_alt:        body.photo_alt        || null,
       sketch_url:       body.sketch_url       || null,
-      images:           body.images           ?? [],
+      sketch_alt:       body.sketch_alt       || null,
+      popup_images:     body.popup_images     ?? [],
       status:           body.published ? "published" : "draft",
     })
     .eq("id", id)

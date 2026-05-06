@@ -53,8 +53,10 @@ export default async function EditShopItemPage({
             description:      item.description      ?? "",
             long_description: item.long_description ?? "",
             photo_url:        item.photo_url        ?? "",
+            photo_alt:        item.photo_alt        ?? "",
             sketch_url:       item.sketch_url       ?? "",
-            images:           (item.images ?? []).join(", "),
+            sketch_alt:       item.sketch_alt       ?? "",
+            popup_images:     Array.isArray(item.popup_images) ? item.popup_images : [],
             published:        item.status === "published",
           }}
         />
