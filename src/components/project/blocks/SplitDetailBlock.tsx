@@ -66,7 +66,7 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
               alt=""
               fill
               sizes="(max-width:768px) 55vw, 19vw"
-              style={{ objectFit: "cover", objectPosition: "center" }}
+              style={{ objectFit: "contain", objectPosition: "center" }}
             />
           </div>
         </div>
@@ -107,7 +107,7 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
             alt=""
             fill
             sizes="(max-width:768px) 100vw, 50vw"
-            style={{ objectFit: "cover", objectPosition: "center" }}
+            style={{ objectFit: "contain", objectPosition: "center" }}
           />
         </div>
       )}

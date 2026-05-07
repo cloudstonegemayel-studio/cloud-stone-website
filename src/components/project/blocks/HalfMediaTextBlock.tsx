@@ -40,7 +40,7 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
           style={{
             position: "absolute", inset: "-10%",
             width: "120%", height: "120%",
-            objectFit: "cover",
+            objectFit: "contain",
             transform: inView ? "translateY(0)" : "translateY(60px)",
             opacity: inView ? 1 : 0,
             transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 1.2s ease",
@@ -59,7 +59,7 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
               alt={block.alt ?? ""}
               fill
               sizes="(max-width:768px) 100vw, 50vw"
-              style={{ objectFit: "cover", objectPosition: "center" }}
+              style={{ objectFit: "contain", objectPosition: "center" }}
             />
           </div>
         )
