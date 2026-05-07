@@ -99,6 +99,20 @@ function calcInitialPos(): Record<CardId, Pos> {
   const s  = cardScale(vw);
   const cw = CARD_W * s;
   const ch = CARD_H * s;
+
+  if (vw < 768) {
+    // Mobile: 4 corners — 8 px from edges, between header (90 px) and bottom bar (80 px)
+    const pad  = 8;
+    const topY = 90;
+    const botY = Math.max(topY + ch + 16, vh - 80 - ch);
+    return {
+      design:    { x: pad,           y: topY },
+      bathrooms: { x: vw - cw - pad, y: topY },
+      shop:      { x: pad,           y: botY },
+      about:     { x: vw - cw - pad, y: botY },
+    };
+  }
+
   return {
     design:    { x: (145 / 1920) * vw,           y: (190 / 1080) * vh },
     bathrooms: { x: vw - (451 / 1920) * vw - cw, y: (180 / 1080) * vh },

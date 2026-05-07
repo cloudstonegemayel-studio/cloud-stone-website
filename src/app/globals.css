@@ -277,6 +277,32 @@
     right: -42px;
   }
 
+  /* ── Design page: grid view layout ─────────────────────────── */
+  .design-grid-view {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 180px 30px 100px;
+    align-items: flex-start;
+  }
+  @media (max-width: 768px) {
+    .design-grid-view {
+      padding: 90px 15px 100px;
+      gap: 32px;
+      justify-content: center;
+    }
+    .design-grid-view > a,
+    .design-grid-view > div {
+      zoom: 0.82;
+    }
+  }
+  @media (max-width: 480px) {
+    .design-grid-view > a,
+    .design-grid-view > div {
+      zoom: 0.7;
+    }
+  }
+
   /* ── HomeHero service card scaling ─────────────────────────── */
   .cs-service-card { transform-origin: top left; }
 
@@ -353,8 +379,12 @@
   @media (max-width: 768px) {
     .design-filter-wrap {
       bottom: 16px;
-      zoom: 0.82;
+          }
+.design-filter-wrap .filter-nav-pixel{
+      margin-left: -60px;
+      zoom: 0.7;
     }
+
     .design-mobile-btn  { display: block; }
     .design-desktop-btn { display: none; }
   }

@@ -714,6 +714,14 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
   const [mode,     setMode]     = useState<ViewMode>("grid");
   const [filter,   setFilter]   = useState<Filter>("All");
   const [selected, setSelected] = useState<ShopItem | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [chaosPositions, setChaosPositions] = useState<Record<string, [number, number]>>(() =>
@@ -749,12 +757,14 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
     setSelected(filteredItems[next]);
   };
 
+  const isStaticGrid = isMobile && mode === "grid";
+
   return (
     <section style={{
       position: "relative",
       minHeight: "100vh",
-      height: "100svh",
-      overflow: "hidden",
+      height: isStaticGrid ? "auto" : "100svh",
+      overflow: isStaticGrid ? "visible" : "hidden",
       background: "#B7D1EA",
       color: "#392D2B",
       isolation: "isolate",
@@ -769,10 +779,10 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           fontWeight: 400, fontSize: "clamp(48px, 4.2vw, 70px)",
           lineHeight: 0.9, letterSpacing: 0,
         }}>
-          Material, in its simplest form.
+          <span style={{ color: "#C86733" }}>Material,</span> in its simplest form.
         </h1>
         <span style={{
-          display: "block", width: "min(397px, 90vw)", marginTop: 24,
+          display: "block", width: "min(397px, 80vw)", marginTop: "clamp(14px, 1.2vw, 24px)",
           fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
           fontSize: 13, lineHeight: 1.23,
         }}>
@@ -780,36 +790,62 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
         </span>
       </div>
 
-      {/* Products stage */}
-      <div
-        ref={stageRef}
-        style={{
-          position: "absolute",
-          zIndex: 2, left: 30, top: 250,
-          width: "calc(100vw - 60px)",
-          height: "min(680px, calc(100svh - 370px))",
-        }}
-      >
-        {filteredItems.map((item, index) => (
-          <ProductCard
-            key={item.id}
-            item={item}
-            index={index}
-            position={
-              mode === "grid"
-                ? GRID_POSITIONS[index % GRID_POSITIONS.length]
-                : (chaosPositions[item.id] ?? CHAOS_POSITIONS[index % CHAOS_POSITIONS.length])
-            }
-            onSelect={setSelected}
-            onPositionChange={handlePositionChange}
-            stageRef={stageRef}
-            mode={mode}
-          />
-        ))}
-      </div>
+      {isStaticGrid ? (
+        /* Mobile grid: flex-wrap layout, each card in a zoomed wrapper */
+        <div style={{
+          position: "relative",
+          zIndex: 2,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 20,
+          padding: "20px 15px 100px",
+          justifyContent: "center",
+          alignItems: "flex-start",
+        }}>
+          {filteredItems.map((item, index) => (
+            <div key={item.id} style={{ position: "relative", width: CARD_W, height: 330, zoom: "0.75" }}>
+              <ProductCard
+                item={item}
+                index={index}
+                position={[0, 0]}
+                onSelect={setSelected}
+                mode="grid"
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Desktop / chaos: absolute-positioned stage */
+        <div
+          ref={stageRef}
+          style={{
+            position: "absolute",
+            zIndex: 2, left: "min(30px, 4vw)", top: "clamp(100px, 11vw, 210px)",
+            width: "calc(100vw - 60px)",
+            height: "min(680px, calc(100svh - 370px))",
+          }}
+        >
+          {filteredItems.map((item, index) => (
+            <ProductCard
+              key={item.id}
+              item={item}
+              index={index}
+              position={
+                mode === "grid"
+                  ? GRID_POSITIONS[index % GRID_POSITIONS.length]
+                  : (chaosPositions[item.id] ?? CHAOS_POSITIONS[index % CHAOS_POSITIONS.length])
+              }
+              onSelect={setSelected}
+              onPositionChange={handlePositionChange}
+              stageRef={stageRef}
+              mode={mode}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Filter bar */}
-      <div className="shop-filter-wrap">
+      <div className={isStaticGrid ? "shop-filter-wrap-static" : "shop-filter-wrap"}>
         <FilterBar mode={mode} filter={filter} onMode={setMode} onFilter={setFilter} />
       </div>
 
@@ -841,6 +877,15 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           left: 50%;
           bottom: 30px;
           transform: translateX(-50%);
+        }
+        .shop-filter-wrap-static {
+          position: sticky;
+          bottom: 16px;
+          z-index: 5;
+          display: flex;
+          justify-content: center;
+          zoom: 0.82;
+          margin-top: -30px;
         }
 
         @media (max-width: 768px) {

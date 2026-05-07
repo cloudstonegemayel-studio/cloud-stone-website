@@ -346,14 +346,7 @@ function CanvasView({ projects }: { projects: Project[] }) {
 // ── Grid view ──────────────────────────────────────────────────────────────────
 function GridView({ projects }: { projects: Project[] }) {
   return (
-    <div
-      className="design-grid-view"
-      style={{
-        display: "flex", flexWrap: "wrap",
-        gap: 20, padding: "180px 30px 100px",
-        alignItems: "flex-start",
-      }}
-    >
+    <div className="design-grid-view">
       {projects.map(p => <GridCard key={p.id} project={p} />)}
     </div>
   );
@@ -433,7 +426,7 @@ function CTASection() {
   const DELAY = 0.15;
 
   return (
-    <section ref={sectionRef} className="flex flex-col md:flex-row min-h-[600px] h-screen overflow-hidden relative">
+    <section ref={sectionRef} className="flex flex-col md:flex-row min-h-[600px] h-dvh md:h-screen overflow-hidden relative">
       <div className="w-full md:w-1/2 relative overflow-hidden">
         <div style={{
           position: "absolute", inset: 0,
@@ -454,7 +447,7 @@ function CTASection() {
       <div className="w-full md:w-1/2 flex flex-col justify-start items-center px-15 md:px-30 pt-30 md:pt-150 pb-15 md:pb-30 gap-20 md:gap-50 overflow-hidden">
         <h2 style={{
           fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
-          fontWeight: 400, fontSize: 70, lineHeight: "90%", textAlign: "right", width: "100%",
+          fontWeight: 400, fontSize: "clamp(40px, 3.6vw, 70px)", lineHeight: "90%", textAlign: "right", width: "100%",
           letterSpacing: "-0.7px", color: "#392D2B", margin: "0 0 60px",
         }}>
           {titleLines.map((line, i) => (
@@ -821,10 +814,10 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
       <section
         style={{
           position: "relative",
-          height: "100vh",
+          
           minHeight: "100vh",
           overflow: "hidden",
-          background: "#F0EEE9",
+          
 	  zIndex: 1
         }}
       >
@@ -834,10 +827,10 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
  <section
         style={{
           position: "relative",
-          height: "100vh",
+          
           minHeight: "100vh",
           overflow: "hidden",
-          background: "#F0EEE9",
+          
 	  zIndex: 1
         }}
       >
