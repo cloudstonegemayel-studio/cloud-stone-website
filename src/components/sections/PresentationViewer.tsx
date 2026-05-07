@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import Script from "next/script";
 import { ContactForm } from "./ContactForm";
 import { PixelButton } from "@/components/ui/PixelButton";
 
@@ -18,24 +17,29 @@ declare global {
   }
 }
 
+const PDF_JS_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const PDF_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
 export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationViewerProps) {
   const canvasRef     = useRef<HTMLCanvasElement>(null);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
 
-  const [pdfReady,     setPdfReady]     = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [pdfDoc,       setPdfDoc]       = useState<any>(null);
-  const [currentPage,  setCurrentPage]  = useState(1);
-  const [totalPages,   setTotalPages]   = useState(0);
-  const [rendering,    setRendering]    = useState(false);
-  const [contactOpen,  setContactOpen]  = useState(false);
-  const [loadError,    setLoadError]    = useState(false);
+  const [pdfDoc,      setPdfDoc]      = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages,  setTotalPages]  = useState(0);
+  const [rendering,   setRendering]   = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [loadError,   setLoadError]   = useState(false);
+  const [loading,     setLoading]     = useState(true);
+  const [zoomLevel,   setZoomLevel]   = useState(1);
 
   const loadPdf = useCallback(async () => {
     if (!window.pdfjsLib) return;
+    setLoading(true);
+    setLoadError(false);
     try {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER;
       const doc = await window.pdfjsLib.getDocument(pdfUrl).promise;
       setPdfDoc(doc);
       setTotalPages(doc.numPages);
@@ -43,17 +47,43 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
     } catch (e) {
       console.error("[PDF load error]", e);
       setLoadError(true);
+    } finally {
+      setLoading(false);
     }
   }, [pdfUrl]);
 
-  const renderPage = useCallback(async (pageNum: number) => {
-    if (!pdfDoc || !canvasRef.current) return;
+  // Robust PDF.js loading — works on first load AND on client-side navigation
+  useEffect(() => {
+    const tryInit = () => {
+      if (window.pdfjsLib) { loadPdf(); return true; }
+      return false;
+    };
 
-    if (renderTaskRef.current) {
-      renderTaskRef.current.cancel();
-      renderTaskRef.current = null;
+    if (tryInit()) return;
+
+    // Script might already be in the DOM (previous page visit) but not yet executed
+    let timer: ReturnType<typeof setInterval> | null = setInterval(() => {
+      if (tryInit()) { if (timer) { clearInterval(timer); timer = null; } }
+    }, 50);
+
+    // If script isn't in DOM at all, inject it
+    if (!document.querySelector(`script[src*="pdf.min.js"]`)) {
+      const script = document.createElement("script");
+      script.src = PDF_JS_URL;
+      script.onload = () => {
+        if (timer) { clearInterval(timer); timer = null; }
+        loadPdf();
+      };
+      script.onerror = () => { setLoadError(true); setLoading(false); };
+      document.head.appendChild(script);
     }
 
+    return () => { if (timer) clearInterval(timer); };
+  }, [loadPdf]);
+
+  const renderPage = useCallback(async (pageNum: number) => {
+    if (!pdfDoc || !canvasRef.current) return;
+    if (renderTaskRef.current) { renderTaskRef.current.cancel(); renderTaskRef.current = null; }
     setRendering(true);
     try {
       const page     = await pdfDoc.getPage(pageNum);
@@ -62,9 +92,11 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
       const dpr      = window.devicePixelRatio || 1;
       const viewport = page.getViewport({ scale: 1 });
 
-      // Account for Navbar (~70px) + bottom bar (~90px) + padding
-      const maxW = Math.min(window.innerWidth - 80, 1200);
-      const maxH = window.innerHeight - 200;
+      const isMobile = window.innerWidth < 768;
+      const maxW = isMobile
+        ? window.innerWidth * 0.9
+        : Math.min(window.innerWidth - 80, 1200);
+      const maxH = window.innerHeight - 160;
       const scale = Math.min(maxW / viewport.width, maxH / viewport.height);
 
       const vp = page.getViewport({ scale });
@@ -99,17 +131,13 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
     return () => window.removeEventListener("resize", onResize);
   }, [pdfDoc, currentPage, renderPage]);
 
-  // If PDF.js was already loaded by a previous page visit, onLoad won't fire again.
-  // Detect it here on mount so client-side navigation works without a hard reload.
-  useEffect(() => {
-    if (window.pdfjsLib) { setPdfReady(true); loadPdf(); }
-  }, [loadPdf]);
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (contactOpen) return;
       if (e.key === "ArrowRight" || e.key === "ArrowDown") setCurrentPage(p => Math.min(p + 1, totalPages));
       if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   setCurrentPage(p => Math.max(p - 1, 1));
+      if (e.key === "+" || e.key === "=") setZoomLevel(z => Math.min(z + 0.25, 3));
+      if (e.key === "-")                  setZoomLevel(z => Math.max(z - 0.25, 0.5));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -118,34 +146,41 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
   const goPrev = () => setCurrentPage(p => Math.max(p - 1, 1));
   const goNext = () => setCurrentPage(p => Math.min(p + 1, totalPages));
 
+  const btnStyle = (disabled: boolean): React.CSSProperties => ({
+    position: "absolute", top: "50%", transform: "translateY(-50%)",
+    width: 44, height: 44,
+    background: "rgba(57,45,43,0.06)",
+    border: "1px solid rgba(57,45,43,0.15)",
+    color: "#392D2B", fontSize: 22,
+    cursor: disabled ? "default" : "pointer",
+    opacity: disabled ? 0.25 : 0.7,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    transition: "opacity 200ms ease",
+  });
+
   return (
     <>
-      <Script
-        src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-        strategy="afterInteractive"
-        onLoad={() => { setPdfReady(true); loadPdf(); }}
-      />
-
       <div style={{
-        minHeight: "100vh",
+        height: "100dvh",
         background: "#F0EEE9",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         overflow: "hidden",
         position: "relative",
       }}>
         {/* PDF canvas area */}
         <div style={{
           flex: 1,
+          minHeight: 0,
           width: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "30px 40px 10px",
+          padding: "16px 40px 8px",
           position: "relative",
+          overflow: "hidden",
         }}>
-          {!pdfReady && !loadError && (
+          {loading && !loadError && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <div style={{
                 width: 40, height: 40,
@@ -171,81 +206,72 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
               }}>
                 Could not load the presentation.
               </p>
-              <PixelButton label="Download PDF" href={pdfUrl} />
+              <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
+                style={{
+                  fontFamily: "var(--font-inter-tight)", fontSize: 11, fontWeight: 600,
+                  letterSpacing: "1.17px", textTransform: "uppercase",
+                  color: "#392D2B", textDecoration: "none",
+                  padding: "8px 16px", border: "1px solid #392D2B",
+                  display: "inline-block",
+                }}>
+                Download PDF
+              </a>
             </div>
           )}
 
-          <canvas
-            ref={canvasRef}
-            style={{
-              display: pdfDoc ? "block" : "none",
-              maxWidth: "100%",
-              boxShadow: "0 8px 40px rgba(57,45,43,0.10)",
-              opacity: rendering ? 0.6 : 1,
-              transition: "opacity 200ms ease",
-            }}
-          />
+          <div style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <canvas
+              ref={canvasRef}
+              style={{
+                display: pdfDoc ? "block" : "none",
+                maxWidth: "100%",
+                boxShadow: "0 8px 40px rgba(57,45,43,0.10)",
+                opacity: rendering ? 0.6 : 1,
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: "center center",
+                transition: "opacity 200ms ease, transform 200ms ease",
+              }}
+            />
+          </div>
 
           {pdfDoc && totalPages > 1 && (
             <>
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={currentPage <= 1}
+              <button type="button" onClick={goPrev} disabled={currentPage <= 1}
                 aria-label="Previous slide"
-                style={{
-                  position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)",
-                  width: 44, height: 44,
-                  background: "rgba(57,45,43,0.06)",
-                  border: "1px solid rgba(57,45,43,0.15)",
-                  color: "#392D2B", fontSize: 22,
-                  cursor: currentPage <= 1 ? "default" : "pointer",
-                  opacity: currentPage <= 1 ? 0.25 : 0.7,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "opacity 200ms ease",
-                }}
-              >
+                style={{ ...btnStyle(currentPage <= 1), left: 8 }}>
                 ‹
               </button>
-              <button
-                type="button"
-                onClick={goNext}
-                disabled={currentPage >= totalPages}
+              <button type="button" onClick={goNext} disabled={currentPage >= totalPages}
                 aria-label="Next slide"
-                style={{
-                  position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-                  width: 44, height: 44,
-                  background: "rgba(57,45,43,0.06)",
-                  border: "1px solid rgba(57,45,43,0.15)",
-                  color: "#392D2B", fontSize: 22,
-                  cursor: currentPage >= totalPages ? "default" : "pointer",
-                  opacity: currentPage >= totalPages ? 0.25 : 0.7,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "opacity 200ms ease",
-                }}
-              >
+                style={{ ...btnStyle(currentPage >= totalPages), right: 8 }}>
                 ›
               </button>
             </>
           )}
         </div>
 
-        {/* Bottom bar: title · pagination · contact button */}
+        {/* Bottom bar */}
         <div style={{
           width: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "16px 30px 28px",
+          padding: "12px 16px 16px",
           flexShrink: 0,
           borderTop: "1px solid rgba(57,45,43,0.1)",
-          gap: 20,
+          gap: 12,
+          flexWrap: "wrap",
         }}>
           {/* Title */}
           <h1 style={{
             margin: 0, flexShrink: 0,
             fontFamily: "var(--font-rader, 'PP Rader', sans-serif)",
-            fontWeight: 400, fontSize: "clamp(14px, 1.5vw, 22px)",
+            fontWeight: 400, fontSize: "clamp(13px, 1.4vw, 20px)",
             color: "#392D2B", letterSpacing: "-0.02em",
           }}>
             {title}
@@ -253,22 +279,16 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
 
           {/* Pagination */}
           {pdfDoc && totalPages > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, justifyContent: "center" }}>
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={currentPage <= 1}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, justifyContent: "center", minWidth: 0 }}>
+              <button type="button" onClick={goPrev} disabled={currentPage <= 1}
                 style={{
                   background: "none", border: "none",
                   cursor: currentPage <= 1 ? "default" : "pointer",
                   fontFamily: "var(--font-inter-tight)", fontWeight: 600,
                   fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
                   color: currentPage <= 1 ? "rgba(57,45,43,0.2)" : "rgba(57,45,43,0.6)",
-                  transition: "color 200ms ease",
-                }}
-              >
-                ← Prev
-              </button>
+                  transition: "color 200ms ease", flexShrink: 0,
+                }}>← Prev</button>
 
               <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                 {Array.from({ length: Math.min(totalPages, 20) }, (_, i) => {
@@ -281,48 +301,108 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
                     return null;
                   }
                   return (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setCurrentPage(page)}
+                    <button key={i} type="button" onClick={() => setCurrentPage(page)}
                       style={{
                         width: active ? 20 : 6, height: 6,
                         borderRadius: 99, border: "none", cursor: "pointer",
                         background: active ? "#392D2B" : "rgba(57,45,43,0.2)",
                         padding: 0, transition: "width 200ms ease, background 200ms ease",
+                        flexShrink: 0,
                       }}
                     />
                   );
                 })}
               </div>
 
-              <button
-                type="button"
-                onClick={goNext}
-                disabled={currentPage >= totalPages}
+              <button type="button" onClick={goNext} disabled={currentPage >= totalPages}
                 style={{
                   background: "none", border: "none",
                   cursor: currentPage >= totalPages ? "default" : "pointer",
                   fontFamily: "var(--font-inter-tight)", fontWeight: 600,
                   fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
                   color: currentPage >= totalPages ? "rgba(57,45,43,0.2)" : "rgba(57,45,43,0.6)",
-                  transition: "color 200ms ease",
-                }}
-              >
-                Next →
-              </button>
+                  transition: "color 200ms ease", flexShrink: 0,
+                }}>Next →</button>
 
               <span style={{
                 fontFamily: "var(--font-inter-tight)", fontSize: 9,
                 color: "rgba(57,45,43,0.3)", letterSpacing: "0.5px", flexShrink: 0,
-              }}>
-                {currentPage} / {totalPages}
-              </span>
+              }}>{currentPage} / {totalPages}</span>
             </div>
           )}
 
-          {/* Contact button */}
-          <div style={{ flexShrink: 0 }}>
+          {/* Right controls: zoom + download + contact */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            {/* Zoom controls */}
+            {pdfDoc && (
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.5))}
+                  disabled={zoomLevel <= 0.5}
+                  aria-label="Zoom out"
+                  style={{
+                    width: 28, height: 28,
+                    background: "rgba(57,45,43,0.06)",
+                    border: "1px solid rgba(57,45,43,0.15)",
+                    cursor: zoomLevel <= 0.5 ? "default" : "pointer",
+                    color: "#392D2B", fontSize: 18, lineHeight: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    opacity: zoomLevel <= 0.5 ? 0.35 : 1,
+                    transition: "opacity 200ms ease",
+                  }}
+                >−</button>
+                <span style={{
+                  fontFamily: "var(--font-inter-tight)", fontSize: 9, fontWeight: 600,
+                  color: "rgba(57,45,43,0.5)", letterSpacing: "0.5px", minWidth: 34,
+                  textAlign: "center", userSelect: "none",
+                }}>
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))}
+                  disabled={zoomLevel >= 3}
+                  aria-label="Zoom in"
+                  style={{
+                    width: 28, height: 28,
+                    background: "rgba(57,45,43,0.06)",
+                    border: "1px solid rgba(57,45,43,0.15)",
+                    cursor: zoomLevel >= 3 ? "default" : "pointer",
+                    color: "#392D2B", fontSize: 18, lineHeight: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    opacity: zoomLevel >= 3 ? 0.35 : 1,
+                    transition: "opacity 200ms ease",
+                  }}
+                >+</button>
+              </div>
+            )}
+
+            {/* Download */}
+            <a
+              href={pdfUrl}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Download PDF"
+              title="Download PDF"
+              style={{
+                width: 28, height: 28,
+                background: "rgba(57,45,43,0.06)",
+                border: "1px solid rgba(57,45,43,0.15)",
+                cursor: "pointer",
+                color: "#392D2B",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                textDecoration: "none",
+                flexShrink: 0,
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+            </a>
+
+            {/* Contact */}
             <PixelButton label="Contact" onClick={() => setContactOpen(true)} />
           </div>
         </div>
@@ -349,36 +429,17 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
               animation: "prv-popup-in 360ms cubic-bezier(0.16,1,0.3,1) both",
             }}
           >
-            <div style={{
-              display: "flex", justifyContent: "space-between",
-              alignItems: "flex-start", marginBottom: 24,
-            }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
               <div>
-                <p style={{
-                  fontFamily: "var(--font-inter-tight)", fontSize: 9,
-                  fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px",
-                  color: "rgba(57,45,43,0.4)", marginBottom: 6,
-                }}>
+                <p style={{ fontFamily: "var(--font-inter-tight)", fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px", color: "rgba(57,45,43,0.4)", marginBottom: 6 }}>
                   Inquiry
                 </p>
-                <h2 style={{
-                  fontFamily: "var(--font-rader, 'PP Rader', sans-serif)",
-                  fontWeight: 400, fontSize: 22,
-                  color: "#392D2B", margin: 0, lineHeight: 0.9,
-                }}>
+                <h2 style={{ fontFamily: "var(--font-rader, 'PP Rader', sans-serif)", fontWeight: 400, fontSize: 22, color: "#392D2B", margin: 0, lineHeight: 0.9 }}>
                   {title}
                 </h2>
               </div>
-              <button
-                type="button"
-                onClick={() => setContactOpen(false)}
-                style={{
-                  background: "none", border: "none", cursor: "pointer",
-                  fontFamily: "var(--font-inter-tight)", fontSize: 9,
-                  fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px",
-                  color: "rgba(57,45,43,0.4)",
-                }}
-              >
+              <button type="button" onClick={() => setContactOpen(false)}
+                style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-inter-tight)", fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px", color: "rgba(57,45,43,0.4)" }}>
                 Close ×
               </button>
             </div>

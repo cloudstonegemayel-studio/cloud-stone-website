@@ -101,6 +101,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
   const [s2TitleVisible,    setS2TitleVisible]    = useState(false);
   const [s2TextVisible,     setS2TextVisible]     = useState(false);
   const [outroTitleVisible, setOutroTitleVisible] = useState(false);
+  const [gyroPermission,    setGyroPermission]    = useState<"idle" | "pending" | "granted" | "denied">("idle");
 
   // Hero title / text entrance
   useEffect(() => {
@@ -234,20 +235,32 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
             setS2PhotoVisible(true); setS2TitleVisible(true);
             window.setTimeout(() => setS2TextVisible(true), 1350);
           }
-          if (e.target === outro) setOutroTitleVisible(true);
+          if (e.target === outro) {
+            setOutroTitleVisible(true);
+            // Mobile: check if gyroscope permission is needed
+            if (window.matchMedia("(hover: none)").matches && gyroPermission === "idle") {
+              type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
+              if (typeof (DeviceOrientationEvent as DOE).requestPermission === "function") {
+                setGyroPermission("pending"); // iOS: need user gesture to request
+              } else {
+                setGyroPermission("granted"); // Android: auto-available
+              }
+            }
+          }
         });
       },
       { threshold: [0, 0.5, 0.8] }
     );
     obs.observe(s2); obs.observe(outro);
     return () => obs.disconnect();
-  }, []);
+  }, [gyroPermission]);
 
-  // Parallax mouse on outro
+  // Parallax on outro: cursor on desktop, gyroscope on mobile
   useEffect(() => {
     const section = outroRef.current;
     const bg      = parallaxBgRef.current;
     if (!section || !bg) return;
+    if (window.matchMedia("(hover: none)").matches) return; // mobile handled separately
     let tx = 0, ty = 0, cx2 = 0, cy2 = 0, frame = 0;
     const strength = 18;
     const onMove = (e: MouseEvent) => {
@@ -266,7 +279,38 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
     return () => { window.removeEventListener("mousemove", onMove); cancelAnimationFrame(frame); };
   }, []);
 
+  // Gyroscope parallax on mobile
+  useEffect(() => {
+    if (gyroPermission !== "granted") return;
+    const bg = parallaxBgRef.current;
+    if (!bg) return;
+    let tx = 0, ty = 0, cx2 = 0, cy2 = 0, frame = 0;
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      tx = Math.max(-15, Math.min(15, (e.gamma ?? 0) / 3));
+      ty = Math.max(-10, Math.min(10, ((e.beta  ?? 45) - 45) / 4.5));
+    };
+    const animate = () => {
+      cx2 += (tx - cx2) * 0.06; cy2 += (ty - cy2) * 0.06;
+      bg.style.transform = `translate(${cx2}px,${cy2}px) scale(1.12)`;
+      frame = requestAnimationFrame(animate);
+    };
+    window.addEventListener("deviceorientation", onOrientation, true);
+    frame = requestAnimationFrame(animate);
+    return () => {
+      window.removeEventListener("deviceorientation", onOrientation, true);
+      cancelAnimationFrame(frame);
+    };
+  }, [gyroPermission]);
+
   const goToSlide = (i: number) => setCurrentSlide((i + slides.length) % slides.length);
+
+  const requestGyroPermission = async () => {
+    type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
+    try {
+      const result = await (DeviceOrientationEvent as DOE).requestPermission!();
+      setGyroPermission(result === "granted" ? "granted" : "denied");
+    } catch { setGyroPermission("denied"); }
+  };
 
   const detailRows = [
     project.project_status && `Project Status: ${project.project_status}`,
@@ -438,6 +482,15 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
             ) : <span />}
           </div>
         </div>
+        {gyroPermission === "pending" && (
+          <button
+            type="button"
+            onClick={requestGyroPermission}
+            className="project-s4-gyro-btn"
+          >
+            Enable motion
+          </button>
+        )}
         <Link className="project-s4-start-btn" href="/contacts">
           Start your project
         </Link>
@@ -491,6 +544,16 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         .project-word { display:inline-block; margin-right:0.28em; white-space:nowrap; }
         .project-char { display:inline-block; opacity:0; filter:blur(8px); transform:translateY(6px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),filter 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
         .project-char.visible { opacity:1; filter:blur(0); transform:translateY(0); }
+        .project-s4-gyro-btn {
+          position:absolute; bottom:clamp(140px,18vh,180px);
+          background:rgba(240,238,233,0.15); border:1px solid rgba(240,238,233,0.4);
+          color:var(--color-surface,#f0eee9); cursor:pointer;
+          font-family:var(--font-inter-tight,"Inter Tight",sans-serif);
+          font-weight:700; font-size:9px; letter-spacing:1.17px; text-transform:uppercase;
+          padding:8px 16px; z-index:3;
+          transition:background 250ms ease;
+        }
+        .project-s4-gyro-btn:hover { background:rgba(240,238,233,0.25); }
         @media (max-width:768px) {
           .project-hero-slider { width:min(58vw,360px); height:56vh; right:clamp(16px,5vw,30px); }
           .project-section-2 { grid-template-columns:1fr; height:auto; min-height:unset; }

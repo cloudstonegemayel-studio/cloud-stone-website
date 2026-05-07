@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { PixelButton } from "@/components/ui/PixelButton";
+
 
 type PanelSide = "left" | "right";
 
@@ -146,7 +148,7 @@ export default function BathroomsPage() {
   };
 
   return (
-    <section ref={sectionRef} id="section5" className="s5-section" aria-label="Bathroom collections">
+    <section ref={sectionRef} data-nav-dark id="section5" className="s5-section" aria-label="Bathroom collections">
       {/* Left panel — CloudStone_Bathrooms */}
       <div
         className={`s5-panel ${hoveredPanel === "left" ? "info-showing" : ""}`}

@@ -346,11 +346,14 @@ function CanvasView({ projects }: { projects: Project[] }) {
 // ── Grid view ──────────────────────────────────────────────────────────────────
 function GridView({ projects }: { projects: Project[] }) {
   return (
-    <div style={{
-      display: "flex", flexWrap: "wrap",
-      gap: 20, padding: "180px 30px 100px",
-      alignItems: "flex-start",
-    }}>
+    <div
+      className="design-grid-view"
+      style={{
+        display: "flex", flexWrap: "wrap",
+        gap: 20, padding: "180px 30px 100px",
+        alignItems: "flex-start",
+      }}
+    >
       {projects.map(p => <GridCard key={p.id} project={p} />)}
     </div>
   );
@@ -377,34 +380,36 @@ function FilterBar({ mode, onMode, filter, onFilter }: {
             {f}
           </button>
         ))}
-        <div style={{ width: 1, height: 12, background: "rgba(240,238,233,0.2)", margin: "0 6px", flexShrink: 0 }} />
-        <span style={{
-          fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 600,
-          fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
-          color: mode === "canvas" ? "#F0EEE9" : "rgba(240,238,233,0.38)",
-          transition: "color 0.2s ease", flexShrink: 0, userSelect: "none",
-        }}>Canvas</span>
-        <button
-          onClick={() => onMode(mode === "canvas" ? "grid" : "canvas")}
-          aria-label={mode === "canvas" ? "Switch to grid view" : "Switch to canvas view"}
-          style={{
-            position: "relative", width: 30, height: 11,
-            background: "rgba(240,238,233,0.18)", borderRadius: 99,
-            border: "none", cursor: "pointer", flexShrink: 0, padding: 0, margin: "0 4px",
-          }}
-        >
-          <div style={{
-            position: "absolute", top: 1, left: mode === "canvas" ? 1 : 12,
-            width: 17, height: 9, background: "#F0EEE9", borderRadius: 99,
-            transition: "left 0.25s cubic-bezier(0.16,1,0.3,1)",
-          }} />
-        </button>
-        <span style={{
-          fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 600,
-          fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
-          color: mode === "grid" ? "#F0EEE9" : "rgba(240,238,233,0.38)",
-          transition: "color 0.2s ease", flexShrink: 0, userSelect: "none",
-        }}>Grid</span>
+        <div className="design-view-toggle" style={{ display: "contents" }}>
+          <div style={{ width: 1, height: 12, background: "rgba(240,238,233,0.2)", margin: "0 6px", flexShrink: 0 }} />
+          <span style={{
+            fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 600,
+            fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
+            color: mode === "canvas" ? "#F0EEE9" : "rgba(240,238,233,0.38)",
+            transition: "color 0.2s ease", flexShrink: 0, userSelect: "none",
+          }}>Canvas</span>
+          <button
+            onClick={() => onMode(mode === "canvas" ? "grid" : "canvas")}
+            aria-label={mode === "canvas" ? "Switch to grid view" : "Switch to canvas view"}
+            style={{
+              position: "relative", width: 30, height: 11,
+              background: "rgba(240,238,233,0.18)", borderRadius: 99,
+              border: "none", cursor: "pointer", flexShrink: 0, padding: 0, margin: "0 4px",
+            }}
+          >
+            <div style={{
+              position: "absolute", top: 1, left: mode === "canvas" ? 1 : 12,
+              width: 17, height: 9, background: "#F0EEE9", borderRadius: 99,
+              transition: "left 0.25s cubic-bezier(0.16,1,0.3,1)",
+            }} />
+          </button>
+          <span style={{
+            fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 600,
+            fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
+            color: mode === "grid" ? "#F0EEE9" : "rgba(240,238,233,0.38)",
+            transition: "color 0.2s ease", flexShrink: 0, userSelect: "none",
+          }}>Grid</span>
+        </div>
       </div>
     </div>
   );
@@ -428,8 +433,8 @@ function CTASection() {
   const DELAY = 0.15;
 
   return (
-    <section ref={sectionRef} style={{ display: "flex", height: "100vh", minHeight: 600, overflow: "hidden", position: "relative" }}>
-      <div style={{ flex: "0 0 50%", position: "relative", overflow: "hidden" }}>
+    <section ref={sectionRef} className="flex flex-col md:flex-row min-h-[600px] h-screen overflow-hidden relative">
+      <div className="w-full md:w-1/2 relative overflow-hidden">
         <div style={{
           position: "absolute", inset: 0,
           transform: entered ? "translateY(0)" : "translateY(100vh)",
@@ -446,7 +451,7 @@ function CTASection() {
         </div>
       </div>
 
-      <div style={{ flex: "0 0 50%", position: "relative", display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "center", padding: "150px 30px 30px 30px", gap: "50px", overflow: "hidden" }}>
+      <div className="w-full md:w-1/2 flex flex-col justify-start items-center px-15 md:px-30 pt-30 md:pt-150 pb-15 md:pb-30 gap-20 md:gap-50 overflow-hidden">
         <h2 style={{
           fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
           fontWeight: 400, fontSize: 70, lineHeight: "90%", textAlign: "right", width: "100%",
@@ -769,14 +774,21 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
   const filtered: Project[] = filter === "All Projects"
     ? projects
     : projects.filter(p => p.status === filter);
-  const displayProjects = filtered.length ? filtered : projects;
+  const displayProjects = filtered;
   const isCanvas = mode === "canvas";
 
   const handleMode = useCallback((m: ViewMode) => setMode(m), []);
 
+  // Force grid view on small screens
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) setMode("grid");
+  }, []);
+
   return (
     <div style={{ position: "relative", background: "#F0EEE9" }}>
-
+      <div style={{ position: "relative", overflow: "visible" }}>
+          <DotBackground />
+	</div>
       {/* Section 1: canvas or grid */}
       <section
         style={{
@@ -806,15 +818,34 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
       </section>
 
       {/* Sections 2 + 3: CTA + FAQ with dot background */}
-      <div style={{ overflow: "hidden" }}>
-        <div style={{ position: "relative", overflow: "visible" }}>
-          <DotBackground />
-          <div style={{ position: "relative", zIndex: 1 }}>
+      <section
+        style={{
+          position: "relative",
+          height: "100vh",
+          minHeight: "100vh",
+          overflow: "hidden",
+          background: "#F0EEE9",
+	  zIndex: 1
+        }}
+      >
             <CTASection />
-            <FAQSection />
+
+        </section>
+ <section
+        style={{
+          position: "relative",
+          height: "100vh",
+          minHeight: "100vh",
+          overflow: "hidden",
+          background: "#F0EEE9",
+	  zIndex: 1
+        }}
+      >
+
+                       <FAQSection />
+         
+        
+</section>
           </div>
-        </div>
-      </div>
-    </div>
   );
 }

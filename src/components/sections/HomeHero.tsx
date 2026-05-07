@@ -108,8 +108,11 @@ function calcInitialPos(): Record<CardId, Pos> {
 }
 
 function calcCenterPos(): Record<CardId, Pos> {
-  const cx = window.innerWidth  / 2 - CARD_W / 2;
-  const cy = window.innerHeight / 2 - CARD_H / 2;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const s  = cardScale(vw);
+  const cx = vw / 2 - (CARD_W * s) / 2;
+  const cy = vh / 2 - (CARD_H * s) / 2;
   return { design: { x: cx, y: cy }, bathrooms: { x: cx, y: cy },
            shop:   { x: cx, y: cy }, about:     { x: cx, y: cy } };
 }
@@ -730,18 +733,20 @@ export function HomeHero() {
       </div>
 
       {/* ── Navbar (top: 30px per Figma) ───────────────────────────────────── */}
-      <header style={{
-        position:       "absolute",
-        top:            0,
-        left:           0,
-        right:          0,
-        height:         86, // 30 top + 26 nav + buffer
-        display:        "flex",
-        alignItems:     "flex-start",
-        justifyContent: "space-between",
-        padding:        "30px 30px 0",
-        zIndex:         10,
-      }}>
+      <header
+        className="hero-header-inner"
+        style={{
+          position:       "absolute",
+          top:            0,
+          left:           0,
+          right:          0,
+          height:         86,
+          display:        "flex",
+          alignItems:     "flex-start",
+          justifyContent: "space-between",
+          zIndex:         10,
+        }}
+      >
 
         {/* Logo */}
         <Link href="/" aria-label="Cloud Stone Studio home">
@@ -803,7 +808,6 @@ export function HomeHero() {
         className="hero-tagline"
         style={{
           position:      "absolute",
-          left:          30,
           fontFamily:    "var(--font-rader)",
           fontWeight:    400,
           fontSize:      "clamp(28px,3.1vw,60px)",
@@ -871,7 +875,6 @@ export function HomeHero() {
         className="hero-cta"
         style={{
           position:   "absolute",
-          right:      30,
           opacity:    entered ? 1 : 0,
           transition: "opacity 0.7s ease 1.4s",
           zIndex:     1,
@@ -889,8 +892,11 @@ export function HomeHero() {
           zIndex:      50,
           background:  "#392D2B",
           opacity:     navOpen ? 1 : 0,
+          visibility:  navOpen ? "visible" : "hidden",
           pointerEvents: navOpen ? "auto" : "none",
-          transition:  "opacity 0.45s cubic-bezier(0.16,1,0.3,1)",
+          transition:  navOpen
+            ? "opacity 0.45s cubic-bezier(0.16,1,0.3,1)"
+            : "opacity 0.45s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0.45s",
           display:     "flex",
           flexDirection: "column",
         }}
@@ -969,7 +975,7 @@ export function HomeHero() {
         </nav>
 
         {/* Contact icons */}
-        <div style={{ display: "flex", gap: 28, padding: "0 30px 24px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 28, padding: "0 15px 24px", alignItems: "center" }}>
           {OVERLAY_CONTACTS.map(({ href, label, paths, vb }) => (
             <a
               key={label}
@@ -991,7 +997,7 @@ export function HomeHero() {
         </div>
 
         <div style={{
-          padding:        "24px 30px",
+          padding:        "24px 15px",
           display:        "flex",
           justifyContent: "space-between",
           alignItems:     "center",
