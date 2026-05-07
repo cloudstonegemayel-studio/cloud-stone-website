@@ -23,7 +23,7 @@ const SERVICES = [
   {
     title: "Bathrooms",
     meta: "Design",
-    image: "/images/design/bathroom.png",
+    image: "/images/design/79AB18DD-3959-4C04-9A5E-417E691B6D46.JPG",
     href: "/bathrooms",
   },
   {
@@ -297,30 +297,32 @@ function ProjectDotHero() {
 }
 
 function AboutStatement() {
-  const [ref, entered] = useInView<HTMLElement>(0.25);
+  const [ref, entered] = useInView<HTMLElement>(0.5);
+
+  const words = ABOUT_COPY.flatMap(({ text, accent }) =>
+    text.trim().split(/\s+/).map((w) => ({ text: w, accent }))
+  );
 
   return (
     <section ref={ref} className="about-statement" aria-label="Studio statement">
-      <h1>
-        <span
-          className={`about-line about-line--anim ${entered ? "in-view" : ""}`}
-          style={{ "--line-delay": "0ms" } as React.CSSProperties}
-        >
-          <span className="accent">{ABOUT_COPY[0].text}</span>
-          {ABOUT_COPY[1].text}
-        </span>
-        <span
-          className={`about-line about-line--anim ${entered ? "in-view" : ""}`}
-          style={{ "--line-delay": "100ms" } as React.CSSProperties}
-        >
-          {ABOUT_COPY[2].text}
-        </span>
-        <span
-          className={`about-line about-line--anim accent ${entered ? "in-view" : ""}`}
-          style={{ "--line-delay": "200ms" } as React.CSSProperties}
-        >
-          {ABOUT_COPY[3].text}
-        </span>
+      <h1 aria-label={ABOUT_COPY.map((c) => c.text).join("")}>
+        {words.map(({ text, accent }, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className={accent ? "accent" : undefined}
+            style={{
+              display: "inline-block",
+              marginRight: "0.28em",
+              opacity: entered ? 1 : 0,
+              filter: entered ? "blur(0px)" : "blur(10px)",
+              transform: entered ? "translateY(0)" : "translateY(14px)",
+              transition: `opacity 0.9s ease ${0.04 + i * 0.045}s, filter 0.9s ease ${0.04 + i * 0.045}s, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${0.04 + i * 0.045}s`,
+            }}
+          >
+            {text}
+          </span>
+        ))}
       </h1>
     </section>
   );
@@ -389,7 +391,10 @@ function ServicesSection() {
             key={`${service.title}-${service.meta}`}
             style={{ "--delay": `${index * 120}ms` } as CSSProperties}
           >
-            <div className="about-service-image">
+            <div
+              className="about-service-image"
+              style={index === 1 ? { borderRadius: "156px 156px 0 0" } : undefined}
+            >
               <Image
                 src={service.image}
                 alt=""
@@ -776,6 +781,7 @@ export function AboutPageClient() {
 
         .about-services-intro {
           margin: 0;
+	  font-weight: 400;
           width: min(745px, calc(100vw - 60px));
           font-family: var(--font-rader, "PP Rader", sans-serif);
           font-size: clamp(28px, 2.08vw, 40px);

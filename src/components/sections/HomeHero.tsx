@@ -2,12 +2,15 @@
 
 import {
   useEffect, useRef, useState, useLayoutEffect,
-  useCallback, useMemo, Fragment,
+  useCallback, useMemo, Fragment, type CSSProperties,
 } from "react";
 import Image from "next/image";
 import Link  from "next/link";
 import { drawFrame, TrailPoint, TRAIL_MS } from "@/lib/circleGrid";
 import { PixelButton } from "@/components/ui/PixelButton";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { contactSchema, type ContactFormData } from "@/lib/validations";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const TAGLINE = "We think like craftsmen and design like storytellers";
@@ -522,6 +525,170 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
   );
 }
 
+// ─── Contact popup (Footer right-panel replica) ───────────────────────────────
+const POPUP_FIELD: CSSProperties = {
+  background: "#DEDBD6",
+  padding: "8px 10px",
+  width: "100%",
+  fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
+  fontWeight: 500,
+  fontSize: 12,
+  lineHeight: 1.2,
+  color: "#392D2B",
+  border: "none",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+const POPUP_LABEL: CSSProperties = {
+  fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
+  fontWeight: 500,
+  fontSize: 12,
+  lineHeight: 1.2,
+  color: "#392D2B",
+  textTransform: "uppercase",
+  letterSpacing: "0.02em",
+};
+
+function ContactPopup({ onClose }: { onClose: () => void }) {
+  const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+  });
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const onSubmit = async (data: ContactFormData) => {
+    setFormStatus("loading");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, source_page: "HomeHero" }),
+      });
+      if (res.ok) { setFormStatus("success"); reset(); }
+      else setFormStatus("error");
+    } catch {
+      setFormStatus("error");
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 9998,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(183,209,234,0.38)", backdropFilter: "blur(2px)",
+        animation: "sc-fadein 240ms ease both",
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{
+        background: "#B7D1EA",
+        width: "min(485px, calc(100vw - 40px))",
+        maxHeight: "90vh",
+        overflowY: "auto",
+        padding: "30px 29px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 23,
+        alignItems: "center",
+        position: "relative",
+        animation: "sc-popup-in 520ms cubic-bezier(0.16,1,0.3,1) both",
+      }}>
+        {/* "Contact form" label + close */}
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: "absolute", top: 30, right: 30,
+            background: "none", border: "none", padding: 0, cursor: "pointer",
+            fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
+            fontWeight: 500, fontSize: 11.52, letterSpacing: "-0.3456px",
+            textTransform: "uppercase", color: "#392D2B", whiteSpace: "pre",
+          }}
+        >
+          Close ×
+        </button>
+
+        {/* Logo */}
+        <div style={{ width: 170, height: 103, flexShrink: 0 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/footer-logo.svg" alt="Cloud Stone Studio" style={{ width: "100%", height: "100%", display: "block" }} />
+        </div>
+
+        {/* Tagline */}
+        <p style={{
+          fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
+          fontWeight: 400, fontSize: 20, lineHeight: 1.2,
+          color: "#392D2B", textAlign: "center", width: "100%", margin: 0,
+        }}>
+          Tell us what{" "}
+          <span style={{ color: "#C86733" }}>you&apos;re building</span>.
+          <br />
+          We&apos;ll take it from concept{" "}
+          <span style={{ color: "#C86733" }}>to reality</span>.
+        </p>
+
+        {/* Form */}
+        {formStatus === "success" ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center", padding: "20px 0" }}>
+            <p style={{ fontFamily: "var(--font-rader,'PP Rader',sans-serif)", fontWeight: 700, fontSize: 24, textTransform: "uppercase", letterSpacing: "-0.5px", color: "#392D2B", margin: 0 }}>
+              Thank you!
+            </p>
+            <p style={{ fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontSize: 14, color: "#392D2B", lineHeight: 1.5, margin: 0 }}>
+              We&apos;ll be in touch soon.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={POPUP_LABEL}>Name</label>
+              <input {...register("name")} placeholder="Your full name" style={{ ...POPUP_FIELD, color: errors.name ? "#C86733" : "#392D2B" }} />
+              {errors.name && <span style={{ fontSize: 10, color: "#C86733" }}>{errors.name.message}</span>}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={POPUP_LABEL}>Email</label>
+              <input {...register("email")} type="email" placeholder="your@email.com" style={{ ...POPUP_FIELD, color: errors.email ? "#C86733" : "#392D2B" }} />
+              {errors.email && <span style={{ fontSize: 10, color: "#C86733" }}>{errors.email.message}</span>}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={POPUP_LABEL}>Phone (optional)</label>
+              <input {...register("phone")} type="tel" placeholder="+1 XXX XXX-XXX" style={POPUP_FIELD} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={POPUP_LABEL}>Subject (optional)</label>
+              <input {...register("subject")} placeholder="Project type, scope ..." style={POPUP_FIELD} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={POPUP_LABEL}>Message</label>
+              <textarea
+                {...register("message")}
+                placeholder="Tell us about your project, timeline, and vision ..."
+                rows={4}
+                style={{ ...POPUP_FIELD, paddingBottom: 50, resize: "none", color: errors.message ? "#C86733" : "#392D2B" }}
+              />
+              {errors.message && <span style={{ fontSize: 10, color: "#C86733" }}>{errors.message.message}</span>}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
+              <PixelButton label={formStatus === "loading" ? "Sending..." : "Send Request"} type="submit" />
+              {formStatus === "error" && (
+                <p style={{ marginTop: 8, fontSize: 11, color: "#C86733", fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)" }}>
+                  Something went wrong. Please try again.
+                </p>
+              )}
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── HomeHero ─────────────────────────────────────────────────────────────────
 export function HomeHero() {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
@@ -533,6 +700,7 @@ export function HomeHero() {
   const [entered,       setEntered]      = useState(false);
   const [tagOn,         setTagOn]        = useState(false);
   const [navOpen,       setNavOpen]      = useState(false);
+  const [contactOpen,   setContactOpen]  = useState(false);
   const [cardPos,       setCardPos]      = useState<Record<CardId, Pos> | null>(null);
   const [cardsSpread,   setCardsSpread]  = useState(false);
   const [cardScaleVal,  setCardScaleVal] = useState(1);
@@ -910,7 +1078,7 @@ export function HomeHero() {
           zIndex:     1,
         }}
       >
-        <PixelButton label="Contact" href="/about" />
+        <PixelButton label="Contact" onClick={() => setContactOpen(true)} />
       </div>
 
       {/* ── Full-screen nav overlay ─────────────────────────────────────────── */}
@@ -1043,6 +1211,9 @@ export function HomeHero() {
           <span>© 2026</span>
         </div>
       </div>
+
+      {/* ── Contact popup ──────────────────────────────────────────────────── */}
+      {contactOpen && <ContactPopup onClose={() => setContactOpen(false)} />}
     </div>
   );
 }
