@@ -714,8 +714,8 @@ function DotBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight * 2;
+    canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    canvas.height = canvas.offsetHeight || window.innerHeight;
     t0Ref.current = performance.now();
 
     const frame = (now: number) => {
@@ -729,7 +729,12 @@ function DotBackground() {
     };
     rafRef.current = requestAnimationFrame(frame);
 
-    const onResize = () => { if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } };
+    const onResize = () => {
+      if (canvas) {
+        canvas.width  = canvas.offsetWidth  || window.innerWidth;
+        canvas.height = canvas.offsetHeight || window.innerHeight;
+      }
+    };
     const onMove   = (e: MouseEvent) => {
       const now = performance.now();
       const trail = trailRef.current;
@@ -754,7 +759,7 @@ function DotBackground() {
 
   return (
     <canvas ref={canvasRef} aria-hidden
-      style={{ position: "sticky", top: 0, zIndex: 0, pointerEvents: "none", display: "block", marginBottom: "-200vh" }}
+      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none", display: "block" }}
     />
   );
 }
@@ -778,20 +783,18 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
   }, []);
 
   return (
-    <div style={{ position: "relative", background: "#F0EEE9" }}>
-      <div style={{ position: "relative", overflow: "visible" }}>
-          <DotBackground />
-	</div>
+    <div style={{ position: "relative", background: "#F0EEE9", overflowX: "hidden" }}>
       {/* Section 1: canvas or grid */}
       <section
         style={{
           position: "relative",
           height: isCanvas ? "100vh" : "auto",
           minHeight: "100vh",
-          overflow: isCanvas ? "hidden" : "visible",
+          overflow: "hidden",
           background: "#F0EEE9",
         }}
       >
+        <DotBackground />
         {isCanvas
           ? <CanvasView projects={displayProjects} />
           : <GridView  projects={displayProjects} />
