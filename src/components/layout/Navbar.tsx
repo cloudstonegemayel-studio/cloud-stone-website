@@ -213,8 +213,8 @@ export function Navbar() {
         <img
           src="/images/design/nav_hiden.svg"
           alt=""
-          width={224}
-          height={20}
+          width={178}
+          height={15}
           style={{ filter: navOnDark ? "brightness(10)" : "none", transition: "filter 350ms ease" }}
         />
       </div>
@@ -392,7 +392,7 @@ export function Navbar() {
               </Link>
               <button
                 onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
+                aria-label=""
                 style={{
                   background: "none", border: "none", cursor: "pointer",
                   color: "#F0EEE9", display: "flex", alignItems: "center", gap: 10,
@@ -401,13 +401,13 @@ export function Navbar() {
                 }}
               >
                 Close
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
                   <path d="M1 1L15 15M15 1L1 15" stroke="#F0EEE9" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
 
-            <nav style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 30px", gap: 4 }}>
+            <nav style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "16px 16px", gap: 4 }}>
               {OVERLAY_LINKS.map(({ label, href }, i) => (
                 <motion.div
                   key={href}
@@ -437,7 +437,7 @@ export function Navbar() {
             </nav>
 
             {/* Contact icons */}
-            <div style={{ display: "flex", gap: 28, padding: "0 30px 24px", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 28, padding: "0 16px 16px", alignItems: "center" }}>
               {OVERLAY_CONTACTS.map(({ href, label, paths, vb }) => (
                 <a
                   key={label}
@@ -459,7 +459,7 @@ export function Navbar() {
             </div>
 
             <div style={{
-              padding:       "24px 30px",
+              padding:       "16px",
               display:       "flex",
               justifyContent: "space-between",
               fontFamily:    "var(--font-rader)",

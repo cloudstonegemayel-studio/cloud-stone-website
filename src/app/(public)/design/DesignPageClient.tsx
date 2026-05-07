@@ -192,7 +192,7 @@ function CanvasCard({ project, x, y, hovered, onEnter, onLeave }: {
   hovered: boolean; onEnter: () => void; onLeave: () => void;
 }) {
   return (
-    <div style={{ position: "absolute", left: x, top: y, userSelect: "none" }}>
+    <div className="design-canvas-card" style={{ position: "absolute", left: x, top: y, userSelect: "none" }}>
       <CardInner project={project} hovered={hovered} onEnter={onEnter} onLeave={onLeave} />
     </div>
   );
@@ -427,9 +427,9 @@ function CTASection() {
 
   return (
     <section ref={sectionRef} className="flex flex-col md:flex-row min-h-[600px] h-dvh md:h-screen overflow-hidden relative">
-      <div className="w-full md:w-1/2 relative overflow-hidden">
+      <div className="w-full md:w-1/2 h-dvh md:h-screen relative overflow-hidden">
         <div style={{
-          position: "absolute", inset: 0,
+          position: "absolute", inset: 0, minHeight: "50vh",
           transform: entered ? "translateY(0)" : "translateY(100vh)",
           transition: "transform 1.5s cubic-bezier(0.16,1,0.3,1)",
         }}>
@@ -444,11 +444,11 @@ function CTASection() {
         </div>
       </div>
 
-      <div className="w-full md:w-1/2 flex flex-col justify-start items-center px-15 md:px-30 pt-30 md:pt-150 pb-15 md:pb-30 gap-20 md:gap-50 overflow-hidden">
+      <div className="w-full md:w-1/2 flex flex-col justify-between items-center px-15 md:px-30 overflow-hidden">
         <h2 style={{
           fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
           fontWeight: 400, fontSize: "clamp(40px, 3.6vw, 70px)", lineHeight: "90%", textAlign: "right", width: "100%",
-          letterSpacing: "-0.7px", color: "#392D2B", margin: "0 0 60px",
+          letterSpacing: "-0.7px", color: "#392D2B", margin: "80px 0 60px",
         }}>
           {titleLines.map((line, i) => (
             <span key={i} style={{ display: "inline-block" }}>

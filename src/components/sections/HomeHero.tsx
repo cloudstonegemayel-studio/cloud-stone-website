@@ -252,11 +252,12 @@ interface ServiceCardProps {
   enterDelay: number;
   animKf:     string;
   spread:     boolean;
+  scale:      number;
 }
 
 const ANIM_DUR = 1200; // ms — keyframe animation duration
 
-function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread }: ServiceCardProps) {
+function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread, scale }: ServiceCardProps) {
   const [hover,        setHover]        = useState(false);
   const [dragging,     setDragging]     = useState(false);
   const [cardTitle,    setCardTitle]    = useState(def.label.toUpperCase());
@@ -341,15 +342,16 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
         cursor:     dragging ? "grabbing" : "default",
         userSelect: "none",
         // settled: inline styles take over; animating: keyframe runs; pre: invisible
+        // scale prop drives responsive sizing so CSS zoom isn't needed (zoom scales left/top visually)
         opacity:                 settled ? 1 : (visible ? undefined : 0),
-        transform:               settled ? "scale(1)" : (visible ? undefined : "scale(0.88)"),
+        transform:               settled ? `scale(${scale})` : (visible ? undefined : `scale(${scale * 0.88})`),
         animationName:           visible && !settled ? animKf : "none",
         animationDuration:       `${ANIM_DUR}ms`,
         animationTimingFunction: "ease",
         animationFillMode:       "both" as const,
         transition: dragging
           ? "none"
-          : "left 0.85s cubic-bezier(0.16,1,0.3,1), top 0.85s cubic-bezier(0.16,1,0.3,1), background 0.5s ease 1s, box-shadow 0.4s ease",
+          : "left 0.85s cubic-bezier(0.16,1,0.3,1), top 0.85s cubic-bezier(0.16,1,0.3,1), background 0.5s ease 1s, box-shadow 0.4s ease, transform 0.6s ease",
         boxShadow: hover || dragging
           ? "0 18px 50px rgba(57,45,43,0.14)"
           : "none",
@@ -521,11 +523,12 @@ export function HomeHero() {
   const trailRef   = useRef<TrailPoint[]>([]);
   const spreadRef  = useRef(false); // true once cards have flown to final positions
 
-  const [entered,      setEntered]      = useState(false);
-  const [tagOn,        setTagOn]        = useState(false);
-  const [navOpen,      setNavOpen]      = useState(false);
-  const [cardPos,      setCardPos]      = useState<Record<CardId, Pos> | null>(null);
-  const [cardsSpread,  setCardsSpread]  = useState(false);
+  const [entered,       setEntered]      = useState(false);
+  const [tagOn,         setTagOn]        = useState(false);
+  const [navOpen,       setNavOpen]      = useState(false);
+  const [cardPos,       setCardPos]      = useState<Record<CardId, Pos> | null>(null);
+  const [cardsSpread,   setCardsSpread]  = useState(false);
+  const [cardScaleVal,  setCardScaleVal] = useState(1);
 
   // ── Wait for preloader ────────────────────────────────────────────────────
   useEffect(() => {
@@ -546,9 +549,12 @@ export function HomeHero() {
 
   // ── Card positions: start at center, spread to final on enter ────────────
   useLayoutEffect(() => {
+    setCardScaleVal(cardScale(window.innerWidth));
     setCardPos(calcCenterPos());
-    const onResize = () =>
+    const onResize = () => {
+      setCardScaleVal(cardScale(window.innerWidth));
       setCardPos(spreadRef.current ? calcInitialPos() : calcCenterPos());
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -816,6 +822,7 @@ export function HomeHero() {
           enterDelay={900 + i * 250}
           animKf={`cs-card-enter-kf-${i + 1}`}
           spread={cardsSpread}
+          scale={cardScaleVal}
         />
       ))}
 

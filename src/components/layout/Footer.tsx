@@ -276,7 +276,7 @@ export function Footer() {
               lineHeight: 0.9,
               letterSpacing: "-0.7px",
               color: "#392D2B",
-              whiteSpace: "nowrap",
+              whiteSpace: "pre-wrap",
             }}>
               <span style={{ color: "#C86733" }}>Design </span>
               <span>| Custom Fabrication</span>

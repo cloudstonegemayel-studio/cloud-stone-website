@@ -717,11 +717,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile) setMode("grid"); // chaos mode is desktop-only
-    };
+    const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -827,6 +823,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
             zIndex: 2, left: "min(30px, 4vw)", top: "clamp(100px, 11vw, 210px)",
             width: "calc(100vw - 60px)",
             height: "min(680px, calc(100svh - 370px))",
+            zoom: isMobile ? "0.75" : undefined,
           }}
         >
           {filteredItems.map((item, index) => (
@@ -897,8 +894,6 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
             bottom: 16px;
             zoom: 0.82;
           }
-          /* Hide Chaos/Grid toggle on mobile — only grid mode on mobile */
-          .shop-view-toggle { display: none !important; }
         }
       `}</style>
     </section>
