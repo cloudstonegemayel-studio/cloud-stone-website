@@ -45,11 +45,5 @@ export function CustomCursor() {
     };
   }, []);
 
-  // Outer div: zero-size positioning anchor (left/top updated via JS)
-  // Inner span: the visible circle with blend-mode and pulse
-  return (
-    <div ref={ref} aria-hidden className="cs-cur">
-      <span className="cs-cur-dot" />
-    </div>
-  );
+  return <div ref={ref} aria-hidden className="cs-cur" />;
 }

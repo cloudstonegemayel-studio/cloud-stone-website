@@ -409,8 +409,8 @@
 }
 
 /* ─── Custom cursor ──────────────────────────────────────────────── */
-/* .cs-cur  — zero-size fixed anchor (position set via JS)           */
-/* .cs-cur-dot — the visible circle (size, blend, pulse)             */
+/* mix-blend-mode MUST be on .cs-cur itself (not a child) so it      */
+/* blends against the root stacking context, not its own empty one.  */
 .cs-cur { display: none; }
 
 @media (min-width: 768px) {
@@ -418,22 +418,14 @@
     display: block;
     position: fixed;
     top: 0; left: 0;
-    width: 0; height: 0;
-    pointer-events: none;
-    z-index: 99999;
-    will-change: left, top;
-  }
-
-  .cs-cur-dot {
-    display: block;
-    position: absolute;
-    top: 0; left: 0;
-    transform: translate(-50%, -50%);
     width: 14px;
     height: 14px;
     border-radius: 50%;
     background: #ffffff;
     mix-blend-mode: difference;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 99999;
     opacity: 0;
     transition:
       width   220ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -443,13 +435,13 @@
   }
 
   /* Visible + pulsing */
-  .cs-cur.cs-cur--on .cs-cur-dot {
+  .cs-cur.cs-cur--on {
     opacity: 1;
     animation: cs-cur-pulse 3s ease-in-out infinite;
   }
 
   /* Expanded on interactive elements */
-  .cs-cur.cs-cur--hover .cs-cur-dot {
+  .cs-cur.cs-cur--hover {
     width: 44px;
     height: 44px;
     animation-play-state: paused;
@@ -457,13 +449,13 @@
   }
 
   /* Compressed on click */
-  .cs-cur.cs-cur--press .cs-cur-dot {
+  .cs-cur.cs-cur--press {
     transform: translate(-50%, -50%) scale(0.7);
     animation-play-state: paused;
   }
 
   /* Hidden on elements with own cursor */
-  .cs-cur.cs-cur--hide .cs-cur-dot {
+  .cs-cur.cs-cur--hide {
     opacity: 0 !important;
     animation: none;
   }
