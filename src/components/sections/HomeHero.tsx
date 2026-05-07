@@ -102,16 +102,21 @@ function calcInitialPos(): Record<CardId, Pos> {
 
   if (vw < 768) {
     // Mobile: staggered diagonal — left·right·left·right going down the screen.
-    // safeH = range available for card top positions (header→footer exclusive).
+    // transform-origin: center → CSS positions are offset so the VISUAL edges land at pad/vw-pad.
+    // visual_left  = CSS_left + CARD_W*(1-s)/2  →  CSS_left = pad - CARD_W*(1-s)/2
+    // visual_right = CSS_left + CARD_W*(1+s)/2  →  CSS_left = (vw-pad) - CARD_W*(1+s)/2
+    // safeH: bottom card's visual_bottom ≤ vh-FOOTER → safeH = vh-HEADER-FOOTER-CARD_H*(1+s)/2
     const pad    = 8;
     const HEADER = 86;
     const FOOTER = 64;
-    const safeH  = vh - HEADER - FOOTER - ch;
+    const safeH  = vh - HEADER - FOOTER - CARD_H * (1 + s) / 2;
+    const leftX  = pad - CARD_W * (1 - s) / 2;
+    const rightX = (vw - pad) - CARD_W * (1 + s) / 2;
     return {
-      design:    { x: pad,           y: HEADER + safeH * 0.04 }, // top-left
-      bathrooms: { x: vw - cw - pad, y: HEADER + safeH * 0.33 }, // upper-right
-      shop:      { x: pad,           y: HEADER + safeH * 0.58 }, // lower-left
-      about:     { x: vw - cw - pad, y: HEADER + safeH * 1.00 }, // bottom-right
+      design:    { x: leftX,  y: HEADER + safeH * 0.04 },
+      bathrooms: { x: rightX, y: HEADER + safeH * 0.33 },
+      shop:      { x: leftX,  y: HEADER + safeH * 0.58 },
+      about:     { x: rightX, y: HEADER + safeH * 0.88 }, // 0.88 keeps bottom card above footer
     };
   }
 
@@ -126,9 +131,10 @@ function calcInitialPos(): Record<CardId, Pos> {
 function calcCenterPos(): Record<CardId, Pos> {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const s  = cardScale(vw);
-  const cx = vw / 2 - (CARD_W * s) / 2;
-  const cy = vh / 2 - (CARD_H * s) / 2;
+  // transform-origin: center — scale doesn't shift the visual center,
+  // so CSS center = vw/2, vh/2 regardless of scale
+  const cx = vw / 2 - CARD_W / 2;
+  const cy = vh / 2 - CARD_H / 2;
   return { design: { x: cx, y: cy }, bathrooms: { x: cx, y: cy },
            shop:   { x: cx, y: cy }, about:     { x: cx, y: cy } };
 }
@@ -330,6 +336,7 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
+        ["--cs-scale" as string]: scale,
         position:   "absolute",
         left:       pos.x,
         top:        pos.y,

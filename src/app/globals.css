@@ -304,7 +304,7 @@
   }
 
   /* ── HomeHero service card scaling ─────────────────────────── */
-  .cs-service-card { transform-origin: top left; }
+  .cs-service-card { transform-origin: center center; }
 
   /* ── HomeHero responsive layout helpers ────────────────────── */
   .hero-navpill-wrap {
@@ -412,27 +412,28 @@
 }
 
 /* ─── Service card entrance (4 rotation variants) ───────────────── */
+/* --cs-scale is set inline so cards animate at their final (mobile-scaled) size */
 @keyframes cs-card-enter-kf-1 {
-  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
-  50%  { opacity: 1; transform: scale(1.30) rotate(4deg); }
-  80%  { transform: scale(0.94) rotate(-1.5deg); }
-  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+  0%   { opacity: 0; transform: scale(calc(var(--cs-scale, 1) * 0.88)) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.30)) rotate(4deg); }
+  80%  { transform: scale(calc(var(--cs-scale, 1) * 0.94)) rotate(-1.5deg); }
+  100% { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.00)) rotate(0deg); }
 }
 @keyframes cs-card-enter-kf-2 {
-  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
-  50%  { opacity: 1; transform: scale(1.30) rotate(-4deg); }
-  80%  { transform: scale(0.94) rotate(2deg); }
-  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+  0%   { opacity: 0; transform: scale(calc(var(--cs-scale, 1) * 0.88)) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.30)) rotate(-4deg); }
+  80%  { transform: scale(calc(var(--cs-scale, 1) * 0.94)) rotate(2deg); }
+  100% { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.00)) rotate(0deg); }
 }
 @keyframes cs-card-enter-kf-3 {
-  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
-  50%  { opacity: 1; transform: scale(1.30) rotate(2deg); }
-  80%  { transform: scale(0.94) rotate(-2.5deg); }
-  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+  0%   { opacity: 0; transform: scale(calc(var(--cs-scale, 1) * 0.88)) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.30)) rotate(2deg); }
+  80%  { transform: scale(calc(var(--cs-scale, 1) * 0.94)) rotate(-2.5deg); }
+  100% { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.00)) rotate(0deg); }
 }
 @keyframes cs-card-enter-kf-4 {
-  0%   { opacity: 0; transform: scale(0.88) rotate(0deg); }
-  50%  { opacity: 1; transform: scale(1.30) rotate(-2deg); }
-  80%  { transform: scale(0.94) rotate(4deg); }
-  100% { opacity: 1; transform: scale(1.00) rotate(0deg); }
+  0%   { opacity: 0; transform: scale(calc(var(--cs-scale, 1) * 0.88)) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.30)) rotate(-2deg); }
+  80%  { transform: scale(calc(var(--cs-scale, 1) * 0.94)) rotate(4deg); }
+  100% { opacity: 1; transform: scale(calc(var(--cs-scale, 1) * 1.00)) rotate(0deg); }
 }

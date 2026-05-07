@@ -426,8 +426,8 @@ function CTASection() {
   const DELAY = 0.15;
 
   return (
-    <section ref={sectionRef} className="flex flex-col md:flex-row min-h-[600px] h-dvh md:h-screen overflow-hidden relative">
-      <div className="w-full md:w-1/2 h-dvh md:h-screen relative overflow-hidden">
+    <section ref={sectionRef} className="flex flex-col md:flex-row min-h-screen md:h-screen overflow-hidden relative">
+      <div className="w-full md:w-1/2 h-[45vh] md:h-full relative overflow-hidden">
         <div style={{
           position: "absolute", inset: 0, minHeight: "50vh",
           transform: entered ? "translateY(0)" : "translateY(100vh)",
@@ -444,7 +444,7 @@ function CTASection() {
         </div>
       </div>
 
-      <div className="w-full md:w-1/2 flex flex-col justify-between items-center px-15 md:px-30 overflow-hidden">
+      <div className="w-full md:w-1/2 flex flex-col justify-between items-center px-[15px] md:px-[30px]">
         <h2 style={{
           fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
           fontWeight: 400, fontSize: "clamp(40px, 3.6vw, 70px)", lineHeight: "90%", textAlign: "right", width: "100%",
