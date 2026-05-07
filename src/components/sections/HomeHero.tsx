@@ -122,7 +122,7 @@ function calcInitialPos(): Record<CardId, Pos> {
 
   return {
     design:    { x: (145 / 1920) * vw,           y: (190 / 1080) * vh },
-    bathrooms: { x: vw - (451 / 1920) * vw - cw, y: (180 / 1080) * vh },
+    bathrooms: { x: vw - (537 / 1920) * vw - cw, y: (180 / 1080) * vh },
     shop:      { x: (480 / 1920) * vw,           y: vh - (100 / 1080) * vh - ch },
     about:     { x: vw - (217 / 1920) * vw - cw, y: vh - (110 / 1080) * vh - ch },
   };

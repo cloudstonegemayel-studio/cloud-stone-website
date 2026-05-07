@@ -49,7 +49,7 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
       ) : (
         block.url && (
           <div style={{
-            position: "absolute", inset: "-10%",
+            position: "absolute", inset: "-10%", minHeight: "50vh",
             transform: inView ? "translateY(0)" : "translateY(60px)",
             opacity: inView ? 1 : 0,
             transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 1.2s ease",
@@ -71,6 +71,7 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
     <div style={{
       background: bg,
       display: "flex",
+      minHeight: "50vh",
       flexDirection: "column",
       justifyContent: "flex-end",
       padding: "clamp(30px,3.5vw,60px) clamp(20px,1.56vw,30px)",
@@ -112,15 +113,8 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
   return (
     <section
       ref={ref as React.RefObject<HTMLElement>}
-      style={{
-        width: "100vw",
-        height: "100vh",
-        minHeight: 600,
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        overflow: "hidden",
-        contain: "layout",
-      }}
+      className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] h-screen overflow-hidden relative w-full"
+      {...(isDark ? { "data-nav-dark": "" } : {})}
     >
       {mediaLeft ? mediaSide : textSide}
       {mediaLeft ? textSide  : mediaSide}
