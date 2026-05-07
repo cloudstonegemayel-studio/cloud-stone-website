@@ -22,7 +22,13 @@ const PDF_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.w
 
 export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationViewerProps) {
   const canvasRef     = useRef<HTMLCanvasElement>(null);
+  const wrapRef       = useRef<HTMLDivElement>(null);
+  const areaRef       = useRef<HTMLDivElement>(null);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
+  // Pan state managed via refs for zero-rerender drag performance
+  const panRef  = useRef({ x: 0, y: 0 });
+  const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
+  const zoomRef = useRef(1);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [pdfDoc,      setPdfDoc]      = useState<any>(null);
@@ -33,6 +39,49 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
   const [loadError,   setLoadError]   = useState(false);
   const [loading,     setLoading]     = useState(true);
   const [zoomLevel,   setZoomLevel]   = useState(1);
+
+  // Keep zoomRef in sync with state (for use in pointer handlers without closures)
+  useEffect(() => { zoomRef.current = zoomLevel; }, [zoomLevel]);
+
+  // Apply transform to wrapRef directly (no re-render)
+  const applyWrapTransform = useCallback((x: number, y: number, zoom: number, animate: boolean) => {
+    const w = wrapRef.current;
+    if (!w) return;
+    w.style.transition = animate ? "transform 200ms ease" : "none";
+    w.style.transform  = `translate(${x}px, ${y}px) scale(${zoom})`;
+  }, []);
+
+  // Reset pan when zoom returns to 1 or page changes
+  useEffect(() => {
+    if (zoomLevel <= 1) panRef.current = { x: 0, y: 0 };
+    applyWrapTransform(panRef.current.x, panRef.current.y, zoomLevel, true);
+  }, [zoomLevel, applyWrapTransform]);
+
+  useEffect(() => {
+    panRef.current = { x: 0, y: 0 };
+    applyWrapTransform(0, 0, zoomRef.current, true);
+  }, [currentPage, applyWrapTransform]);
+
+  // Pan pointer handlers
+  const onPanDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (zoomRef.current <= 1) return;
+    dragRef.current = { sx: e.clientX, sy: e.clientY, px: panRef.current.x, py: panRef.current.y };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const onPanMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const nx = dragRef.current.px + (e.clientX - dragRef.current.sx);
+    const ny = dragRef.current.py + (e.clientY - dragRef.current.sy);
+    panRef.current = { x: nx, y: ny };
+    applyWrapTransform(nx, ny, zoomRef.current, false);
+  }, [applyWrapTransform]);
+
+  const onPanUp = useCallback(() => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    applyWrapTransform(panRef.current.x, panRef.current.y, zoomRef.current, true);
+  }, [applyWrapTransform]);
 
   const loadPdf = useCallback(async () => {
     if (!window.pdfjsLib) return;
@@ -169,17 +218,25 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
         position: "relative",
       }}>
         {/* PDF canvas area */}
-        <div style={{
-          flex: 1,
-          minHeight: 0,
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "16px 40px 8px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
+        <div
+          ref={areaRef}
+          style={{
+            flex: 1,
+            minHeight: 0,
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px 56px 8px",
+            position: "relative",
+            overflow: "hidden",
+            cursor: zoomLevel > 1 ? (dragRef.current ? "grabbing" : "grab") : "default",
+          }}
+          onPointerDown={onPanDown}
+          onPointerMove={onPanMove}
+          onPointerUp={onPanUp}
+          onPointerCancel={onPanUp}
+        >
           {loading && !loadError && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <div style={{
@@ -219,12 +276,8 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
             </div>
           )}
 
-          <div style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
+          {/* Pan wrapper — transform applied via ref */}
+          <div ref={wrapRef} style={{ display: "flex", alignItems: "center", justifyContent: "center", transformOrigin: "center center" }}>
             <canvas
               ref={canvasRef}
               style={{
@@ -232,13 +285,13 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
                 maxWidth: "100%",
                 boxShadow: "0 8px 40px rgba(57,45,43,0.10)",
                 opacity: rendering ? 0.6 : 1,
-                transform: `scale(${zoomLevel})`,
-                transformOrigin: "center center",
-                transition: "opacity 200ms ease, transform 200ms ease",
+                transition: "opacity 200ms ease",
+                pointerEvents: "none",
               }}
             />
           </div>
 
+          {/* Prev / Next nav arrows */}
           {pdfDoc && totalPages > 1 && (
             <>
               <button type="button" onClick={goPrev} disabled={currentPage <= 1}
@@ -253,19 +306,90 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
               </button>
             </>
           )}
+
+          {/* Zoom + Download — float above the border line, top-right of canvas area */}
+          {pdfDoc && (
+            <div style={{
+              position: "absolute", top: 12, right: 12,
+              display: "flex", alignItems: "center", gap: 4,
+              zIndex: 10,
+            }}>
+              <button
+                type="button"
+                onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.5))}
+                disabled={zoomLevel <= 0.5}
+                aria-label="Zoom out"
+                style={{
+                  width: 28, height: 28,
+                  background: "rgba(240,238,233,0.9)", backdropFilter: "blur(4px)",
+                  border: "1px solid rgba(57,45,43,0.15)",
+                  cursor: zoomLevel <= 0.5 ? "default" : "pointer",
+                  color: "#392D2B", fontSize: 18, lineHeight: 1,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  opacity: zoomLevel <= 0.5 ? 0.35 : 1,
+                  transition: "opacity 200ms ease",
+                }}
+              >−</button>
+              <span style={{
+                fontFamily: "var(--font-inter-tight)", fontSize: 9, fontWeight: 600,
+                color: "rgba(57,45,43,0.55)", letterSpacing: "0.5px", minWidth: 30,
+                textAlign: "center", userSelect: "none",
+                background: "rgba(240,238,233,0.9)", backdropFilter: "blur(4px)",
+                padding: "5px 4px",
+              }}>
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))}
+                disabled={zoomLevel >= 3}
+                aria-label="Zoom in"
+                style={{
+                  width: 28, height: 28,
+                  background: "rgba(240,238,233,0.9)", backdropFilter: "blur(4px)",
+                  border: "1px solid rgba(57,45,43,0.15)",
+                  cursor: zoomLevel >= 3 ? "default" : "pointer",
+                  color: "#392D2B", fontSize: 18, lineHeight: 1,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  opacity: zoomLevel >= 3 ? 0.35 : 1,
+                  transition: "opacity 200ms ease",
+                }}
+              >+</button>
+              <a
+                href={pdfUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download PDF"
+                title="Download PDF"
+                style={{
+                  width: 28, height: 28,
+                  background: "rgba(240,238,233,0.9)", backdropFilter: "blur(4px)",
+                  border: "1px solid rgba(57,45,43,0.15)",
+                  color: "#392D2B",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  textDecoration: "none", flexShrink: 0,
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+              </a>
+            </div>
+          )}
         </div>
 
-        {/* Bottom bar */}
+        {/* Bottom bar — title + pagination + contact only */}
         <div style={{
           width: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "12px 16px 16px",
+          padding: "10px 16px 14px",
           flexShrink: 0,
           borderTop: "1px solid rgba(57,45,43,0.1)",
           gap: 12,
-          flexWrap: "wrap",
+          flexWrap: "nowrap",
         }}>
           {/* Title */}
           <h1 style={{
@@ -279,7 +403,7 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
 
           {/* Pagination */}
           {pdfDoc && totalPages > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, justifyContent: "center", minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, justifyContent: "center", minWidth: 0, overflow: "hidden" }}>
               <button type="button" onClick={goPrev} disabled={currentPage <= 1}
                 style={{
                   background: "none", border: "none",
@@ -290,7 +414,7 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
                   transition: "color 200ms ease", flexShrink: 0,
                 }}>← Prev</button>
 
-              <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 4, alignItems: "center", overflow: "hidden" }}>
                 {Array.from({ length: Math.min(totalPages, 20) }, (_, i) => {
                   const page = i + 1;
                   const active = page === currentPage;
@@ -331,78 +455,8 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
             </div>
           )}
 
-          {/* Right controls: zoom + download + contact */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            {/* Zoom controls */}
-            {pdfDoc && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.5))}
-                  disabled={zoomLevel <= 0.5}
-                  aria-label="Zoom out"
-                  style={{
-                    width: 28, height: 28,
-                    background: "rgba(57,45,43,0.06)",
-                    border: "1px solid rgba(57,45,43,0.15)",
-                    cursor: zoomLevel <= 0.5 ? "default" : "pointer",
-                    color: "#392D2B", fontSize: 18, lineHeight: 1,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    opacity: zoomLevel <= 0.5 ? 0.35 : 1,
-                    transition: "opacity 200ms ease",
-                  }}
-                >−</button>
-                <span style={{
-                  fontFamily: "var(--font-inter-tight)", fontSize: 9, fontWeight: 600,
-                  color: "rgba(57,45,43,0.5)", letterSpacing: "0.5px", minWidth: 34,
-                  textAlign: "center", userSelect: "none",
-                }}>
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))}
-                  disabled={zoomLevel >= 3}
-                  aria-label="Zoom in"
-                  style={{
-                    width: 28, height: 28,
-                    background: "rgba(57,45,43,0.06)",
-                    border: "1px solid rgba(57,45,43,0.15)",
-                    cursor: zoomLevel >= 3 ? "default" : "pointer",
-                    color: "#392D2B", fontSize: 18, lineHeight: 1,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    opacity: zoomLevel >= 3 ? 0.35 : 1,
-                    transition: "opacity 200ms ease",
-                  }}
-                >+</button>
-              </div>
-            )}
-
-            {/* Download */}
-            <a
-              href={pdfUrl}
-              download
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Download PDF"
-              title="Download PDF"
-              style={{
-                width: 28, height: 28,
-                background: "rgba(57,45,43,0.06)",
-                border: "1px solid rgba(57,45,43,0.15)",
-                cursor: "pointer",
-                color: "#392D2B",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                textDecoration: "none",
-                flexShrink: 0,
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-              </svg>
-            </a>
-
-            {/* Contact */}
+          {/* Contact */}
+          <div style={{ flexShrink: 0 }}>
             <PixelButton label="Contact" onClick={() => setContactOpen(true)} />
           </div>
         </div>

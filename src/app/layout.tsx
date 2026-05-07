@@ -6,6 +6,7 @@ import { LenisProvider } from "@/components/layout/LenisProvider";
 import { Preloader } from "@/components/layout/Preloader";
 import { PageTransitionOverlay } from "@/components/layout/PageTransitionOverlay";
 import { TransitionProvider } from "@/lib/transitionContext";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -59,6 +60,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-[#F6F5F2] text-[#392D2B] antialiased">
+        <CustomCursor />
         <Preloader />
         <TransitionProvider>
           <PageTransitionOverlay />

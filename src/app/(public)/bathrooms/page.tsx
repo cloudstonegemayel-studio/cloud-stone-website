@@ -95,6 +95,7 @@ export default function BathroomsPage() {
   const [revealedTitles, setRevealedTitles] = useState<Record<PanelSide, boolean>>({ left: false, right: false });
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [firstTap,      setFirstTap]      = useState<PanelSide | null>(null);
+  const [touchLabel,    setTouchLabel]    = useState<PanelSide | null>(null);
 
   useEffect(() => {
     setIsTouchDevice(window.matchMedia("(hover: none)").matches);
@@ -139,16 +140,18 @@ export default function BathroomsPage() {
     }
     if (firstTap !== physicalPanel) {
       setFirstTap(physicalPanel);
+      setTouchLabel(physicalPanel);
       showInfo(physicalPanel);
     } else {
       setFirstTap(null);
+      setTouchLabel(null);
       hideInfo();
       router.push(href);
     }
   };
 
   return (
-    <section ref={sectionRef} data-nav-dark id="section5" className="s5-section" aria-label="Bathroom collections">
+    <section ref={sectionRef} data-nav-dark data-custom-cursor id="section5" className="s5-section" aria-label="Bathroom collections">
       {/* Left panel — CloudStone_Bathrooms */}
       <div
         className={`s5-panel ${hoveredPanel === "left" ? "info-showing" : ""}`}
@@ -168,6 +171,12 @@ export default function BathroomsPage() {
         <div className="s5-photo-overlay" />
         <h1 className="s5-photo-title">CloudStone_Bathrooms</h1>
         <InfoPanel copy={infoCopy.left} active={activeInfo === "left"} titleRevealed={revealedTitles.left} />
+        {isTouchDevice && touchLabel === "left" && (
+          <div className="s5-touch-label" aria-hidden>
+            <div className="s5-touch-label-icon">→</div>
+            <span>Click to open<br />presentation</span>
+          </div>
+        )}
       </div>
 
       {/* Right panel — Gemayel Group */}
@@ -189,6 +198,12 @@ export default function BathroomsPage() {
         <div className="s5-photo-overlay" />
         <h2 className="s5-photo-title s5-photo-title-right">Gemayel Group</h2>
         <InfoPanel copy={infoCopy.right} active={activeInfo === "right"} titleRevealed={revealedTitles.right} />
+        {isTouchDevice && touchLabel === "right" && (
+          <div className="s5-touch-label" aria-hidden>
+            <div className="s5-touch-label-icon">→</div>
+            <span>Click to open<br />presentation</span>
+          </div>
+        )}
       </div>
 
       <div ref={cursorRef} id="s5-cursor" aria-hidden>
@@ -297,6 +312,28 @@ export default function BathroomsPage() {
           color: var(--color-surface,#f0eee9);
           text-transform: uppercase; white-space: nowrap;
           text-shadow: 0 1px 4px rgba(0,0,0,0.5); text-align: center;
+        }
+        .s5-touch-label {
+          position: absolute; inset: 0; z-index: 10;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+          background: rgba(57,45,43,0.28); pointer-events: none;
+          animation: s5-touch-label-in 0.35s ease both;
+        }
+        .s5-touch-label-icon {
+          width: 36px; height: 36px; border-radius: 50%;
+          background: #392D2B;
+          display: flex; align-items: center; justify-content: center;
+          color: #F0EEE9; font-size: 16px;
+        }
+        .s5-touch-label span {
+          font-family: var(--font-inter-tight,"Inter Tight",sans-serif);
+          font-weight: 700; font-size: 9px; letter-spacing: 1.17px;
+          color: #F0EEE9; text-transform: uppercase; text-align: center;
+          text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+        }
+        @keyframes s5-touch-label-in {
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
         @keyframes s5-hint-in {
           from { opacity: 0; transform: translateY(6px); }

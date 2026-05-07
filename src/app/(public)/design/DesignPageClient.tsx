@@ -714,8 +714,8 @@ function DotBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    canvas.height = canvas.offsetHeight || window.innerHeight;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
     t0Ref.current = performance.now();
 
     const frame = (now: number) => {
@@ -731,8 +731,8 @@ function DotBackground() {
 
     const onResize = () => {
       if (canvas) {
-        canvas.width  = canvas.offsetWidth  || window.innerWidth;
-        canvas.height = canvas.offsetHeight || window.innerHeight;
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
       }
     };
     const onMove   = (e: MouseEvent) => {
@@ -759,7 +759,7 @@ function DotBackground() {
 
   return (
     <canvas ref={canvasRef} aria-hidden
-      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none", display: "block" }}
+      style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 0, pointerEvents: "none", display: "block" }}
     />
   );
 }
@@ -783,8 +783,12 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
   }, []);
 
   return (
-    <div style={{ position: "relative", background: "#F0EEE9", overflowX: "hidden" }}>
-      {/* Section 1: canvas or grid */}
+    <>
+      {/* Fixed dot background — sits behind all sections (z:0) */}
+      <DotBackground />
+
+      <div style={{ position: "relative", overflowX: "hidden" }}>
+      {/* Section 1: opaque background covers the dot canvas */}
       <section
         style={{
           position: "relative",
@@ -792,9 +796,9 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
           minHeight: "100vh",
           overflow: "hidden",
           background: "#F0EEE9",
+          zIndex: 1,
         }}
       >
-        <DotBackground />
         {isCanvas
           ? <CanvasView projects={displayProjects} />
           : <GridView  projects={displayProjects} />
@@ -813,35 +817,16 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
         </div>
       </section>
 
-      {/* Sections 2 + 3: CTA + FAQ with dot background */}
-      <section
-        style={{
-          position: "relative",
-          
-          minHeight: "100vh",
-          overflow: "hidden",
-          
-	  zIndex: 1
-        }}
-      >
-            <CTASection />
+      {/* Section 2: CTA — no background, dot canvas shows through */}
+      <section style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>
+        <CTASection />
+      </section>
 
-        </section>
- <section
-        style={{
-          position: "relative",
-          
-          minHeight: "100vh",
-          overflow: "hidden",
-          
-	  zIndex: 1
-        }}
-      >
-
-                       <FAQSection />
-         
-        
-</section>
-          </div>
+      {/* Section 3: FAQ — no background, dot canvas shows through */}
+      <section style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>
+        <FAQSection />
+      </section>
+    </div>
+    </>
   );
 }
