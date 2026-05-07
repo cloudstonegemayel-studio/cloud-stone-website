@@ -92,7 +92,7 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
   );
 
   const rightPanel = (
-    <div style={{ overflow: "hidden", position: "relative" }}>
+    <div style={{ overflow: "hidden", position: "relative", minHeight: "50vh" }}>
       {block.big_image && (
         <div style={{
           position: "absolute",
