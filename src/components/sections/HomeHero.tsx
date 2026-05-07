@@ -101,15 +101,17 @@ function calcInitialPos(): Record<CardId, Pos> {
   const ch = CARD_H * s;
 
   if (vw < 768) {
-    // Mobile: 4 corners — 8 px from edges, between header (90 px) and bottom bar (80 px)
-    const pad  = 8;
-    const topY = 90;
-    const botY = Math.max(topY + ch + 16, vh - 80 - ch);
+    // Mobile: staggered diagonal — left·right·left·right going down the screen.
+    // safeH = range available for card top positions (header→footer exclusive).
+    const pad    = 8;
+    const HEADER = 86;
+    const FOOTER = 64;
+    const safeH  = vh - HEADER - FOOTER - ch;
     return {
-      design:    { x: pad,           y: topY },
-      bathrooms: { x: vw - cw - pad, y: topY },
-      shop:      { x: pad,           y: botY },
-      about:     { x: vw - cw - pad, y: botY },
+      design:    { x: pad,           y: HEADER + safeH * 0.04 }, // top-left
+      bathrooms: { x: vw - cw - pad, y: HEADER + safeH * 0.33 }, // upper-right
+      shop:      { x: pad,           y: HEADER + safeH * 0.58 }, // lower-left
+      about:     { x: vw - cw - pad, y: HEADER + safeH * 1.00 }, // bottom-right
     };
   }
 

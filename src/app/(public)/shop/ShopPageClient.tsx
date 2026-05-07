@@ -217,8 +217,8 @@ function FilterBar({ mode, filter, onMode, onFilter }: {
         background: "rgba(240,238,233,0.22)", margin: "0 8px", flexShrink: 0, position: "relative", zIndex: 2,
       }} />
 
-      {/* Chaos / Grid toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, position: "relative", zIndex: 2 }}>
+      {/* Chaos / Grid toggle — hidden on mobile via CSS */}
+      <div className="shop-view-toggle" style={{ display: "flex", alignItems: "center", gap: 6, position: "relative", zIndex: 2 }}>
         <span style={{
           fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
           fontWeight: 600, fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
@@ -717,7 +717,11 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setMode("grid"); // chaos mode is desktop-only
+    };
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -782,7 +786,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           <span style={{ color: "#C86733" }}>Material,</span> in its simplest form.
         </h1>
         <span style={{
-          display: "block", width: "min(397px, 80vw)", marginTop: "clamp(14px, 1.2vw, 24px)",
+          display: "block", width: "min(397px, 80vw)", marginTop: "clamp(10px, 1.2vw, 16px)",
           fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
           fontSize: 13, lineHeight: 1.23,
         }}>
@@ -893,6 +897,8 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
             bottom: 16px;
             zoom: 0.82;
           }
+          /* Hide Chaos/Grid toggle on mobile — only grid mode on mobile */
+          .shop-view-toggle { display: none !important; }
         }
       `}</style>
     </section>
