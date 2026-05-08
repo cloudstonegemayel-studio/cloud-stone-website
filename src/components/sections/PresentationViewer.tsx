@@ -65,6 +65,7 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
   // Pan pointer handlers
   const onPanDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (zoomRef.current <= 1) return;
+    if ((e.target as HTMLElement).closest("button, a, input, select, textarea, [role='button']")) return;
     dragRef.current = { sx: e.clientX, sy: e.clientY, px: panRef.current.x, py: panRef.current.y };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
