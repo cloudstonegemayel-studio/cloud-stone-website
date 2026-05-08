@@ -770,8 +770,8 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
       <DotBackground />
 
       {/* Header copy */}
-      <div style={{ position: "relative", display: "flex", alignItems: "flex-start", flexDirection: "column",
- zIndex: 2, padding: "120px 30px 0", width: "min(900px, calc(100vw - 60px))" }}>
+      <div style={{ position: "relative", display: "flex", alignItems: "flex-start", flexDirection: "column", gap: "8px",
+ zIndex: 2, padding: "120px 30px 0", width: "calc(100vw - 60px)" }}>
         <h1 style={{
           margin: 0,
           fontFamily: "var(--font-rader, 'PP Rader', sans-serif)",
@@ -781,7 +781,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           <span style={{ color: "#C86733" }}>Material,</span> in its simplest form.
         </h1>
         <span style={{
-          display: "block", width: "min(450px, 80vw)", marginTop: "clamp(8px, 1.2vw, 16px)",
+          display: "block", width: "min(450px, 80vw)", 
           fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
           fontSize: 13, lineHeight: 1.23,
         }}>
@@ -813,13 +813,14 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           ))}
         </div>
       ) : (
-        /* Desktop / chaos: absolute-positioned stage */
+        /* Desktop stage — relative in grid mode, absolute in chaos */
         <div
           ref={stageRef}
           style={{
-            position: "absolute",
-            zIndex: 2, left: "min(30px, 4vw)", top: "clamp(100px, 13vw, 240px)",
-            width: "calc(100vw - 60px)",
+            position: mode === "chaos" ? "absolute" : "relative",
+            zIndex: 2,
+            ...(mode === "chaos" ? { left: "min(30px, 4vw)", top: "clamp(100px, 13vw, 240px)" } : {}),
+            width: mode === "chaos" ? "calc(100vw - 60px)" : "100%",
             height: "min(680px, calc(100svh - 370px))",
             zoom: isMobile ? "0.75" : undefined,
           }}
