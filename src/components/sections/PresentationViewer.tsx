@@ -494,8 +494,8 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
                 </h2>
               </div>
               <button type="button" onClick={() => setContactOpen(false)}
-                style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-inter-tight)", fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px", color: "rgba(57,45,43,0.4)" }}>
-                Close ×
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 22, lineHeight: 1, color: "rgba(57,45,43,0.5)", padding: 0 }}>
+                ×
               </button>
             </div>
             <ContactForm sourcePage={sourcePage} compact />

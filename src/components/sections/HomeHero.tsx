@@ -607,12 +607,10 @@ function ContactPopup({ onClose }: { onClose: () => void }) {
           style={{
             position: "absolute", top: 30, right: 30,
             background: "none", border: "none", padding: 0, cursor: "pointer",
-            fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
-            fontWeight: 500, fontSize: 11.52, letterSpacing: "-0.3456px",
-            textTransform: "uppercase", color: "#392D2B", whiteSpace: "pre",
+            fontSize: 22, lineHeight: 1, color: "#392D2B",
           }}
         >
-          Close ×
+          ×
         </button>
 
         {/* Logo */}

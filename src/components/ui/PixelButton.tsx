@@ -31,25 +31,19 @@ export function PixelButton({
   const [hover,  setHover]  = useState(false);
   const [active, setActive] = useState(false);
 
-  // Wing padding — proportional at 1920 px base (÷1920 → vw)
-  const lPad = active ? "max(19px,1.531vw)" : hover ? "max(24px,1.927vw)" : "max(20px,1.563vw)";
-  const rPad = active ? "max(11px,0.868vw)" : hover ? "max(16px,1.25vw)"  : "max(12px,0.885vw)";
+  // Wing offset — wings slide outward on hover, snap back on press
+  const wingShift = active ? 0 : hover ? 8 : 0;
+  const wingTrans = "transform 0.22s cubic-bezier(0.16,1,0.3,1)";
 
-  // Merge caller's transition with internal padding transition
   const { transition: extTrans, ...restStyle } = style ?? {};
-  const mergedTransition = [
-    "padding-left 0.2s cubic-bezier(0.16,1,0.3,1)",
-    "padding-right 0.2s cubic-bezier(0.16,1,0.3,1)",
-    extTrans,
-  ].filter(Boolean).join(", ");
 
   const wrapperStyle: React.CSSProperties = {
     position:      "relative",
     display:       "inline-flex",
     flexDirection: "column",
     alignItems:    "flex-start",
-    paddingLeft:   lPad,
-    paddingRight:  rPad,
+    paddingLeft:   "max(20px,1.563vw)",
+    paddingRight:  "max(12px,0.885vw)",
     background:    "none",
     border:        "none",
     cursor:        "pointer",
@@ -57,7 +51,7 @@ export function PixelButton({
     userSelect:    "none",
     textDecoration: "none",
     WebkitTapHighlightColor: "transparent",
-    transition:    mergedTransition,
+    transition:    extTrans,
     ...restStyle,
   };
 
@@ -70,20 +64,24 @@ export function PixelButton({
 
   const inner = (
     <>
-      {/* Left pixel-dot wing */}
+      {/* Left pixel-dot wing — slides left on hover */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/btn-left.svg" alt="" aria-hidden="true" draggable={false} style={{
         position: "absolute", left: 0, top: 0, bottom: 0,
-        width: "max(65px,5.26vw)", height: "100%",   // 101 px @ 1920
+        width: "max(65px,5.26vw)", height: "100%",
         pointerEvents: "none", display: "block",
+        transform: `translateX(${-wingShift}px)`,
+        transition: wingTrans,
       }} />
 
-      {/* Right pixel-dot wing */}
+      {/* Right pixel-dot wing — slides right on hover */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/btn-right.svg" alt="" aria-hidden="true" draggable={false} style={{
         position: "absolute", right: 0, top: 0,
-        width: "max(65px,5.21vw)", height: "100%",       // 100 px @ 1920
+        width: "max(65px,5.21vw)", height: "100%",
         pointerEvents: "none", display: "block",
+        transform: `translateX(${wingShift}px)`,
+        transition: wingTrans,
       }} />
 
       {/* Dark body rect */}

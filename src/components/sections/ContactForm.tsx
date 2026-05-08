@@ -177,6 +177,8 @@ export function ContactForm({ sourcePage, onSuccess, compact }: ContactFormProps
         pointerEvents: state === "loading" ? "none" : "auto",
         opacity: state === "loading" ? 0.6 : 1,
         transition: "opacity 200ms ease",
+        display: "flex",
+        justifyContent: "center",
       }}>
         <PixelButton
           type="submit"

@@ -460,12 +460,10 @@ function RequestPopup({ item, onClose }: { item: ShopItem; onClose: () => void }
             aria-label="Close"
             style={{
               background: "none", border: "none", cursor: "pointer",
-              fontFamily: "var(--font-inter-tight)", fontSize: 9,
-              fontWeight: 600, textTransform: "uppercase", letterSpacing: "1.17px",
-              color: "rgba(57,45,43,0.4)", padding: "4px 0",
+              fontSize: 22, lineHeight: 1, color: "rgba(57,45,43,0.5)", padding: 0,
             }}
           >
-            Close ×
+            ×
           </button>
         </div>
         <ContactForm
@@ -820,7 +818,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           ref={stageRef}
           style={{
             position: "absolute",
-            zIndex: 2, left: "min(30px, 4vw)", top: "clamp(100px, 11vw, 210px)",
+            zIndex: 2, left: "min(30px, 4vw)", top: "clamp(100px, 13vw, 240px)",
             width: "calc(100vw - 60px)",
             height: "min(680px, calc(100svh - 370px))",
             zoom: isMobile ? "0.75" : undefined,
