@@ -81,6 +81,7 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
             lineHeight: 1.2,
             color: textCol,
             flex: 1,
+	    fontWeight: 400,
             opacity: textVisible ? 1 : 0,
             transition: "opacity 0.9s ease",
           }}>
@@ -107,7 +108,7 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
             alt=""
             fill
             sizes="(max-width:768px) 100vw, 50vw"
-            style={{ objectFit: "contain", objectPosition: "center" }}
+            style={{ objectFit: "cover", objectPosition: "bottom", minHeight: "50vh" }}
           />
         </div>
       )}

@@ -770,7 +770,8 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
       <DotBackground />
 
       {/* Header copy */}
-      <div style={{ position: "relative", zIndex: 2, padding: "120px 30px 0", width: "min(900px, calc(100vw - 60px))" }}>
+      <div style={{ position: "relative", display: "flex", alignItems: "flex-start", flexDirection: "column",
+ zIndex: 2, padding: "120px 30px 0", width: "min(900px, calc(100vw - 60px))" }}>
         <h1 style={{
           margin: 0,
           fontFamily: "var(--font-rader, 'PP Rader', sans-serif)",
@@ -780,15 +781,14 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           <span style={{ color: "#C86733" }}>Material,</span> in its simplest form.
         </h1>
         <span style={{
-          display: "block", width: "min(397px, 80vw)", marginTop: "clamp(10px, 1.2vw, 16px)",
+          display: "block", width: "min(450px, 80vw)", marginTop: "clamp(8px, 1.2vw, 16px)",
           fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
           fontSize: 13, lineHeight: 1.23,
         }}>
           Objects shaped through the same process — design, fabrication, and detail.
         </span>
-      </div>
 
-      {isStaticGrid ? (
+{isStaticGrid ? (
         /* Mobile grid: flex-wrap layout, each card in a zoomed wrapper */
         <div style={{
           position: "relative",
@@ -842,6 +842,9 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           ))}
         </div>
       )}
+      </div>
+
+      
 
       {/* Filter bar */}
       <div className={isStaticGrid ? "shop-filter-wrap-static" : "shop-filter-wrap"}>
