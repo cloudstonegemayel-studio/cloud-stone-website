@@ -23,7 +23,7 @@ const SERVICES = [
   {
     title: "Bathrooms",
     meta: "Design",
-    image: "/images/image-70.png",
+    image: "/images/bath-left.png",
     href: "/bathrooms",
   },
   {
@@ -254,6 +254,7 @@ function ProjectDotHero() {
         priority
         sizes="100vw"
         className={`about-project-hero-image${imgVisible ? " img-visible" : ""}`}
+        style={{ objectFit: "cover", objectPosition: "center bottom" }}
       />
       <div className="about-project-hero-overlay" />
       <canvas ref={canvasRef} className="about-project-mask" aria-hidden="true" />
