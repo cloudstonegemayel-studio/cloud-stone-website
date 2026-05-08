@@ -278,7 +278,7 @@ export function Preloader() {
         left:           30,
         right:          30,
         display:        "flex",
-        alignItems:     "flex-start",
+        alignItems:     "flex-end",
         justifyContent: "space-between",
         opacity:        isLoading ? 1 : 0,
         transition:     "opacity 0.3s ease",
@@ -319,7 +319,7 @@ export function Preloader() {
           }}>
             <span style={{
               fontFamily: "var(--font-rader)", fontWeight: 400,
-              fontSize: "clamp(40px,3.6vw,70px)", lineHeight: "80px", letterSpacing: "-0.01em",
+              fontSize: "clamp(40px,3.6vw,70px)", lineHeight: "90%", letterSpacing: "-0.01em",
               color: "#392D2B", whiteSpace: "nowrap",
               fontVariantNumeric: "tabular-nums",
               verticalAlign: "top", display: "block", marginTop: -4,

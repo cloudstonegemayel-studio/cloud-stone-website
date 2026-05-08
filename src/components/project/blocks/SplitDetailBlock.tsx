@@ -56,7 +56,7 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
           <div style={{
             position: "relative",
             width: "18.5vw",
-            height: "clamp(200px,41vh,445px)",
+            height: "clamp(150px,23.15vw,445px)",
             transform: inView ? "translateY(0)" : "translateY(80px)",
             opacity: inView ? 1 : 0,
             transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 1.2s cubic-bezier(0.16,1,0.3,1)",

@@ -420,13 +420,13 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
                 alt={project.section2_image_alt ?? project.title}
                 fill
                 sizes="(max-width:768px) 100vw, 50vw"
-                style={{ objectFit: "cover", objectPosition: "center" }}
+                style={{ objectFit: "cover", position: "absolute", objectPosition: "center", bottom: 0, height: "50vh" }}
               />
             )}
           </div>
         </div>
         <div className="project-s2-info">
-          <h2 className="project-s2-title">
+          <h2 className="project-s2-title">S
             <RevealTitle text={project.title} active={s2TitleVisible} />
           </h2>
           <div className="project-s2-bottom">
@@ -491,22 +491,26 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
             Enable motion
           </button>
         )}
-        <Link className="project-s4-start-btn" href="/contacts">
+        <button
+          type="button"
+          className="project-s4-start-btn"
+          onClick={() => document.getElementById("footer")?.scrollIntoView({ behavior: "smooth" })}
+        >
           Start your project
-        </Link>
+        </button>
       </section>
 
       {/* ── CSS (preserved exactly from original) ────────────────────── */}
       <style jsx global>{`
         .project-page { background:var(--color-dark,#392d2b); color:var(--color-dark,#392d2b); overflow-x:hidden; }
         .project-hero { position:relative; width:100vw; height:100vh; min-height:600px; overflow:hidden; background:var(--color-dark,#392d2b); contain:strict; }
-        .project-hero-bg-photo,.project-hero-bg-overlay,.project-dot-mask-canvas,.project-dot-grid { position:absolute; inset:0; }
-        .project-hero-bg-photo { z-index:0; transform:scaleX(-1); }
+        .project-hero-bg-photo,.project-hero-bg-overlay,.project-dot-mask-canvas,.project-dot-grid { position:absolute; inset:0;  }
+        .project-hero-bg-photo { z-index:0; transform:scaleX(-1); max-height: 100vh; }
         .project-hero-bg-overlay { background:rgba(0,0,0,0.5); z-index:1; pointer-events:none; }
         .project-dot-mask-canvas { z-index:2; pointer-events:none; width:100%; height:100%; max-width:100vw; max-height:100vh; }
         .project-dot-grid { z-index:4; pointer-events:auto; overflow:hidden; width:100%; height:100%; max-width:100vw; max-height:100vh; }
         .project-hero-title { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(50px,12.4vh,150px); margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(36px,3.65vw,70px); line-height:0.9; color:var(--color-surface,#f0eee9); z-index:10; pointer-events:none; }
-        .project-hero-desc { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(110px,15.5vh,140px); width:clamp(200px,20vw,360px); margin:0; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-size:clamp(11px,1.04vw,20px); line-height:1.2; color:var(--color-surface,#f0eee9); z-index:10; opacity:0; transition:opacity 0.8s ease; }
+        .project-hero-desc { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(100px,14.5vh,140px); width:clamp(200px,20vw,360px); margin:0; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-size:clamp(11px,1.04vw,20px); line-height:1.2; color:var(--color-surface,#f0eee9); z-index:10; opacity:0; transition:opacity 0.8s ease; }
         .project-hero-desc.text-visible { opacity:1; }
         .project-hero-slider { position:absolute; right:5%; top:50%; transform:translateY(-50%); width:33%; height:75vh; z-index:9; overflow:hidden; }
         .project-hero-slide { position:absolute; inset:0; opacity:0; transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1); pointer-events:none; }
@@ -524,7 +528,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         .project-nav-btn:hover { opacity:0.72; transform:translateY(-1px); }
         .project-section-2 { width:100vw; height:100vh; min-height:600px; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; background:var(--color-grey-light,#e7e6e4); contain:layout; }
         .project-s2-photo-wrap { overflow:hidden; position:relative; }
-        .project-s2-photo { position:absolute; inset:-10%; transform:translateY(60px); opacity:0; transition:transform 1.1s cubic-bezier(0.16,1,0.3,1),opacity 1.1s cubic-bezier(0.16,1,0.3,1); }
+        .project-s2-photo { position:absolute; inset:0; transform:translateY(60px); opacity:0; transition:transform 1.1s cubic-bezier(0.16,1,0.3,1),opacity 1.1s cubic-bezier(0.16,1,0.3,1); object-position: center bottom; }
         .project-s2-photo.in-view { transform:translateY(0); opacity:1; }
         .project-s2-info { background:var(--color-surface,#f0eee9); display:flex; flex-direction:column; padding:clamp(40px,5.2vh,100px) clamp(20px,1.56vw,30px) clamp(20px,2.8vh,30px); justify-content:space-between; }
         .project-s2-title { margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(28px,3.65vw,70px); line-height:0.9; color:var(--color-dark,#392d2b); text-align:right; }
@@ -545,7 +549,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         .project-char { display:inline-block; opacity:0; filter:blur(8px); transform:translateY(6px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),filter 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
         .project-char.visible { opacity:1; filter:blur(0); transform:translateY(0); }
         .project-s4-gyro-btn {
-          position:absolute; bottom:clamp(140px,18vh,180px);
+          position:absolute; bottom:clamp(180px,23vh,230px);
           background:rgba(240,238,233,0.15); border:1px solid rgba(240,238,233,0.4);
           color:var(--color-surface,#f0eee9); cursor:pointer;
           font-family:var(--font-inter-tight,"Inter Tight",sans-serif);
@@ -555,9 +559,9 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         }
         .project-s4-gyro-btn:hover { background:rgba(240,238,233,0.25); }
         @media (max-width:768px) {
-          .project-hero-slider { width:min(58vw,360px); height:56vh; right:clamp(16px,5vw,30px); }
-          .project-section-2 { grid-template-columns:1fr; height:auto; min-height:unset; }
-          .project-s2-photo-wrap { height:50vw; min-height:220px; }
+          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:16px; transform:translateX(-50%); }
+          .project-section-2 { grid-template-columns:1fr; height:auto; min-height:100vh; }
+          .project-s2-photo-wrap { height:50vh; min-height:220px; }
           .project-s2-info { min-height:320px; }
           .project-s2-bottom { flex-direction:column; align-items:stretch; }
           .project-s4-nav { gap:clamp(18px,5vw,40px); }

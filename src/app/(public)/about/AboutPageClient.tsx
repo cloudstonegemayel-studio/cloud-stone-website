@@ -23,7 +23,7 @@ const SERVICES = [
   {
     title: "Bathrooms",
     meta: "Design",
-    image: "/images/design/79AB18DD-3959-4C04-9A5E-417E691B6D46.JPG",
+    image: "/images/image-70.png",
     href: "/bathrooms",
   },
   {
@@ -248,7 +248,7 @@ function ProjectDotHero() {
   return (
     <section className="about-project-hero" data-nav-dark aria-label="About Cloud Stone Studio">
       <Image
-        src="/images/image-70.png"
+        src="/images/design/79AB18DD-3959-4C04-9A5E-417E691B6D46.JPG"
         alt=""
         fill
         priority
@@ -393,7 +393,7 @@ function ServicesSection() {
           >
             <div
               className="about-service-image"
-              style={index === 1 ? { borderRadius: "156px 156px 0 0" } : undefined}
+              style={index === 1 ? { borderRadius: "0" } : undefined}
             >
               <Image
                 src={service.image}

@@ -310,7 +310,7 @@ export function PresentationViewer({ pdfUrl, title, sourcePage }: PresentationVi
           {/* Zoom + Download — float above the border line, top-right of canvas area */}
           {pdfDoc && (
             <div style={{
-              position: "absolute", top: 12, right: 12,
+              position: "absolute", bottom: 12, right: 12,
               display: "flex", alignItems: "center", gap: 4,
               zIndex: 10,
             }}>
