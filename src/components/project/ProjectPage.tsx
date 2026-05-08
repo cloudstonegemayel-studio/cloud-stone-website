@@ -420,13 +420,13 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
                 alt={project.section2_image_alt ?? project.title}
                 fill
                 sizes="(max-width:768px) 100vw, 50vw"
-                style={{ objectFit: "cover", position: "absolute", objectPosition: "center", bottom: 0, height: "50vh" }}
+                style={{ objectFit: "cover", position: "absolute", objectPosition: "bottom", bottom: 0, minHeight: "50vh" }}
               />
             )}
           </div>
         </div>
         <div className="project-s2-info">
-          <h2 className="project-s2-title">S
+          <h2 className="project-s2-title">
             <RevealTitle text={project.title} active={s2TitleVisible} />
           </h2>
           <div className="project-s2-bottom">
@@ -496,7 +496,12 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           className="project-s4-start-btn"
           onClick={() => document.getElementById("footer")?.scrollIntoView({ behavior: "smooth" })}
         >
-          Start your project
+          <span>Start</span>
+          <span>your</span>
+          <span>project</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="9" height="79" viewBox="0 0 9 79" fill="none" style={{ marginTop: 6 }} aria-hidden="true">
+            <path d="M4.29687 0L4.29687 77.6003M8.69687 73.2003L4.29687 77.6003L0.296875 73.2003" stroke="#F0EEE9" strokeWidth="0.8"/>
+          </svg>
         </button>
       </section>
 
@@ -542,9 +547,8 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         .project-s4-content { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:clamp(16px,2vh,28px); }
         .project-s4-nav { display:flex; gap:clamp(60px,8vw,160px); align-items:center; }
         .project-s4-title { margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(28px,3.65vw,70px); line-height:0.9; color:var(--color-surface,#f0eee9); text-align:center; }
-        .project-s4-start-btn { position:absolute; bottom:clamp(40px,8.6vh,93px); height:92px; display:flex; flex-direction:column; align-items:center; gap:8px; background:none; border:none; cursor:pointer; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-weight:700; font-size:clamp(7px,0.47vw,9px); letter-spacing:1.17px; color:var(--color-surface,#f0eee9); text-transform:uppercase; text-decoration:none; z-index:2; transition:opacity 250ms ease; }
+        .project-s4-start-btn { position:absolute; bottom:clamp(40px,8.6vh,93px); display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; cursor:pointer; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-weight:700; font-size:clamp(7px,0.47vw,9px); letter-spacing:1.17px; color:var(--color-surface,#f0eee9); text-transform:uppercase; text-decoration:none; z-index:2; transition:opacity 250ms ease; }
         .project-s4-start-btn:hover { opacity:0.72; }
-        .project-s4-start-btn::after { content:""; display:block; width:1px; height:clamp(40px,5vh,77px); background:var(--color-surface,#f0eee9); margin-top:6px; }
         .project-word { display:inline-block; margin-right:0.28em; white-space:nowrap; }
         .project-char { display:inline-block; opacity:0; filter:blur(8px); transform:translateY(6px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),filter 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
         .project-char.visible { opacity:1; filter:blur(0); transform:translateY(0); }
@@ -562,7 +566,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:16px; transform:translateX(-50%); }
           .project-section-2 { grid-template-columns:1fr; height:auto; min-height:100vh; }
           .project-s2-photo-wrap { height:50vh; min-height:220px; }
-          .project-s2-info { min-height:320px; }
+          .project-s2-info { min-height:50vh; }
           .project-s2-bottom { flex-direction:column; align-items:stretch; }
           .project-s4-nav { gap:clamp(18px,5vw,40px); }
         }
