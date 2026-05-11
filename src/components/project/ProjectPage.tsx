@@ -568,7 +568,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         }
         .project-s4-gyro-btn:hover { background:rgba(240,238,233,0.25); }
         @media (max-width:768px) {
-          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:16px; transform:translateX(-50%); }
+          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:50px; transform:translateX(-50%); }
           .project-section-2 { grid-template-columns:1fr; height:auto; min-height:100vh; }
           .project-s2-photo-wrap { height:50vh; min-height:220px; }
           .project-s2-info { min-height:50vh; }

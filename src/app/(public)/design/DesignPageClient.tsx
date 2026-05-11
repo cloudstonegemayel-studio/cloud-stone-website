@@ -120,7 +120,7 @@ function CardInner({
           textTransform: "uppercase",
           color: hovered ? textColor : "#392D2B",
           transition: "color 0.3s ease",
-          textAlign: "right", maxWidth: "62%",
+          textAlign: "right", maxWidth: "75%",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
           {project.title}

@@ -99,7 +99,8 @@ export function PixelButton({
         display:    "flex",
         alignItems: "center",
         gap:        "max(10px,0.729vw)",
-        padding:    "max(5.5px,0.391vw) max(14px,1.042vw)",
+        height:     26,
+        padding:    "0 max(14px,1.042vw)",
         width:      "100%",
         whiteSpace: "nowrap",
       }}>

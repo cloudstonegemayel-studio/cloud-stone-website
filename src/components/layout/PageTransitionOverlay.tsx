@@ -13,7 +13,7 @@ const BLOB_DEFS = [
   { p: [ 0.00, -0.10,  0.75] as const, r: 0.80 },
 ];
 
-const ROT_PERIOD = 8000; // ms per full Y rotation
+const ROT_PERIOD = 3500; // ms per full Y rotation
 const BG_COLOR   = "#DDE7EF";
 const CLOUD_HEX  = 0xaed0f0;
 
