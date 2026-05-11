@@ -27,7 +27,7 @@ export function Preloader() {
   const logoHoleRafRef  = useRef<number>(0);
   const edgeVarRef      = useRef<EdgeVariation | null>(null);
 
-  const [visible,            setVisible]          = useState(false);
+  const [visible,            setVisible]          = useState(true);
   const [ready,              setReady]            = useState(false);
   const [progress,           setProgress]         = useState(0);
   const [displayPct,         setDisplayPct]       = useState(0);
@@ -45,12 +45,11 @@ export function Preloader() {
       sessionStorage.getItem("cs-preloader") ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
-      // Returning visitor or reduced-motion — skip entirely, fire done event
+      // Returning visitor or reduced-motion — hide before paint, fire done event
+      setVisible(false);
       window.dispatchEvent(new CustomEvent("cs-preloader-done"));
-    } else {
-      // First visit — show preloader (fires before paint, no flash)
-      setVisible(true);
     }
+    // else: first visit — stay visible (initial state is already true)
   }, []);
 
   // ── Exit ─────────────────────────────────────────────────────────────────

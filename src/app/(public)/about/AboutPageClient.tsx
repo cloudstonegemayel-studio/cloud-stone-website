@@ -355,9 +355,30 @@ function FounderSection() {
         </div>
       </div>
       <div className="about-founder-bio">
-        <div className={`about-founder-heading ${entered ? "in-view" : ""}`}>
-          <p>Founder</p>
-          <h2>Antonio Gemayel</h2>
+        <div className="about-founder-heading">
+          <p aria-label="Founder">
+            {(["Founder"] as const).map((word, i) => (
+              <span key={word} aria-hidden style={{
+                display: "inline-block",
+                opacity: entered ? 1 : 0,
+                filter: entered ? "blur(0px)" : "blur(10px)",
+                transform: entered ? "translateY(0)" : "translateY(14px)",
+                transition: `opacity 0.9s ease ${0.2 + i * 0.1}s, filter 0.9s ease ${0.2 + i * 0.1}s, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.1}s`,
+              }}>{word}</span>
+            ))}
+          </p>
+          <h2 aria-label="Antonio Gemayel">
+            {(["Antonio", "Gemayel"] as const).map((word, i) => (
+              <span key={word} aria-hidden style={{
+                display: "inline-block",
+                marginRight: i < 1 ? "0.28em" : 0,
+                opacity: entered ? 1 : 0,
+                filter: entered ? "blur(0px)" : "blur(10px)",
+                transform: entered ? "translateY(0)" : "translateY(14px)",
+                transition: `opacity 0.9s ease ${0.3 + i * 0.1}s, filter 0.9s ease ${0.3 + i * 0.1}s, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${0.3 + i * 0.1}s`,
+              }}>{word}</span>
+            ))}
+          </h2>
         </div>
         <div className={`about-founder-bottom ${entered ? "in-view" : ""}`}>
           <div className="about-founder-copy">
@@ -468,9 +489,20 @@ function FAQItem({
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const active = open || hovered;
+  const delay = 0.05 + index * 0.08;
 
   return (
-    <div className={`about-faq-item ${entered ? "entered" : ""} ${open ? "open" : ""}`}>
+    <div
+      className={`about-faq-item ${entered ? "entered" : ""} ${open ? "open" : ""}`}
+      style={{ "--item-delay": `${delay}s` } as CSSProperties}
+    >
+      <svg style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: 1, overflow: "visible", pointerEvents: "none" }} preserveAspectRatio="none">
+        <line x1="0" y1="0.5" x2="100%" y2="0.5" stroke="#392D2B" strokeWidth="1"
+          pathLength={1} strokeDasharray={1}
+          strokeDashoffset={entered ? 0 : 1}
+          style={{ transition: `stroke-dashoffset 0.8s ease ${delay + 0.1}s` }}
+        />
+      </svg>
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -499,6 +531,14 @@ function FAQSection() {
     <section ref={ref} className="about-faq" aria-label="FAQ">
       <h2 className={entered ? "in-view" : ""}>FAQ</h2>
       <div className={`about-faq-list ${entered ? "in-view" : ""}`}>
+        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", overflow: "visible" }} preserveAspectRatio="none">
+          <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)"
+            fill="none" stroke="#392D2B" strokeWidth="1"
+            pathLength={1} strokeDasharray={1}
+            strokeDashoffset={entered ? 0 : 1}
+            style={{ transition: "stroke-dashoffset 1.2s ease 0.2s" }}
+          />
+        </svg>
         {FAQ_ITEMS.map((item, index) => (
           <FAQItem item={item} index={index} entered={entered} key={index} />
         ))}
@@ -721,15 +761,7 @@ export function AboutPageClient() {
         .about-founder-heading {
           width: min(418px, 100%);
           text-align: right;
-          opacity: 0;
           margin-top: 80px;
-          transform: translateY(12px);
-          transition: opacity 0.7s ease 0.2s, transform 0.7s var(--ease-expo-out) 0.2s;
-        }
-
-        .about-founder-heading.in-view {
-          opacity: 1;
-          transform: translateY(0);
         }
 
         .about-founder-heading p {
@@ -959,23 +991,18 @@ export function AboutPageClient() {
 
         .about-faq-list {
           position: relative;
-          border: 1px solid var(--color-dark, #392d2b);
-          opacity: 0;
-          transform: translateY(10px);
-          transition: opacity 0.7s ease 0.15s, transform 0.7s var(--ease-expo-out) 0.15s;
-        }
-
-        .about-faq-list.in-view {
-          opacity: 1;
-          transform: translateY(0);
         }
 
         .about-faq-item {
-          border-bottom: 1px solid var(--color-dark, #392d2b);
+          position: relative;
+          opacity: 0;
+          transform: translateY(8px);
+          transition: opacity 0.5s ease var(--item-delay, 0s), transform 0.5s cubic-bezier(0.16,1,0.3,1) var(--item-delay, 0s);
         }
 
-        .about-faq-item:last-child {
-          border-bottom: 0;
+        .about-faq-item.entered {
+          opacity: 1;
+          transform: translateY(0);
         }
 
         .about-faq-question {
