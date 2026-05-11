@@ -265,11 +265,12 @@
     transform: translateX(4px);
   }
 
-  /* Nav-pixel — inverted caps when header sits over a dark section */
+  /* Nav-pixel — light caps when header sits over a dark section */
   .nav-pixel--light::before,
   .nav-pixel--light::after {
-    filter: brightness(10);
-    transition: filter 350ms ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: none;
+    background-image: url("/nav-right-texture-light.svg");
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* Filter bar variant — right cap extends beyond container */

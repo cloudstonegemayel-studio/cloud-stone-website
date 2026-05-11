@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { DesignPageClient, type Project } from "./DesignPageClient";
+import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Design Projects",
@@ -38,5 +39,10 @@ export default async function DesignPage() {
     };
   });
 
-  return <DesignPageClient projects={projects} />;
+  return (
+    <>
+      <DesignPageClient projects={projects} />
+      <Footer />
+    </>
+  );
 }

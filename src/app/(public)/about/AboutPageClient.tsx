@@ -511,12 +511,12 @@ export function AboutPageClient() {
   return (<div className="about-dotted-content">
         <DotBackground />
     <div className="about-page">
-      /*<ProjectDotHero />*/
+     
       
         <div className="about-content-layer">
           <FounderSection />
 	  <AboutStatement />
-          /* <ServicesSection />*/
+         
           <FAQSection />
         </div>
       </div>

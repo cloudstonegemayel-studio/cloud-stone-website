@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ContentBlock, SliderItem } from "@/types/blocks";
 import { ProjectRenderer } from "./ProjectRenderer";
+import { PixelButton } from "@/components/ui/PixelButton";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface ProjectData {
@@ -407,6 +408,10 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
               next project<ArrowRight />
             </Link>
           ) : <span />}
+        </div>
+
+        <div style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+          <PixelButton href="/contacts" label="Inquire" />
         </div>
       </section>
 

@@ -45,27 +45,6 @@ const COL_Y_PATS: number[][] = [
   [0.04, 0.57],
 ];
 
-// ── Cloud icon ─────────────────────────────────────────────────────────────────
-function CloudIcon({ size = 50 }: { size?: number }) {
-  const h = size * 0.672;
-  return (
-    <div style={{ position: "relative", width: size, height: h, flexShrink: 0 }}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 39" fill="none"
-        style={{ width: "100%", height: "100%", display: "block" }}>
-        <path
-          d="M40.6769 28.3965C40.6769 28.3965 36.9445 38.1942 27.6133 38.1942C18.7486 38.6608 14.5496 29.3296 14.5496 29.3296C14.5496 29.3296 4.75181 33.5286 1.0193 24.1974C-1.40682 18.1321 4.97063 12.0668 8.01768 12.0668C8.01768 12.0668 9.15931 6.46812 14.5496 5.06845C19.9398 3.66877 24.5303 6.38562 24.3473 6.93469C24.1646 7.48281 27.6132 -1.46339 36.0113 0.869396C43.4763 2.94301 43.4763 11.1337 43.4763 11.1337C43.4763 11.1337 57.9396 8.80092 56.5399 22.3312C53.7406 34.9283 40.6769 28.3965 40.6769 28.3965Z"
-          fill="#F0EEE9" stroke="#392D2B" strokeWidth="0.5"
-        />
-      </svg>
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", paddingBottom: 3 }}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
-          <path d="M10.5828 10.0887V1.89826M10.5828 10.0887L0.344727 0.362549M10.5828 10.0887H2.13639" stroke="#392D2B" />
-        </svg>
-      </div>
-    </div>
-  );
-}
-
 // ── Shared card inner ─────────────────────────────────────────────────────────
 function CardInner({
   project, hovered, onEnter, onLeave, isLink,
@@ -128,7 +107,7 @@ function CardInner({
       }}>
         <span style={{
           fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
-          fontWeight: 500, fontSize: 9.829,
+          fontWeight: 500, fontSize: 14,
           letterSpacing: "-0.295px", textTransform: "uppercase", lineHeight: "75%",
           color: hovered ? textColor : "#392D2B",
           transition: "color 0.3s ease", whiteSpace: "nowrap",
@@ -137,7 +116,7 @@ function CardInner({
         </span>
         <span style={{
           fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
-          fontWeight: 400, fontSize: 8.532, lineHeight: "120%",
+          fontWeight: 400, fontSize: 12, lineHeight: "120%",
           textTransform: "uppercase",
           color: hovered ? textColor : "#392D2B",
           transition: "color 0.3s ease",
@@ -148,29 +127,6 @@ function CardInner({
         </span>
       </div>
 
-      {/* Cloud icon */}
-      <div style={{
-        position: "absolute", right: -10, top: -20,
-        transform: hovered ? "scale(1.15)" : "scale(1)",
-        transformOrigin: "center",
-        transition: "transform 0.45s cubic-bezier(0.34,1.56,0.64,1)",
-        zIndex: 5, pointerEvents: isLink ? "none" : "auto",
-      }}>
-        {isLink
-          ? <CloudIcon size={50} />
-          : (
-            <Link
-              href={`/design/${project.slug}`}
-              draggable={false}
-              aria-label={`Open ${project.title}`}
-              style={{ display: "block" }}
-              onClick={e => e.stopPropagation()}
-            >
-              <CloudIcon size={50} />
-            </Link>
-          )
-        }
-      </div>
     </div>
   );
 
@@ -289,7 +245,7 @@ function CanvasView({ projects }: { projects: Project[] }) {
     clickTargetRef.current = null;
   };
 
-  const numCols   = Math.max(3, Math.floor(vw / CARD_W));
+  const numCols   = Math.min(5, Math.max(2, Math.floor(vw / CARD_W)));
   const colW      = vw / numCols;
   const margin    = Math.max(2, (colW - CARD_W) / 2);
   const available = vpH - CARD_H + 80;
@@ -764,7 +720,7 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
   return (
     <>
       {/* Fixed dot background — sits behind all sections (z:0) */}
-    /*  <DotBackground />*/
+     {/*<DotBackground />*/}
 
       <div style={{ position: "relative", overflowX: "hidden" }}>
       {/* Section 1: opaque background covers the dot canvas */}

@@ -194,6 +194,7 @@ export function ContactsPageClient() {
       style={{
         position: "relative",
         minHeight: "100vh",
+        maxWidth: "100vw",
         display: "flex",
         flexDirection: "column",
         background: "#B7D1EA",
@@ -210,7 +211,7 @@ export function ContactsPageClient() {
         }}
       />
 
-      {/* Main content */}
+      {/* Form area — centered in remaining space */}
       <div style={{
         position: "relative",
         zIndex: 1,
@@ -219,10 +220,8 @@ export function ContactsPageClient() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "120px 30px 40px",
-        gap: 60,
+        padding: "120px 30px 60px",
       }}>
-
         {/* Contact form card */}
         <div style={{
           width: "min(485px, 100%)",
@@ -382,96 +381,85 @@ export function ContactsPageClient() {
             </form>
           )}
         </div>
+      </div>
 
-        {/* Info row */}
-        <div style={{
-          width: "100%",
-          maxWidth: 960,
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 40,
-        }}>
-          {/* Left: studio name + tagline */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <p style={{
+      {/* Bottom info bar — full width */}
+      <div style={{
+        position: "relative",
+        zIndex: 1,
+        width: "100%",
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 32,
+        padding: "32px 30px 28px",
+      }}>
+        {/* LEFT: company name + tagline + copyright + links */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <span style={{
               fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
               fontWeight: 500,
-              fontSize: "clamp(16px,1.3vw,24px)",
-              lineHeight: 0.85,
-              letterSpacing: "-0.7px",
+              fontSize: "clamp(13px,1vw,18px)",
+              lineHeight: 0.9,
+              letterSpacing: "-0.5px",
               textTransform: "uppercase",
               color: "#392D2B",
-              margin: 0,
             }}>
               Cloud Stone Studio
-            </p>
-            <p style={{
+            </span>
+            <span style={{
               fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
               fontWeight: 400,
-              fontSize: "clamp(22px,2vw,36px)",
+              fontSize: "clamp(18px,1.6vw,28px)",
               lineHeight: 0.9,
               letterSpacing: "-0.5px",
               color: "#392D2B",
-              margin: 0,
             }}>
               <span style={{ color: "#C86733" }}>Design </span>
               <span>| Custom Fabrication</span>
-            </p>
+            </span>
           </div>
-
-          {/* Right: address + icons */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <TrimIcon paths={MAP_PIN_PATHS} label="Location" size={36} />
-              <span style={{
-                fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
-                fontWeight: 400, fontSize: 18, lineHeight: 1.2, color: "#392D2B",
-              }}>
-                Brooklyn, NY 11249
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
-              <TrimIcon href="tel:+16462728208" label="Call +1-646-272-8208" paths={PHONE_PATHS} size={36} />
-              <TrimIcon href="mailto:antonio@cloudstonestudio.com" label="Email antonio@cloudstonestudio.com" paths={MAIL_PATHS} size={36} />
-              <TrimIcon href="https://instagram.com/cloudstonestudio" label="Instagram" paths={INSTAGRAM_PATHS} size={36} />
-              <TrimIcon href="https://wa.me/16462728208" label="WhatsApp" paths={WHATSAPP_PATHS} pathTypes={["stroke", "fill"]} viewBox="0 0 44 44" size={36} />
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom: copyright + legal */}
-        <div style={{
-          width: "100%",
-          maxWidth: 960,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 12,
-          paddingBottom: 20,
-        }}>
-          <span style={{
-            fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
-            fontWeight: 700, fontSize: 10, letterSpacing: "-0.3px",
-            textTransform: "uppercase", color: "#392D2B",
-          }}>
-            © cloudstonestudio.com 2026
-          </span>
-          <div style={{ display: "flex", gap: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 8 }}>
+            <span style={{
+              fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
+              fontWeight: 700, fontSize: 9, letterSpacing: "-0.2px",
+              textTransform: "uppercase", color: "#392D2B",
+            }}>
+              © cloudstonestudio.com 2026
+            </span>
             {[
               { href: "/privacy-policy", label: "Privacy Policy" },
               { href: "/terms",          label: "Terms of Service" },
             ].map(({ href, label }) => (
               <Link key={href} href={href} style={{
                 fontFamily: "var(--font-rader,'PP Rader',sans-serif)",
-                fontWeight: 700, fontSize: 10, letterSpacing: "-0.3px",
+                fontWeight: 700, fontSize: 9, letterSpacing: "-0.2px",
                 textTransform: "uppercase", color: "#392D2B", textDecoration: "none",
               }}>
                 {label}
               </Link>
             ))}
+          </div>
+        </div>
+
+        {/* RIGHT: location + contact icons */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <TrimIcon paths={MAP_PIN_PATHS} label="Location" size={28} />
+            <span style={{
+              fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
+              fontWeight: 400, fontSize: 15, lineHeight: 1.2, color: "#392D2B",
+            }}>
+              Brooklyn, NY 11249
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+            <TrimIcon href="tel:+16462728208" label="Call +1-646-272-8208" paths={PHONE_PATHS} size={28} />
+            <TrimIcon href="mailto:antonio@cloudstonestudio.com" label="Email antonio@cloudstonestudio.com" paths={MAIL_PATHS} size={28} />
+            <TrimIcon href="https://instagram.com/cloudstonestudio" label="Instagram" paths={INSTAGRAM_PATHS} size={28} />
+            <TrimIcon href="https://wa.me/16462728208" label="WhatsApp" paths={WHATSAPP_PATHS} pathTypes={["stroke", "fill"]} viewBox="0 0 44 44" size={28} />
           </div>
         </div>
       </div>

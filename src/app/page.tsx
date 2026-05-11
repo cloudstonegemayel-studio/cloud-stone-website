@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { HomeHero } from "@/components/sections/HomeHero";
-import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Cloud Stone Studio — Crafting Atmosphere",
@@ -14,10 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return (
-    <>
-      <HomeHero />
-      <Footer />
-    </>
-  );
+  return <HomeHero />;
 }

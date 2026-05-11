@@ -809,6 +809,11 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
 
       
 
+      {/* Inquire button */}
+      <div style={{ position: "absolute", right: 30, bottom: 30, zIndex: 5 }}>
+        <PixelButton href="/contacts" label="Inquire" />
+      </div>
+
       {/* Filter bar */}
       <div className={isStaticGrid ? "shop-filter-wrap-static" : "shop-filter-wrap"}>
         <FilterBar mode={mode} onMode={setMode} />

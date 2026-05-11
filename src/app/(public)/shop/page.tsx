@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ShopPageClient, type ShopItem } from "./ShopPageClient";
+import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Materials Shop",
@@ -47,5 +48,10 @@ export default async function ShopPage() {
     };
   });
 
-  return <ShopPageClient items={items} />;
+  return (
+    <>
+      <ShopPageClient items={items} />
+      <Footer />
+    </>
+  );
 }

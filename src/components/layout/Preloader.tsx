@@ -195,6 +195,7 @@ export function Preloader() {
       inset:         0,
       zIndex:        9999,
       overflow:      "hidden",
+      maxWidth:      "100vw",
       userSelect:    "none",
       background:    "#B7D1EA",
       opacity:       isExiting ? 0 : 1,

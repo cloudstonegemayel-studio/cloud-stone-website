@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PixelButton } from "@/components/ui/PixelButton";
+import { Footer } from "@/components/layout/Footer";
 
 
 type PanelSide = "left" | "right";
@@ -151,6 +152,7 @@ export default function BathroomsPage() {
   };
 
   return (
+    <>
     <section ref={sectionRef} data-nav-dark data-custom-cursor id="section5" className="s5-section" aria-label="Bathroom collections">
       {/* Left panel — CloudStone_Bathrooms */}
       <div
@@ -347,5 +349,7 @@ export default function BathroomsPage() {
         }
       `}</style>
     </section>
+    <Footer />
+    </>
   );
 }

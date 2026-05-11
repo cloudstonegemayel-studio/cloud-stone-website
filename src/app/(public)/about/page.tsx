@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AboutPageClient } from "./AboutPageClient";
+import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "About",
@@ -14,5 +15,10 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-  return <AboutPageClient />;
+  return (
+    <>
+      <AboutPageClient />
+      <Footer />
+    </>
+  );
 }
