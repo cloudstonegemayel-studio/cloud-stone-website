@@ -862,7 +862,7 @@ export function HomeHero() {
         }}
       >
         <Image src="/thumb-sketch.svg" alt="" width={306} height={257}
-          style={{ width: "15.94vw", height: "auto", display: "block" }}
+          style={{ width: "max(159px,15.94vw)", height: "auto", display: "block" }}
         />
       </div>
 
@@ -872,7 +872,7 @@ export function HomeHero() {
           position:      "absolute",
           top:           "11.56vw",
           right:         "36.09vw",
-          width:         "8.93vw",
+          width:         "max(89px,8.93vw)",
           height:        "auto",
           opacity:       entered ? 0.4 : 0,
           filter:        "brightness(0)",
@@ -895,7 +895,7 @@ export function HomeHero() {
         }}
       >
         <Image src="/chair-sketch.svg" alt="" width={136} height={210}
-          style={{ width: "7.08vw", height: "auto", display: "block" }}
+          style={{ width: "max(71px,7.08vw)", height: "auto", display: "block" }}
         />
       </div>
 
@@ -905,7 +905,7 @@ export function HomeHero() {
           position:      "absolute",
           bottom:        "8.91vw",
           left:          "-2.19vw",
-          width:         "18.28vw",
+          width:         "max(182px,18.28vw)",
           height:        "auto",
           opacity:       entered ? 0.4 : 0,
           filter:        "brightness(0)",
@@ -928,7 +928,7 @@ export function HomeHero() {
         }}
       >
         <Image src="/wardrobe-sketch.svg" alt="" width={168} height={274}
-          style={{ width: "8.75vw", height: "auto", display: "block" }}
+          style={{ width: "max(87px,8.75vw)", height: "auto", display: "block" }}
         />
       </div>
 

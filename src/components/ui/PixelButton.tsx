@@ -71,25 +71,37 @@ export function PixelButton({
   const inner = (
     <>
       {/* Left pixel-dot wing — slides left on hover */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/btn-left.svg" alt="" aria-hidden="true" draggable={false} style={{
-        position: "absolute", left: 0, top: 0, bottom: 0,
-        width: "max(65px,5.26vw)", height: "100%",
-        pointerEvents: "none", display: "block",
-        transform: `translateX(${-wingShift}px)`,
-        transition: wingTrans,
-        filter: wingFilter,
+      <div aria-hidden style={{
+        position:            "absolute",
+        left:                0,
+        top:                 0,
+        width:               "max(65px,5.26vw)",
+        height:              26,
+        backgroundImage:     `url("/btn-left.svg")`,
+        backgroundRepeat:    "no-repeat",
+        backgroundSize:      "auto 26px",
+        backgroundPosition:  "left center",
+        pointerEvents:       "none",
+        transform:           `translateX(${-wingShift}px)`,
+        transition:          wingTrans,
+        filter:              wingFilter,
       }} />
 
       {/* Right pixel-dot wing — slides right on hover */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/btn-right.svg" alt="" aria-hidden="true" draggable={false} style={{
-        position: "absolute", right: 0, top: 0,
-        width: "max(65px,5.21vw)", height: "100%",
-        pointerEvents: "none", display: "block",
-        transform: `translateX(${wingShift}px)`,
-        transition: wingTrans,
-        filter: wingFilter,
+      <div aria-hidden style={{
+        position:            "absolute",
+        right:               0,
+        top:                 0,
+        width:               "max(65px,5.21vw)",
+        height:              26,
+        backgroundImage:     `url("/btn-right.svg")`,
+        backgroundRepeat:    "no-repeat",
+        backgroundSize:      "auto 26px",
+        backgroundPosition:  "right center",
+        pointerEvents:       "none",
+        transform:           `translateX(${wingShift}px)`,
+        transition:          wingTrans,
+        filter:              wingFilter,
       }} />
 
       {/* Body rect */}
@@ -107,8 +119,8 @@ export function PixelButton({
         <span style={{
           fontFamily:    "var(--font-inter-tight,'Inter Tight','DM Sans',sans-serif)",
           fontWeight:    600,
-          fontSize:      "max(7px,0.469vw)",
-          letterSpacing: "max(0.9px,0.061vw)",
+          fontSize:      9,
+          letterSpacing: "1.17px",
           textTransform: "uppercase",
           color:         textColor,
           lineHeight:    "normal",
