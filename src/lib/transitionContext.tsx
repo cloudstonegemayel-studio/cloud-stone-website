@@ -19,9 +19,9 @@ interface TransitionCtx {
 
 const Ctx = createContext<TransitionCtx>({ phase: "idle" });
 
-export const EXPAND_MS = 820;
+export const EXPAND_MS = 1400;
 export const HOLD_MS = 120;
-export const CONTRACT_MS = 320;
+export const CONTRACT_MS = 600;
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
   const router      = useRouter();

@@ -1,71 +1,134 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { usePageTransition } from "@/lib/transitionContext";
 
-const CLOUD_PATH =
-  "M122.019 76.4797C122.019 76.4797 110.689 103.322 82.3635 103.322C55.4543 104.6 42.7078 79.0361 42.7078 79.0361C42.7078 79.0361 12.966 90.54 1.63565 64.9758C-5.72901 48.3591 13.6302 31.7425 22.8798 31.7425C22.8798 31.7425 26.3453 16.404 42.7078 12.5694C59.0703 8.7348 73.0052 16.178 72.4496 17.6822C71.895 19.1839 82.3635 -5.32548 107.856 1.06552C130.517 6.74647 130.517 29.1861 130.517 29.1861C130.517 29.1861 174.421 22.795 170.173 59.863C161.675 94.3745 122.019 76.4797 122.019 76.4797Z";
+const BLOB_DEFS = [
+  { p: [-1.10, -0.30,  0.05] as const, r: 0.80 },
+  { p: [ 0.10, -0.40,  0.10] as const, r: 1.00 },
+  { p: [ 1.15, -0.20, -0.05] as const, r: 0.75 },
+  { p: [-0.70,  0.45,  0.05] as const, r: 0.55 },
+  { p: [ 0.45,  0.70,  0.05] as const, r: 0.85 },
+  { p: [ 0.10,  0.00, -0.75] as const, r: 0.85 },
+  { p: [ 0.00, -0.10,  0.75] as const, r: 0.80 },
+];
 
-const CLOUD_LAYERS = [
-  { color: "#B7D1EA", delay: "0ms" },
-  { color: "#DDE7EF", delay: "240ms" },
-  { color: "#F6F5F2", delay: "480ms" },
-] as const;
+const ROT_PERIOD = 8000; // ms per full Y rotation
+const BG_COLOR   = "#DDE7EF";
+const CLOUD_HEX  = 0xaed0f0;
 
 export function PageTransitionOverlay() {
   const { phase } = usePageTransition();
   const active = phase !== "idle";
-  const filled = phase === "expand" || phase === "hold" || phase === "contract";
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef    = useRef<number>(0);
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  // Start/stop Three.js based on whether the overlay is active
+  useEffect(() => {
+    if (!active) {
+      // Clean up renderer when going idle
+      if (cleanupRef.current) {
+        cleanupRef.current();
+        cleanupRef.current = null;
+      }
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let destroyed = false;
+
+    // Dynamically import Three.js so it doesn't land in the initial bundle
+    import("three").then((THREE) => {
+      if (destroyed || !canvas) return;
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H);
+      renderer.setClearColor(new THREE.Color(BG_COLOR), 1);
+
+      const scene  = new THREE.Scene();
+      scene.background = new THREE.Color(BG_COLOR);
+
+      const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 100);
+      camera.position.set(0, 0, 5);
+
+      const cloudMat = new THREE.MeshBasicMaterial({ color: CLOUD_HEX });
+      const cloud    = new THREE.Group();
+
+      for (const { p, r } of BLOB_DEFS) {
+        const geo  = new THREE.SphereGeometry(r, 32, 24);
+        const mesh = new THREE.Mesh(geo, cloudMat);
+        mesh.position.set(p[0], p[1], p[2]);
+        cloud.add(mesh);
+      }
+      scene.add(cloud);
+
+      const t0 = performance.now();
+
+      const animate = () => {
+        if (destroyed) return;
+        rafRef.current = requestAnimationFrame(animate);
+        const t = performance.now() - t0;
+        cloud.rotation.y = -(t / ROT_PERIOD) * Math.PI * 2;
+        cloud.position.y = -0.1 + Math.sin(t * 0.0016) * 0.04;
+        renderer.render(scene, camera);
+      };
+
+      rafRef.current = requestAnimationFrame(animate);
+
+      cleanupRef.current = () => {
+        destroyed = true;
+        cancelAnimationFrame(rafRef.current);
+        renderer.dispose();
+        cloudMat.dispose();
+        for (const child of cloud.children) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (child as any).geometry?.dispose();
+        }
+      };
+    });
+
+    return () => {
+      destroyed = true;
+      if (cleanupRef.current) {
+        cleanupRef.current();
+        cleanupRef.current = null;
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
+  const isExpanding  = phase === "expand";
+  const isContracting = phase === "contract";
 
   return (
     <div
-      className="page-transition-clouds"
       aria-hidden="true"
-      data-phase={phase}
       style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
+        position:      "fixed",
+        inset:         0,
+        zIndex:        9999,
         pointerEvents: active ? "auto" : "none",
-        overflow: "hidden",
-        opacity: active ? 1 : 0,
-        transition: "opacity 260ms cubic-bezier(0.16,1,0.3,1)",
+        opacity: isExpanding ? 1 : isContracting ? 0 : active ? 1 : 0,
+        transition: isExpanding
+          ? "opacity 600ms cubic-bezier(0.16,1,0.3,1)"
+          : isContracting
+          ? "opacity 500ms cubic-bezier(0.77,0,0.175,1)"
+          : "none",
+        background: active ? BG_COLOR : "transparent",
       }}
     >
-      {CLOUD_LAYERS.map((layer) => (
-        <svg
-          className="page-transition-cloud"
-          key={layer.color}
-          viewBox="0 0 171 104"
-          fill="none"
-          style={{
-            color: layer.color,
-            transitionDelay: filled ? layer.delay : "0ms",
-            transform: filled ? "translate(-50%, -50%) scale(35)" : "translate(-50%, -50%) scale(0.08)",
-          }}
-        >
-          <path d={CLOUD_PATH} fill="currentColor" />
-        </svg>
-      ))}
-
-      <style jsx global>{`
-        .page-transition-cloud {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          width: 171px;
-          height: 104px;
-          transform-origin: 50% 50%;
-          will-change: transform;
-          transition-property: transform;
-          transition-duration: 920ms;
-          transition-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
-        }
-
-        .page-transition-clouds[data-phase="contract"] .page-transition-cloud {
-          transition-duration: 560ms;
-          transition-delay: 0ms !important;
-        }
-      `}</style>
+      <canvas
+        ref={canvasRef}
+        style={{ display: "block", width: "100%", height: "100%" }}
+      />
     </div>
   );
 }

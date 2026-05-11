@@ -698,7 +698,6 @@ export function HomeHero() {
   const [entered,       setEntered]      = useState(false);
   const [tagOn,         setTagOn]        = useState(false);
   const [navOpen,       setNavOpen]      = useState(false);
-  const [contactOpen,   setContactOpen]  = useState(false);
   const [cardPos,       setCardPos]      = useState<Record<CardId, Pos> | null>(null);
   const [cardsSpread,   setCardsSpread]  = useState(false);
   const [cardScaleVal,  setCardScaleVal] = useState(1);
@@ -834,7 +833,7 @@ export function HomeHero() {
       width:      "100vw",
       height:     "100vh",
       overflow:   "hidden",
-      background: "#F6F5F2",
+      background: "#B7D1EA",
       userSelect: "none",
     }}>
 
@@ -1076,7 +1075,7 @@ export function HomeHero() {
           zIndex:     1,
         }}
       >
-        <PixelButton label="Contact" onClick={() => setContactOpen(true)} />
+        <PixelButton label="Contact" href="/contacts" />
       </div>
 
       {/* ── Full-screen nav overlay ─────────────────────────────────────────── */}
@@ -1210,8 +1209,6 @@ export function HomeHero() {
         </div>
       </div>
 
-      {/* ── Contact popup ──────────────────────────────────────────────────── */}
-      {contactOpen && <ContactPopup onClose={() => setContactOpen(false)} />}
     </div>
   );
 }

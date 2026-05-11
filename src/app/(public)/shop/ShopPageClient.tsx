@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { drawFrame, type TrailPoint, TRAIL_MS } from "@/lib/circleGrid";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { PixelButton } from "@/components/ui/PixelButton";
@@ -21,9 +21,6 @@ export type ShopItem = {
 };
 
 type ViewMode = "chaos" | "grid";
-type Filter = "All" | "Available" | "Sold" | "Expected";
-
-const FILTERS: readonly Filter[] = ["All", "Available", "Sold", "Expected"];
 
 const SHOP_ITEMS: readonly ShopItem[] = [
   {
@@ -153,9 +150,9 @@ function DotBackground() {
 }
 
 // ── Filter bar (Figma design) ────────────────────────────────────────────────
-function FilterBar({ mode, filter, onMode, onFilter }: {
-  mode: ViewMode; filter: Filter;
-  onMode: (m: ViewMode) => void; onFilter: (f: Filter) => void;
+function FilterBar({ mode, onMode }: {
+  mode: ViewMode;
+  onMode: (m: ViewMode) => void;
 }) {
   return (
     <div style={{
@@ -183,38 +180,6 @@ function FilterBar({ mode, filter, onMode, onFilter }: {
         backgroundSize: "auto 26px", backgroundRepeat: "no-repeat",
         backgroundPosition: "right center",
         pointerEvents: "none", zIndex: 1,
-      }} />
-
-      {/* Filter tabs */}
-      <div style={{ display: "flex", alignItems: "center", gap: 2, position: "relative", zIndex: 2 }}>
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => onFilter(f)}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              padding: "6px 8px",
-              border: "none",
-              borderRadius: 0,
-              background: filter === f ? "#F0EEE9" : "transparent",
-              color: filter === f ? "#392D2B" : "#F0EEE9",
-              fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
-              fontWeight: 600, fontSize: 9,
-              letterSpacing: "1.17px", textTransform: "uppercase",
-              whiteSpace: "nowrap", cursor: "pointer",
-              transition: "background 180ms ease, color 180ms ease",
-            }}
-          >
-            {f === "All" ? "All Items" : f}
-          </button>
-        ))}
-      </div>
-
-      {/* Divider */}
-      <span style={{
-        display: "inline-block", width: 1, height: 12,
-        background: "rgba(240,238,233,0.22)", margin: "0 8px", flexShrink: 0, position: "relative", zIndex: 2,
       }} />
 
       {/* Chaos / Grid toggle — hidden on mobile via CSS */}
@@ -710,7 +675,6 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
 // ── Main page component ──────────────────────────────────────────────────────
 export function ShopPageClient({ items }: { items: ShopItem[] }) {
   const [mode,     setMode]     = useState<ViewMode>("grid");
-  const [filter,   setFilter]   = useState<Filter>("All");
   const [selected, setSelected] = useState<ShopItem | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -733,9 +697,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
     setChaosPositions(prev => ({ ...prev, [id]: pos }));
   }, []);
 
-  const filteredItems = useMemo(() =>
-    filter === "All" ? items : items.filter(item => item.availability === filter),
-  [filter, items]);
+  const filteredItems = items;
 
   useEffect(() => {
     if (!selected) return;
@@ -849,7 +811,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
 
       {/* Filter bar */}
       <div className={isStaticGrid ? "shop-filter-wrap-static" : "shop-filter-wrap"}>
-        <FilterBar mode={mode} filter={filter} onMode={setMode} onFilter={setFilter} />
+        <FilterBar mode={mode} onMode={setMode} />
       </div>
 
       {/* Popup */}

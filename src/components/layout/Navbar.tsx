@@ -17,6 +17,7 @@ const NAV_LINKS = [
   { label: "Bathrooms",   href: "/bathrooms" },
   { label: "Shop",        href: "/shop" },
   { label: "About",       href: "/about" },
+  { label: "Contacts",    href: "/contacts" },
 ] as const;
 
 const OVERLAY_LINKS = NAV_LINKS.filter(l => l.href !== "/");

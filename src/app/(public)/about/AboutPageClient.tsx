@@ -40,13 +40,22 @@ const FAQ_ITEMS = [
     a: "We combine design and fabrication into one seamless system.",
   },
   {
-    q: "What makes Cloud Stone different?",
-    a: "We combine design and fabrication into one seamless system.",
+    q: "How long does a project take?",
+    a: "Project timelines vary by scope and complexity — typically 3–12 months for residential and 6–18 months for commercial work. We provide a detailed schedule during the initial consultation.",
   },
   {
-    q: "What makes Cloud Stone different?",
-    a: "We combine design and fabrication into one seamless system.",
+    q: "Do you work internationally?",
+    a: "Yes, we collaborate with clients worldwide. Our team has experience delivering projects across North America, Europe, and the Middle East.",
   },
+  {
+    q: "What is your design process?",
+    a: "We begin with a discovery session to understand your vision, then move through concept, design development, documentation, and implementation phases — keeping you involved at every step.",
+  },
+  {
+    q: "Can you work with a fixed budget?",
+    a: "Absolutely. We are transparent about costs from the start and design to the best of our ability within your budget constraints.",
+  },
+
 ] as const;
 
 const CLOUD_PATH =
@@ -367,7 +376,7 @@ function FounderSection() {
               understanding, and full control over execution.
             </p>
           </div>
-          <PixelButton label="Work with us" href="#footer" />
+          <PixelButton label="Work with us" href="/contacts" />
         </div>
       </div>
     </section>
@@ -502,19 +511,19 @@ export function AboutPageClient() {
   return (<div className="about-dotted-content">
         <DotBackground />
     <div className="about-page">
-      <ProjectDotHero />
+      /*<ProjectDotHero />*/
       
         <div className="about-content-layer">
-          <AboutStatement />
           <FounderSection />
-          <ServicesSection />
+	  <AboutStatement />
+          /* <ServicesSection />*/
           <FAQSection />
         </div>
       </div>
 
       <style jsx global>{`
         .about-page {
-          background: var(--color-bg, #f6f5f2);
+          background: var(--color-bg, #B7D1EA);
           color: var(--color-dark, #392d2b);
           overflow-x: hidden;
         }
@@ -603,7 +612,7 @@ export function AboutPageClient() {
           position: relative;
           min-height: 400vh;
           overflow-x: clip;
-          background: var(--color-bg, #f6f5f2);
+          background: var(--color-bg, #B7D1EA);
         }
 
         .about-dot-bg {
@@ -712,6 +721,7 @@ export function AboutPageClient() {
           width: min(418px, 100%);
           text-align: right;
           opacity: 0;
+          margin-top: 80px;
           transform: translateY(12px);
           transition: opacity 0.7s ease 0.2s, transform 0.7s var(--ease-expo-out) 0.2s;
         }
@@ -1077,6 +1087,13 @@ export function AboutPageClient() {
           .about-founder-bio {
             padding: 30px 16px;
           }
+
+	 .about-founder-heading {
+          margin-top: 30px;
+                  }
+
+
+
 
           .about-founder-bottom {
             flex-direction: column;

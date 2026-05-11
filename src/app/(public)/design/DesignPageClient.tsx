@@ -24,8 +24,6 @@ export interface Project {
 }
 
 type ViewMode = "canvas" | "grid";
-const FILTERS = ["All Projects", "Completed", "Preparatory Stage", "In Progress"] as const;
-type Filter   = (typeof FILTERS)[number];
 
 // ── Card constants ─────────────────────────────────────────────────────────────
 const CARD_W  = 215;
@@ -353,28 +351,13 @@ function GridView({ projects }: { projects: Project[] }) {
 }
 
 // ── Filter bar ─────────────────────────────────────────────────────────────────
-function FilterBar({ mode, onMode, filter, onFilter }: {
+function FilterBar({ mode, onMode }: {
   mode: ViewMode; onMode: (m: ViewMode) => void;
-  filter: Filter; onFilter: (f: Filter) => void;
 }) {
   return (
     <div className="nav-pixel filter-nav-pixel" style={{ paddingRight: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 2, background: "#392D2B", height: 26, paddingLeft: 4, paddingRight: 4, flexShrink: 0 }}>
-        {FILTERS.map(f => (
-          <button key={f} onClick={() => onFilter(f)} style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "6px 8px", background: filter === f ? "#F0EEE9" : "transparent",
-            border: "none", cursor: "pointer", whiteSpace: "nowrap",
-            fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
-            fontWeight: 600, fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
-            color: filter === f ? "#392D2B" : "#F0EEE9",
-            transition: "color 0.2s ease, background 0.2s ease", flexShrink: 0,
-          }}>
-            {f}
-          </button>
-        ))}
         <div className="design-view-toggle" style={{ display: "contents" }}>
-          <div style={{ width: 1, height: 12, background: "rgba(240,238,233,0.2)", margin: "0 6px", flexShrink: 0 }} />
           <span style={{
             fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 600,
             fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
@@ -766,13 +749,9 @@ function DotBackground() {
 
 // ── Page client ───────────────────────────────────────────────────────────────
 export function DesignPageClient({ projects }: { projects: Project[] }) {
-  const [mode,   setMode]   = useState<ViewMode>("canvas");
-  const [filter, setFilter] = useState<Filter>("All Projects");
+  const [mode, setMode] = useState<ViewMode>("canvas");
 
-  const filtered: Project[] = filter === "All Projects"
-    ? projects
-    : projects.filter(p => p.status === filter);
-  const displayProjects = filtered;
+  const displayProjects = projects;
   const isCanvas = mode === "canvas";
 
   const handleMode = useCallback((m: ViewMode) => setMode(m), []);
@@ -785,7 +764,7 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
   return (
     <>
       {/* Fixed dot background — sits behind all sections (z:0) */}
-      <DotBackground />
+    /*  <DotBackground />*/
 
       <div style={{ position: "relative", overflowX: "hidden" }}>
       {/* Section 1: opaque background covers the dot canvas */}
@@ -806,26 +785,17 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
 
         {/* Filter bar + mobile button */}
         <div className="design-filter-wrap">
-          <FilterBar mode={mode} onMode={handleMode} filter={filter} onFilter={setFilter} />
+          <FilterBar mode={mode} onMode={handleMode} />
           <div className="design-mobile-btn">
-            <PixelButton href="#footer" label="Let's create" />
+            <PixelButton href="/contacts" label="Inquire" />
           </div>
         </div>
         {/* Desktop-only button — bottom right */}
         <div className="design-desktop-btn" style={{ position: "absolute", right: 30, bottom: 30, zIndex: 10 }}>
-          <PixelButton href="#footer" label="Let's create" />
+          <PixelButton href="#footer" label="Inquire" />
         </div>
       </section>
 
-      {/* Section 2: CTA — no background, dot canvas shows through */}
-      <section style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>
-        <CTASection />
-      </section>
-
-      {/* Section 3: FAQ — no background, dot canvas shows through */}
-      <section style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>
-        <FAQSection />
-      </section>
     </div>
     </>
   );

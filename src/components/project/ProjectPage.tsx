@@ -494,7 +494,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         <button
           type="button"
           className="project-s4-start-btn"
-          onClick={() => document.getElementById("footer")?.scrollIntoView({ behavior: "smooth" })}
+          onClick={() => { window.location.href = "/contacts"; }}
         >
           <span>Start</span>
           <span>your</span>

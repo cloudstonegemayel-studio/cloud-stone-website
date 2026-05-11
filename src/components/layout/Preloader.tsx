@@ -196,7 +196,7 @@ export function Preloader() {
       zIndex:        9999,
       overflow:      "hidden",
       userSelect:    "none",
-      background:    "#F6F5F2",
+      background:    "#B7D1EA",
       opacity:       isExiting ? 0 : 1,
       transition:    isExiting
         ? "opacity 0.55s cubic-bezier(0.77,0,0.175,1) 0.25s"
