@@ -1089,20 +1089,21 @@ export function AboutPageClient() {
         }
 
         @media (max-width: 1024px) {
+          .about-service-grid {
+            flex-wrap: wrap;
+            padding-top: 120px;
+          }
+        }
+
+        @media (max-width: 767px), (orientation: portrait) {
           .about-founder {
             grid-template-columns: 1fr;
-
           }
 
           .about-founder-photo-wrap,
           .about-founder-bio {
             min-height: 50vh;
-		max-heigh: 50vh;
-          }
-
-          .about-service-grid {
-            flex-wrap: wrap;
-            padding-top: 120px;
+            max-height: 50vh;
           }
         }
 

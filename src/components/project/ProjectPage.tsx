@@ -567,12 +567,14 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           transition:background 250ms ease;
         }
         .project-s4-gyro-btn:hover { background:rgba(240,238,233,0.25); }
-        @media (max-width:768px) {
-          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:50px; transform:translateX(-50%); }
+        @media (max-width:767px),(orientation:portrait) {
           .project-section-2 { grid-template-columns:1fr; height:auto; min-height:100vh; }
           .project-s2-photo-wrap { height:50vh; min-height:220px; }
           .project-s2-info { min-height:50vh; }
           .project-s2-bottom { flex-direction:column; align-items:stretch; }
+        }
+        @media (max-width:767px) {
+          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:50px; transform:translateX(-50%); }
           .project-s4-nav { gap:clamp(18px,5vw,40px); }
         }
       `}</style>

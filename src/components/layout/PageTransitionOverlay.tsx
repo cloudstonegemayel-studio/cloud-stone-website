@@ -14,7 +14,7 @@ const BLOB_DEFS = [
 ];
 
 const ROT_PERIOD = 3500; // ms per full Y rotation
-const BG_COLOR   = "#DDE7EF";
+const BG_COLOR   = "#F6F5F2";
 const CLOUD_HEX  = 0xaed0f0;
 
 export function PageTransitionOverlay() {
