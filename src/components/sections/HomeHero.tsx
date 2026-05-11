@@ -19,8 +19,9 @@ const NAV_ITEMS = [
   { label: "Cloud Stone", href: "/" },
   { label: "Design",      href: "/design" },
   { label: "Bathrooms",   href: "/bathrooms" },
-  { label: "Shop",        href: "/shop" },
+  { label: "Objects",     href: "/shop" },
   { label: "About",       href: "/about" },
+  { label: "Contacts",    href: "/contacts" },
 ] as const;
 
 const OVERLAY_LINKS = NAV_ITEMS.filter((n) => n.label !== "Cloud Stone");
@@ -46,7 +47,7 @@ const CARD_DEFS = [
   },
   {
     id:       "shop",
-    label:    "Shop",
+    label:    "Objects",
     href:     "/shop",
     img:      "/images/Shop.png",
     subtitle: "Signed objects and made-to-order pieces from our atelier.",
@@ -346,7 +347,7 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
         width:      CARD_W,
         height:     CARD_H,
         border:     "0.96px solid #392D2B",
-        background: spread ? "transparent" : "#F6F5F2",
+        background: "#F6F5F2",
         overflow:   "visible",
         zIndex:     dragging ? 20 : 1,
         cursor:     dragging ? "grabbing" : "default",
@@ -361,7 +362,7 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
         animationFillMode:       "both" as const,
         transition: dragging
           ? "none"
-          : "left 0.85s cubic-bezier(0.16,1,0.3,1), top 0.85s cubic-bezier(0.16,1,0.3,1), background 0.5s ease 1s, box-shadow 0.4s ease, transform 0.6s ease",
+          : "left 0.85s cubic-bezier(0.16,1,0.3,1), top 0.85s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease, transform 0.6s ease",
         boxShadow: hover || dragging
           ? "0 18px 50px rgba(57,45,43,0.14)"
           : "none",
@@ -855,7 +856,8 @@ export function HomeHero() {
           alignItems:      "center",
           padding:         "3.58vw 2.16vw 0.45vw 1.88vw",
           pointerEvents:   "none",
-          opacity:         entered ? 0.82 : 0,
+          opacity:         entered ? 0.6 : 0,
+          filter:          "brightness(0)",
           transition:      "opacity 0.9s ease 1.0s",
         }}
       >
@@ -872,7 +874,8 @@ export function HomeHero() {
           right:         "36.09vw",
           width:         "8.93vw",
           height:        "auto",
-          opacity:       entered ? 0.82 : 0,
+          opacity:       entered ? 0.6 : 0,
+          filter:        "brightness(0)",
           transition:    "opacity 0.9s ease 1.1s",
           pointerEvents: "none",
         }}
@@ -886,7 +889,8 @@ export function HomeHero() {
           top:             "8.75vw",
           right:           "1.56vw",
           pointerEvents:   "none",
-          opacity:         entered ? 0.78 : 0,
+          opacity:         entered ? 0.6 : 0,
+          filter:          "brightness(0)",
           transition:      "opacity 0.9s ease 1.2s",
         }}
       >
@@ -903,7 +907,8 @@ export function HomeHero() {
           left:          "-2.19vw",
           width:         "18.28vw",
           height:        "auto",
-          opacity:       entered ? 0.72 : 0,
+          opacity:       entered ? 0.6 : 0,
+          filter:        "brightness(0)",
           transition:    "opacity 0.9s ease 1.4s",
           pointerEvents: "none",
         }}
@@ -917,7 +922,8 @@ export function HomeHero() {
           bottom:          "-0.44vw",
           right:           "27.34vw",
           pointerEvents:   "none",
-          opacity:         entered ? 0.78 : 0,
+          opacity:         entered ? 0.6 : 0,
+          filter:          "brightness(0)",
           transition:      "opacity 0.9s ease 1.3s",
         }}
       >

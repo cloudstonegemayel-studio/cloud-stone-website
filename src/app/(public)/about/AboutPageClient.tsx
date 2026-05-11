@@ -523,7 +523,7 @@ export function AboutPageClient() {
 
       <style jsx global>{`
         .about-page {
-          background: var(--color-bg, #B7D1EA);
+          background: #B7D1EA;
           color: var(--color-dark, #392d2b);
           overflow-x: hidden;
         }
@@ -610,9 +610,9 @@ export function AboutPageClient() {
 
         .about-dotted-content {
           position: relative;
-          min-height: 400vh;
+          min-height: 300vh;
           overflow-x: clip;
-          background: var(--color-bg, #B7D1EA);
+          background: #B7D1EA;
         }
 
         .about-dot-bg {
@@ -676,6 +676,7 @@ export function AboutPageClient() {
         .about-founder {
           width: 100vw;
           min-height: 100vh;
+	  max-height: 100vh;
           display: grid;
           grid-template-columns: 1fr 1fr;
           overflow: hidden;
@@ -1063,11 +1064,13 @@ export function AboutPageClient() {
         @media (max-width: 1024px) {
           .about-founder {
             grid-template-columns: 1fr;
+
           }
 
           .about-founder-photo-wrap,
           .about-founder-bio {
-            min-height: 70vh;
+            min-height: 50vh;
+		max-heigh: 50vh;
           }
 
           .about-service-grid {
@@ -1082,6 +1085,10 @@ export function AboutPageClient() {
           .about-faq {
             padding-left: 16px;
             padding-right: 16px;
+          }
+
+.about-founder-bio {
+            padding: 30px 16px;
           }
 
           .about-founder-bio {

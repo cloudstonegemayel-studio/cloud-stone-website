@@ -68,7 +68,7 @@ export function PageTransitionOverlay() {
         mesh.position.set(p[0], p[1], p[2]);
         cloud.add(mesh);
       }
-      cloud.scale.set(0.5, 0.5, 0.5);
+      cloud.scale.set(0.25, 0.25, 0.25);
       scene.add(cloud);
 
       const t0 = performance.now();

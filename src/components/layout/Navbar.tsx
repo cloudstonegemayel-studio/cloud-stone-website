@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { label: "Cloud Stone", href: "/" },
   { label: "Design",      href: "/design" },
   { label: "Bathrooms",   href: "/bathrooms" },
-  { label: "Shop",        href: "/shop" },
+  { label: "Objects",     href: "/shop" },
   { label: "About",       href: "/about" },
   { label: "Contacts",    href: "/contacts" },
 ] as const;

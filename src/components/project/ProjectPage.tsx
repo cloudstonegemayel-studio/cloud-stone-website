@@ -411,7 +411,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         </div>
 
         <div style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
-          <PixelButton href="/contacts" label="Inquire" />
+          <PixelButton href="/contacts" label="Inquire" light />
         </div>
       </section>
 

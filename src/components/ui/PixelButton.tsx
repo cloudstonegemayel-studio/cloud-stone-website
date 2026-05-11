@@ -10,6 +10,7 @@ interface PixelButtonProps {
   style?:        React.CSSProperties;
   "aria-label"?: string;
   type?:         "button" | "submit" | "reset";
+  light?:        boolean;
 }
 
 /**
@@ -27,9 +28,14 @@ export function PixelButton({
   style,
   "aria-label": ariaLabel,
   type = "button",
+  light = false,
 }: PixelButtonProps) {
   const [hover,  setHover]  = useState(false);
   const [active, setActive] = useState(false);
+
+  const bodyBg    = light ? "#F0EEE9" : "#392D2B";
+  const textColor = light ? "#392D2B" : "#F0EEE9";
+  const wingFilter = light ? "brightness(10)" : undefined;
 
   // Wing offset — wings slide outward on hover, snap back on press
   const wingShift = active ? 0 : hover ? 8 : 0;
@@ -72,6 +78,7 @@ export function PixelButton({
         pointerEvents: "none", display: "block",
         transform: `translateX(${-wingShift}px)`,
         transition: wingTrans,
+        filter: wingFilter,
       }} />
 
       {/* Right pixel-dot wing — slides right on hover */}
@@ -82,46 +89,47 @@ export function PixelButton({
         pointerEvents: "none", display: "block",
         transform: `translateX(${wingShift}px)`,
         transition: wingTrans,
+        filter: wingFilter,
       }} />
 
-      {/* Dark body rect */}
+      {/* Body rect */}
       <div style={{
         position:   "relative",
-        background: "#392D2B",
+        background: bodyBg,
         display:    "flex",
         alignItems: "center",
-        gap:        "max(10px,0.729vw)",              // 14 px @ 1920
-        padding:    "max(5.5px,0.391vw) max(14px,1.042vw)", // 7.5/20 px @ 1920
+        gap:        "max(10px,0.729vw)",
+        padding:    "max(5.5px,0.391vw) max(14px,1.042vw)",
         width:      "100%",
         whiteSpace: "nowrap",
       }}>
         <span style={{
           fontFamily:    "var(--font-inter-tight,'Inter Tight','DM Sans',sans-serif)",
           fontWeight:    600,
-          fontSize:      "max(7px,0.469vw)",          // 9 px @ 1920
-          letterSpacing: "max(0.9px,0.061vw)",        // 1.17 px @ 1920
+          fontSize:      "max(7px,0.469vw)",
+          letterSpacing: "max(0.9px,0.061vw)",
           textTransform: "uppercase",
-          color:         "#F0EEE9",
+          color:         textColor,
           lineHeight:    "normal",
         }}>
           {label}
         </span>
 
-        {/* Arrow — Figma node 14449:2707 */}
+        {/* Arrow */}
         <svg
           viewBox="0 0 13.3795 8.97882"
           fill="none"
           aria-hidden="true"
           style={{
-            width:    "max(10px,0.667vw)",            // 12.8 px @ 1920
-            height:   "max(7px,0.438vw)",             // 8.4 px @ 1920
+            width:    "max(10px,0.667vw)",
+            height:   "max(7px,0.438vw)",
             flexShrink: 0,
             overflow: "visible",
           }}
         >
           <path
             d="M0 4.29598H12.8M12.8 4.29598L8.4 0.295976M12.8 4.29598L8.4 8.69598"
-            stroke="#F0EEE9"
+            stroke={textColor}
             strokeWidth="0.8"
           />
         </svg>
