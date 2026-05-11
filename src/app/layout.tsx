@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans, Inter_Tight } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { LenisProvider } from "@/components/layout/LenisProvider";
 import { Preloader } from "@/components/layout/Preloader";
 import { PageTransitionOverlay } from "@/components/layout/PageTransitionOverlay";
 import { TransitionProvider } from "@/lib/transitionContext";
 import { CustomCursor } from "@/components/ui/CustomCursor";
+import { WeatherWidget } from "@/components/weather/WeatherWidget";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -86,6 +86,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_SCHEMA) }}
         />
         <CustomCursor />
+        <WeatherWidget />
         <Preloader />
         <TransitionProvider>
           <PageTransitionOverlay />
@@ -93,25 +94,6 @@ export default function RootLayout({
             {children}
           </LenisProvider>
         </TransitionProvider>
-        {/* Elfsight — weather widget platform (loaded once globally) */}
-        <Script
-          src="https://elfsightcdn.com/platform.js"
-          strategy="afterInteractive"
-        />
-        {/* Hide Elfsight free-tier branding link via MutationObserver */}
-        <Script id="hide-elfsight-branding" strategy="afterInteractive">{`
-          (function () {
-            function hide(el) {
-              el.style.setProperty('display', 'none', 'important');
-            }
-            function scan() {
-              document.querySelectorAll('a[href*="elfsight.com/weather-widget"]').forEach(hide);
-            }
-            scan();
-            var obs = new MutationObserver(scan);
-            obs.observe(document.body, { childList: true, subtree: true });
-          })();
-        `}</Script>
       </body>
     </html>
   );

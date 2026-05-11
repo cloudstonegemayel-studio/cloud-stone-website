@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { ContentBlock, SliderItem } from "@/types/blocks";
 import { ProjectRenderer } from "./ProjectRenderer";
 import { PixelButton } from "@/components/ui/PixelButton";
+import { Footer } from "@/components/layout/Footer";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface ProjectData {
@@ -509,6 +510,8 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           </svg>
         </button>
       </section>
+
+      <Footer />
 
       {/* ── CSS (preserved exactly from original) ────────────────────── */}
       <style jsx global>{`

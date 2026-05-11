@@ -401,7 +401,7 @@ export function Navbar() {
                   fontSize: 9, letterSpacing: "1.17px", textTransform: "uppercase",
                 }}
               >
-                Close
+                
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
                   <path d="M1 1L15 15M15 1L1 15" stroke="#F0EEE9" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>

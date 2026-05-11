@@ -95,7 +95,11 @@
     -moz-osx-font-smoothing:  grayscale;
     text-rendering:           optimizeLegibility;
     scroll-behavior:          smooth;
+    scrollbar-width:          none;
   }
+  html::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
 
   body {
     background-color: #F6F5F2;
