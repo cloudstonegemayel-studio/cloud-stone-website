@@ -3,8 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { DesignPageClient, type Project } from "./DesignPageClient";
 
 export const metadata: Metadata = {
-  title: "Design Projects — Cloud Stone Studio",
-  description: "Interior architecture projects — residential, commercial, and hospitality.",
+  title: "Design Projects",
+  description: "Interior architecture and design projects by Cloud Stone Studio — residential, commercial, and hospitality spaces.",
+  openGraph: {
+    title: "Design Projects — Cloud Stone Studio",
+    description: "Interior architecture and design projects — residential, commercial, and hospitality.",
+    images: [{ url: "/images/img2.png", width: 1200, height: 800, alt: "Cloud Stone Studio design project" }],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function DesignPage() {

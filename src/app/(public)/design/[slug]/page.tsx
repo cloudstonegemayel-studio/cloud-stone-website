@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient as createBuildClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
@@ -19,6 +20,36 @@ type RawProject = {
   section4_image: string | null; section4_image_alt: string | null;
 };
 type RawAdj = { slug: string; title: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
+    .from("projects")
+    .select("title, short_description, cover_image")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .single() as { data: { title: string; short_description: string | null; cover_image: string | null } | null };
+
+  if (!data) return { title: "Project Not Found" };
+
+  return {
+    title: data.title,
+    description: data.short_description ?? undefined,
+    openGraph: {
+      title: data.title,
+      description: data.short_description ?? undefined,
+      ...(data.cover_image ? { images: [{ url: data.cover_image, alt: data.title }] } : {}),
+    },
+    twitter: { card: "summary_large_image" },
+  };
+}
 
 export async function generateStaticParams() {
   const supabase = createBuildClient(

@@ -39,13 +39,34 @@ export const metadata: Metadata = {
     template: "%s — Cloud Stone Studio",
   },
   description:
-    "Cloud Stone Studio — we think like craftsmen and design like storytellers. Premium interior design and architecture studio.",
+    "Cloud Stone Studio — we think like craftsmen and design like storytellers. Premium interior design and architecture studio in Brooklyn, NY.",
   openGraph: {
     siteName: "Cloud Stone Studio",
     type: "website",
     locale: "en_US",
+    images: [{ url: "/images/img1.png", width: 1200, height: 800, alt: "Cloud Stone Studio" }],
   },
+  twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
+};
+
+const ORG_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": ["Organization", "LocalBusiness"],
+  "name": "Cloud Stone Studio",
+  "url": "https://cloudstonestudio.com",
+  "logo": "https://cloudstonestudio.com/Logo-light.svg",
+  "description": "Cloud Stone Studio — premium interior design and architecture studio in Brooklyn, NY. We think like craftsmen and design like storytellers.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Brooklyn",
+    "addressRegion": "NY",
+    "postalCode": "11249",
+    "addressCountry": "US",
+  },
+  "telephone": "+1-646-272-8208",
+  "email": "antonio@cloudstonestudio.com",
+  "sameAs": ["https://www.instagram.com/cloudstonestudio"],
 };
 
 export default function RootLayout({
@@ -60,6 +81,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-[#F6F5F2] text-[#392D2B] antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_SCHEMA) }}
+        />
         <CustomCursor />
         <Preloader />
         <TransitionProvider>

@@ -3,8 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { ShopPageClient, type ShopItem } from "./ShopPageClient";
 
 export const metadata: Metadata = {
-  title: "Shop - Materials",
-  description: "Natural stone materials, slabs, and samples available from Cloud Stone Studio.",
+  title: "Materials Shop",
+  description: "Natural stone materials — travertine, marble, limestone, onyx, and basalt. Slabs, tiles, and panels available from Cloud Stone Studio.",
+  openGraph: {
+    title: "Materials Shop — Cloud Stone Studio",
+    description: "Natural stone materials, slabs, and samples. Travertine, marble, limestone, onyx, and basalt.",
+    images: [{ url: "/images/shop-item-1.png", width: 1200, height: 800, alt: "Natural stone materials — Cloud Stone Studio" }],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 function capitalize(s: string): string {

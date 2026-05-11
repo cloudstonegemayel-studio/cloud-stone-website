@@ -111,9 +111,14 @@ export async function generateMetadata({
   if (!item) return { title: "Not Found" };
 
   return {
-    title:       `${item.title} — Shop`,
+    title:       `${item.title} — Materials`,
     description: item.longDesc,
-    openGraph:   { images: [{ url: item.images[0] }] },
+    openGraph: {
+      title:       `${item.title} — Cloud Stone Studio`,
+      description: item.longDesc,
+      images:      [{ url: item.images[0], alt: item.title }],
+    },
+    twitter: { card: "summary_large_image" },
   };
 }
 
@@ -130,8 +135,30 @@ export default async function ShopItemPage({
   const nextSlug = ALL_SLUGS[(idx + 1) % ALL_SLUGS.length];
   const nextItem = DEMO_ITEMS[nextSlug];
 
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": item.title,
+    "description": item.longDesc,
+    "category": item.category,
+    "image": item.images[0],
+    "offers": {
+      "@type": "Offer",
+      "availability": item.availability === "Available"
+        ? "https://schema.org/InStock"
+        : item.availability === "Expected"
+        ? "https://schema.org/PreOrder"
+        : "https://schema.org/SoldOut",
+      "seller": { "@type": "Organization", "name": "Cloud Stone Studio" },
+    },
+  };
+
   return (
     <article className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
 
       {/* Hero */}
       <section className="pt-24 pb-0">
