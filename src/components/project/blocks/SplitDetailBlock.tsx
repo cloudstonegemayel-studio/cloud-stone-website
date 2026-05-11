@@ -118,18 +118,22 @@ export function SplitDetailBlockView({ block }: { block: SplitDetailBlock }) {
   return (
     <section
       ref={sectionRef as React.RefObject<HTMLElement>}
-      className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] h-screen overflow-hidden relative w-full"
+      className="sdb-section grid grid-cols-1 overflow-hidden relative w-full"
       {...(isDark ? { "data-nav-dark": "" } : {})}
     >
       {imgRight ? leftPanel : rightPanel}
       {imgRight ? rightPanel : leftPanel}
 
       <style jsx global>{`
-        @media (max-width: 768px) {
-          .block-split-section {
-            grid-template-columns: 1fr !important;
-            height: auto !important;
-            min-height: unset !important;
+        .sdb-section {
+          min-height: 100vh;
+          height: auto;
+        }
+        @media (min-width: 768px) and (orientation: landscape) {
+          .sdb-section {
+            grid-template-columns: 1fr 1fr !important;
+            height: 100vh;
+            min-height: 600px;
           }
         }
       `}</style>

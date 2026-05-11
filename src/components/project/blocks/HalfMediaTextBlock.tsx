@@ -113,11 +113,25 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
   return (
     <section
       ref={ref as React.RefObject<HTMLElement>}
-      className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] h-screen overflow-hidden relative w-full"
+      className="hmtb-section grid grid-cols-1 overflow-hidden relative w-full"
       {...(isDark ? { "data-nav-dark": "" } : {})}
     >
       {mediaLeft ? mediaSide : textSide}
       {mediaLeft ? textSide  : mediaSide}
+
+      <style jsx global>{`
+        .hmtb-section {
+          min-height: 100vh;
+          height: auto;
+        }
+        @media (min-width: 768px) and (orientation: landscape) {
+          .hmtb-section {
+            grid-template-columns: 1fr 1fr !important;
+            height: 100vh;
+            min-height: 600px;
+          }
+        }
+      `}</style>
     </section>
   );
 }
