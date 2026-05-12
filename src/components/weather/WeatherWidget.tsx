@@ -212,21 +212,27 @@ export function WeatherWidget() {
 
   useEffect(() => {
     const fetchWeather = (lat: number, lon: number, cityFallback?: string) => {
-      fetch(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,daily,alerts`
-      )
-        .then((r) => r.json())
-        .then((data) => {
+      const weatherUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,daily,alerts`;
+      const geoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`;
+
+      Promise.all([
+        fetch(weatherUrl).then((r) => r.json()),
+        cityFallback ? Promise.resolve(null) : fetch(geoUrl).then((r) => r.json()),
+      ])
+        .then(([data, geoData]) => {
           const cur = data.current;
-          const tz: string = data.timezone ?? "";
-          const city = cityFallback ?? tz.split("/").pop()?.replace(/_/g, " ") ?? "Unknown";
+          const city =
+            cityFallback ??
+            (Array.isArray(geoData) && geoData[0]?.local_names?.uk) ??
+            (Array.isArray(geoData) && geoData[0]?.name) ??
+            "Unknown";
           const isDay = (cur.dt as number) >= (cur.sunrise as number) && (cur.dt as number) < (cur.sunset as number);
           setWeather({
             temp: Math.round(cur.temp as number),
             desc: cur.weather[0].description as string,
             id: cur.weather[0].id as number,
             isDay,
-            city,
+            city: city as string,
           });
         })
         .catch(() => {});
@@ -295,7 +301,7 @@ export function WeatherWidget() {
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border-radius: 16px;
-          padding: 12px 14px;
+          padding: 6px 12px 8px;
           color: #392D2B;
           font-family: var(--font-inter-tight,"Inter Tight",system-ui,sans-serif);
           box-shadow: 0 10px 30px rgba(0,0,0,0.12);
