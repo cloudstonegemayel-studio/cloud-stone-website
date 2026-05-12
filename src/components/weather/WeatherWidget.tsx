@@ -264,24 +264,22 @@ export function WeatherWidget() {
           </svg>
           <span>{weather.city}</span>
         </div>
-        <div className="ww-temp">
-          <span className="ww-temp-num">{displayTemp}</span>
-          <span className="ww-temp-unit">
-            <button
-              type="button"
-              className={celsius ? "active" : ""}
-              onClick={() => setCelsius(true)}
-              aria-label="Celsius"
-            >°C</button>
-            <span className="ww-sep">|</span>
-            <button
-              type="button"
-              className={!celsius ? "active" : ""}
-              onClick={() => setCelsius(false)}
-              aria-label="Fahrenheit"
-            >°F</button>
-          </span>
-        </div>
+        <span className="ww-temp-num">{displayTemp}</span>
+        <span className="ww-temp-unit">
+          <button
+            type="button"
+            className={celsius ? "active" : ""}
+            onClick={() => setCelsius(true)}
+            aria-label="Celsius"
+          >°C</button>
+          <span className="ww-sep">|</span>
+          <button
+            type="button"
+            className={!celsius ? "active" : ""}
+            onClick={() => setCelsius(false)}
+            aria-label="Fahrenheit"
+          >°F</button>
+        </span>
       </div>
 
       <div className="ww-right">
@@ -296,7 +294,7 @@ export function WeatherWidget() {
           position: fixed;
           top: 16px;
           right: 16px;
-          z-index: 10;
+          z-index: 55;
           background: rgba(255,255,255,0.55);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
@@ -324,11 +322,6 @@ export function WeatherWidget() {
           font-size: 11px;
           font-weight: 500;
           opacity: 0.6;
-        }
-        .ww-temp {
-          display: flex;
-          align-items: baseline;
-          gap: 5px;
         }
         .ww-temp-num {
           font-size: 34px;
@@ -408,6 +401,11 @@ export function WeatherWidget() {
           0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
           75%  { opacity: 0.9; }
           100% { transform: translateY(12px) rotate(180deg); opacity: 0; }
+        }
+        @media (max-width: 767px) and (orientation: portrait) {
+          .ww-widget {
+            top: 68px;
+          }
         }
       `}</style>
     </div>

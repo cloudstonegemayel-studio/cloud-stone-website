@@ -124,6 +124,19 @@ function calcInitialPos(): Record<CardId, Pos> {
     };
   }
 
+  // Landscape mobile: vw ≥ 768 but small height → 2×2 grid over 2 screen heights
+  if (vh < 500) {
+    const pad    = 16;
+    const leftX  = pad - CARD_W * (1 - s) / 2;
+    const rightX = (vw - pad) - CARD_W * (1 + s) / 2;
+    return {
+      design:    { x: leftX,  y: 70 },
+      bathrooms: { x: rightX, y: 70 },
+      shop:      { x: leftX,  y: vh + 70 },
+      about:     { x: rightX, y: vh + 70 },
+    };
+  }
+
   return {
     design:    { x: (145 / 1920) * vw,           y: (190 / 1080) * vh },
     bathrooms: { x: vw - (537 / 1920) * vw - cw, y: (180 / 1080) * vh },
@@ -696,12 +709,13 @@ export function HomeHero() {
   const trailRef   = useRef<TrailPoint[]>([]);
   const spreadRef  = useRef(false); // true once cards have flown to final positions
 
-  const [entered,       setEntered]      = useState(false);
-  const [tagOn,         setTagOn]        = useState(false);
-  const [navOpen,       setNavOpen]      = useState(false);
-  const [cardPos,       setCardPos]      = useState<Record<CardId, Pos> | null>(null);
-  const [cardsSpread,   setCardsSpread]  = useState(false);
-  const [cardScaleVal,  setCardScaleVal] = useState(1);
+  const [entered,          setEntered]         = useState(false);
+  const [tagOn,            setTagOn]           = useState(false);
+  const [navOpen,          setNavOpen]         = useState(false);
+  const [cardPos,          setCardPos]         = useState<Record<CardId, Pos> | null>(null);
+  const [cardsSpread,      setCardsSpread]     = useState(false);
+  const [cardScaleVal,     setCardScaleVal]    = useState(1);
+  const [isLandscapeMobile, setIsLandscapeMobile] = useState(false);
 
   // ── Wait for preloader ────────────────────────────────────────────────────
   useEffect(() => {
@@ -718,6 +732,14 @@ export function HomeHero() {
     };
     window.addEventListener("cs-preloader-done", handle, { once: true });
     return () => window.removeEventListener("cs-preloader-done", handle);
+  }, []);
+
+  // ── Landscape mobile detection ────────────────────────────────────────────
+  useEffect(() => {
+    const check = () => setIsLandscapeMobile(window.innerWidth >= 768 && window.innerHeight < 500);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   // ── Card positions: start at center, spread to final on enter ────────────
@@ -832,8 +854,9 @@ export function HomeHero() {
     <div style={{
       position:   "relative",
       width:      "100vw",
-      height:     "100vh",
-      overflow:   "hidden",
+      height:     isLandscapeMobile ? "200vh" : "100vh",
+      overflowX:  "hidden",
+      overflowY:  isLandscapeMobile ? "auto" : "hidden",
       background: "#B7D1EA",
       userSelect: "none",
     }}>

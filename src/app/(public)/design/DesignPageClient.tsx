@@ -245,10 +245,13 @@ function CanvasView({ projects }: { projects: Project[] }) {
     clickTargetRef.current = null;
   };
 
+  const isLandscapeMobile = vpH < 500 && vw >= 768;
   const numCols   = Math.min(5, Math.max(2, Math.floor(vw / CARD_W)));
   const colW      = vw / numCols;
   const margin    = Math.max(2, (colW - CARD_W) / 2);
-  const available = vpH - CARD_H + 80;
+  const available = isLandscapeMobile
+    ? vpH * 2 - CARD_H + 80
+    : vpH - CARD_H + 80;
 
   const displayProjects = projects.length ? projects : [];
 
@@ -263,7 +266,13 @@ function CanvasView({ projects }: { projects: Project[] }) {
 
   return (
     <div
-      style={{ position: "absolute", inset: 0, overflow: "hidden", cursor: "grab" }}
+      style={{
+        position: "absolute",
+        top: 0, left: 0, right: 0,
+        height: isLandscapeMobile ? "200vh" : "100%",
+        overflow: "hidden",
+        cursor: "grab",
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -271,7 +280,7 @@ function CanvasView({ projects }: { projects: Project[] }) {
     >
       <div
         ref={innerRef}
-        style={{ position: "absolute", top: 20, left: 0, width: vw * 3, height: "100%", willChange: "transform" }}
+        style={{ position: "absolute", top: 20, left: 0, width: vw * 3, height: isLandscapeMobile ? "200vh" : "100%", willChange: "transform" }}
       >
         {[0, 1, 2].flatMap(copy =>
           slots.map(({ col, yFrac, projIdx: pi }) => {
@@ -706,15 +715,23 @@ function DotBackground() {
 // ── Page client ───────────────────────────────────────────────────────────────
 export function DesignPageClient({ projects }: { projects: Project[] }) {
   const [mode, setMode] = useState<ViewMode>("canvas");
+  const [isLandscapeMobileSec, setIsLandscapeMobileSec] = useState(false);
 
   const displayProjects = projects;
   const isCanvas = mode === "canvas";
 
   const handleMode = useCallback((m: ViewMode) => setMode(m), []);
 
-  // Force grid view on small screens
+  // Force grid view on small screens; detect landscape mobile for section height
   useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) setMode("grid");
+    const check = () => {
+      const lm = window.innerWidth >= 768 && window.innerHeight < 500;
+      setIsLandscapeMobileSec(lm);
+      if (window.innerWidth < 768) setMode("grid");
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   return (
@@ -727,9 +744,9 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
       <section
         style={{
           position: "relative",
-          height: isCanvas ? "100vh" : "auto",
+          height: isCanvas ? (isLandscapeMobileSec ? "200vh" : "100vh") : "auto",
           minHeight: "100vh",
-          overflow: "hidden",
+          overflow: isCanvas && isLandscapeMobileSec ? "visible" : "hidden",
           background: "#F0EEE9",
           zIndex: 1,
         }}

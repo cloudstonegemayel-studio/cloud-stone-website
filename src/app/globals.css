@@ -383,9 +383,14 @@
   @media (max-width: 768px) {
     .design-filter-wrap {
       bottom: 16px;
-          }
-.design-filter-wrap .filter-nav-pixel{
-      margin-left: -60px;
+      left: 16px;
+      right: 16px;
+      transform: none;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .design-filter-wrap .filter-nav-pixel {
       zoom: 0.7;
     }
 

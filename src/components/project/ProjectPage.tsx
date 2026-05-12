@@ -516,14 +516,14 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
       {/* ── CSS (preserved exactly from original) ────────────────────── */}
       <style jsx global>{`
         .project-page { background:var(--color-dark,#392d2b); color:var(--color-dark,#392d2b); overflow-x:hidden; }
-        .project-hero { position:relative; width:100vw; height:100vh; min-height:600px; overflow:hidden; background:var(--color-dark,#392d2b); contain:strict; }
+        .project-hero { position:relative; width:100vw; height:100vh; overflow:hidden; background:var(--color-dark,#392d2b); contain:strict; }
         .project-hero-bg-photo,.project-hero-bg-overlay,.project-dot-mask-canvas,.project-dot-grid { position:absolute; inset:0;  }
         .project-hero-bg-photo { z-index:0; transform:scaleX(-1); max-height: 100vh; }
         .project-hero-bg-overlay { background:rgba(0,0,0,0.5); z-index:1; pointer-events:none; }
         .project-dot-mask-canvas { z-index:2; pointer-events:none; width:100%; height:100%; max-width:100vw; max-height:100vh; }
         .project-dot-grid { z-index:4; pointer-events:auto; overflow:hidden; width:100%; height:100%; max-width:100vw; max-height:100vh; }
-        .project-hero-title { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(50px,12.4vh,150px); margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(36px,3.65vw,70px); line-height:0.9; color:var(--color-surface,#f0eee9); z-index:10; pointer-events:none; }
-        .project-hero-desc { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(100px,14.5vh,140px); width:clamp(200px,20vw,360px); margin:0; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-size:clamp(11px,1.04vw,20px); line-height:1.2; color:var(--color-surface,#f0eee9); z-index:10; opacity:0; transition:opacity 0.8s ease; }
+        .project-hero-title { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(60px,12.4vh,150px); margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(36px,3.65vw,70px); line-height:0.9; color:var(--color-surface,#f0eee9); z-index:10; pointer-events:none; }
+        .project-hero-desc { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(90px,13.5vh,140px); width:clamp(200px,20vw,360px); margin:0; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-size:clamp(11px,1.04vw,20px); line-height:1.2; color:var(--color-surface,#f0eee9); z-index:10; opacity:0; transition:opacity 0.8s ease; }
         .project-hero-desc.text-visible { opacity:1; }
         .project-hero-slider { position:absolute; right:5%; top:50%; transform:translateY(-50%); width:33%; height:75vh; z-index:9; overflow:hidden; }
         .project-hero-slide { position:absolute; inset:0; opacity:0; transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1); pointer-events:none; }
@@ -577,7 +577,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           .project-s2-bottom { flex-direction:column; align-items:stretch; }
         }
         @media (max-width:767px) {
-          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:50px; transform:translateX(-50%); }
+          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:70px; transform:translateX(-50%); }
           .project-s4-nav { gap:clamp(18px,5vw,40px); }
         }
       `}</style>

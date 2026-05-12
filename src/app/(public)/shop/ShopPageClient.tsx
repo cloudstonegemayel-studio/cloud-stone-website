@@ -376,9 +376,46 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
         <p style={{ margin: 0 }}>{item.desc}</p>
       </div>
 
-      {/* CTA Button — overlaps card bottom (Figma: bottom: -13px) */}
-      <div style={{ position: "absolute", bottom: -13, justifySelf: "center" }}>
-        <PixelButton label="See more" onClick={() => onSelect(item)} />
+      {/* Cloud Details button */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: -14,
+          left: "50%",
+          transform: hovered && !dragging ? "translateX(-50%) scale(1.18)" : "translateX(-50%) scale(1)",
+          transition: "transform 0.45s cubic-bezier(0.34,1.56,0.64,1)",
+          transformOrigin: "center bottom",
+          width: 80,
+          height: 54,
+          cursor: "pointer",
+          zIndex: 2,
+        }}
+        onClick={e => { e.stopPropagation(); onSelect(item); }}
+      >
+        <svg viewBox="0 0 58 39" fill="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+          <path
+            d="M40.6769 28.3965C40.6769 28.3965 36.9445 38.1942 27.6133 38.1942C18.7486 38.6608 14.5496 29.3296 14.5496 29.3296C14.5496 29.3296 4.75181 33.5286 1.0193 24.1974C-1.40682 18.1321 4.97063 12.0668 8.01768 12.0668C8.01768 12.0668 9.15931 6.46812 14.5496 5.06845C19.9398 3.66877 24.5303 6.38562 24.3473 6.93469C24.1646 7.48281 27.6132 -1.46339 36.0113 0.869396C43.4763 2.94301 43.4763 11.1337 43.4763 11.1337C43.4763 11.1337 57.9396 8.80092 56.5399 22.3312C53.7406 34.9283 40.6769 28.3965 40.6769 28.3965Z"
+            fill="#F6F5F2" stroke="#392D2B" strokeWidth="0.96"
+          />
+        </svg>
+        <span style={{
+          position: "relative",
+          zIndex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          paddingBottom: 6,
+          fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
+          fontWeight: 700,
+          fontSize: 7,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          color: "#392D2B",
+          lineHeight: 1,
+        }}>
+          Details
+        </span>
       </div>
     </article>
   );
@@ -783,7 +820,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
             zIndex: 2,
             ...(mode === "chaos" ? { left: "min(30px, 4vw)", top: "clamp(100px, 13vw, 240px)" } : {}),
             width: mode === "chaos" ? "calc(100vw - 60px)" : "100%",
-            height: "min(680px, calc(100svh - 370px))",
+            height: "min(680px, max(300px, calc(100svh - 370px)))",
             zoom: isMobile ? "0.75" : undefined,
           }}
         >
@@ -809,14 +846,19 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
 
       
 
-      {/* Inquire button */}
-      <div style={{ position: "absolute", right: 30, bottom: 30, zIndex: 5 }}>
+      {/* Inquire button — desktop only */}
+      <div className="shop-inquire-desktop" style={{ position: "absolute", right: 30, bottom: 30, zIndex: 5 }}>
         <PixelButton href="/contacts" label="Inquire" />
       </div>
 
-      {/* Filter bar */}
+      {/* Filter bar + mobile Inquire row */}
       <div className={isStaticGrid ? "shop-filter-wrap-static" : "shop-filter-wrap"}>
-        <FilterBar mode={mode} onMode={setMode} />
+        <div className="shop-filter-inner">
+          <FilterBar mode={mode} onMode={setMode} />
+        </div>
+        <div className="shop-inquire-mobile">
+          <PixelButton href="/contacts" label="Inquire" />
+        </div>
       </div>
 
       {/* Popup */}
@@ -847,6 +889,9 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           left: 50%;
           bottom: 30px;
           transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
         .shop-filter-wrap-static {
           position: sticky;
@@ -854,13 +899,31 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           z-index: 5;
           display: flex;
           justify-content: center;
+          align-items: center;
+          gap: 12px;
           zoom: 0.82;
           margin-top: -30px;
         }
+        .shop-inquire-mobile { display: none; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 767px), (orientation: portrait) {
+          .shop-inquire-desktop { display: none; }
+          .shop-inquire-mobile { display: block; }
+
           .shop-filter-wrap {
+            left: 16px;
+            right: 16px;
             bottom: 16px;
+            transform: none;
+            justify-content: space-between;
+            zoom: unset;
+          }
+          .shop-filter-wrap-static {
+            justify-content: space-between;
+            zoom: unset;
+            padding: 0 16px;
+          }
+          .shop-filter-inner {
             zoom: 0.82;
           }
         }
