@@ -106,8 +106,8 @@ export default function BathroomsPage() {
     const section = sectionRef.current;
     if (!section) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.intersectionRatio >= 0.8) { setRevealed(true); observer.disconnect(); } },
-      { threshold: [0, 0.5, 0.8, 1] },
+      ([entry]) => { if (entry.intersectionRatio >= 0.4 || entry.isIntersecting) { setRevealed(true); observer.disconnect(); } },
+      { threshold: [0, 0.4, 0.8] },
     );
     observer.observe(section);
     return () => observer.disconnect();
@@ -341,11 +341,14 @@ export default function BathroomsPage() {
           from { opacity: 0; transform: translateY(6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 768px) {
-          .s5-section { grid-template-columns: 1fr; height: 100vh; min-height: unset; }
+        @media (max-width: 767px), (orientation: portrait) {
+          .s5-section { grid-template-columns: 1fr; height: auto; min-height: unset; }
           .s5-panel { height: 50vh; min-height: 220px; cursor: pointer; }
           .s5-info-text { max-width: min(82%,520px); }
           #s5-cursor { display: none !important; }
+        }
+        @media (orientation: landscape) and (max-height: 600px) {
+          .s5-section { min-height: unset; height: 100vh; }
         }
       `}</style>
     </section>
