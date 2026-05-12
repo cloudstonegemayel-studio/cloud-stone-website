@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       "frame-src 'self' https://*.elfsight.com",
       "img-src 'self' data: https: blob:",
       "style-src 'self' 'unsafe-inline' https://static.elfsight.com https://elfsightcdn.com",
-      "connect-src 'self' https://static.elfsight.com https://api.elfsight.com https://elfsightcdn.com https://core.service.elfsight.com https://*.elfsight.com https://*.supabase.co https://cdnjs.cloudflare.com https://*.public.blob.vercel-storage.com",
+      "connect-src 'self' https://api.openweathermap.org https://static.elfsight.com https://api.elfsight.com https://elfsightcdn.com https://core.service.elfsight.com https://*.elfsight.com https://*.supabase.co https://cdnjs.cloudflare.com https://*.public.blob.vercel-storage.com",
       "worker-src 'self' blob: https://cdnjs.cloudflare.com https://unpkg.com",
       "font-src 'self' https://fonts.gstatic.com",
     ].join("; ");
@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options",        value: "DENY" },
           { key: "X-Content-Type-Options",  value: "nosniff" },
           { key: "Referrer-Policy",         value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy",      value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Permissions-Policy",      value: "camera=(), microphone=(), geolocation=(self)" },
           { key: "Content-Security-Policy", value: csp },
         ],
       },
