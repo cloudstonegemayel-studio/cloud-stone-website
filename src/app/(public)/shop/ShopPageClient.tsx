@@ -924,7 +924,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
             padding: 0 16px;
           }
           .shop-filter-inner {
-            zoom: 0.82;
+            zoom: unset;
           }
         }
       `}</style>

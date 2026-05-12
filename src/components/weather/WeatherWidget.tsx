@@ -223,7 +223,7 @@ export function WeatherWidget() {
           const cur = data.current;
           const city =
             cityFallback ??
-            (Array.isArray(geoData) && geoData[0]?.local_names?.uk) ??
+            (Array.isArray(geoData) && geoData[0]?.local_names?.en) ??
             (Array.isArray(geoData) && geoData[0]?.name) ??
             "Unknown";
           const isDay = (cur.dt as number) >= (cur.sunrise as number) && (cur.dt as number) < (cur.sunset as number);
@@ -402,9 +402,9 @@ export function WeatherWidget() {
           75%  { opacity: 0.9; }
           100% { transform: translateY(12px) rotate(180deg); opacity: 0; }
         }
-        @media (max-width: 767px) and (orientation: portrait) {
+        @media (max-width: 767px) {
           .ww-widget {
-            top: 68px;
+            display: none;
           }
         }
       `}</style>

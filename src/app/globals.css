@@ -391,7 +391,7 @@
       align-items: center;
     }
     .design-filter-wrap .filter-nav-pixel {
-      zoom: 0.7;
+      zoom: unset;
     }
 
     .design-mobile-btn  { display: block; }

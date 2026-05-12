@@ -110,7 +110,7 @@ function calcInitialPos(): Record<CardId, Pos> {
     // visual_left  = CSS_left + CARD_W*(1-s)/2  →  CSS_left = pad - CARD_W*(1-s)/2
     // visual_right = CSS_left + CARD_W*(1+s)/2  →  CSS_left = (vw-pad) - CARD_W*(1+s)/2
     // safeH: bottom card's visual_bottom ≤ vh-FOOTER → safeH = vh-HEADER-FOOTER-CARD_H*(1+s)/2
-    const pad    = 8;
+    const pad    = 16;
     const HEADER = 86;
     const FOOTER = 64;
     const safeH  = vh - HEADER - FOOTER - CARD_H * (1 + s) / 2;
