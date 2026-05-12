@@ -891,6 +891,7 @@ export function HomeHero() {
 
       {/* bathroom-sketch — Figma: top 222 right 693 */}
       <Image src="/bathroom-sketch.svg" alt="" aria-hidden width={172} height={213}
+        className="hero-bathroom-sketch"
         style={{
           position:      "absolute",
           top:           "11.56vw",

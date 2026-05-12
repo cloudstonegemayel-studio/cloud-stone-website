@@ -398,6 +398,12 @@
     .design-desktop-btn { display: none; }
   }
 
+  @media (max-width: 767px) {
+    .hero-bathroom-sketch {
+      top: calc(11.56vw + 20vh) !important;
+    }
+  }
+
   /* Display font utility */
   .font-display { font-family: var(--font-display); }
   .font-sans    { font-family: var(--font-sans); }
