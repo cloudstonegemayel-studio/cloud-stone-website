@@ -363,10 +363,10 @@ export function WeatherWidget() {
           font-family: var(--font-inter-tight,"Inter Tight",system-ui,sans-serif);
           box-shadow: 0 10px 30px rgba(0,0,0,0.12);
           display: grid; grid-template-columns: auto auto;
-          column-gap: 16px; align-items: center;
+          column-gap: 4px; align-items: center;
           pointer-events: auto; user-select: none;
         }
-        .ww-left  { display: flex; flex-direction: column; gap: 6px; }
+        .ww-left  { display: flex; flex-direction: column; gap: 2px; }
         .ww-location {
           display: flex; align-items: center; gap: 4px;
           font-size: 11px; font-weight: 500; opacity: 0.6;
@@ -380,7 +380,7 @@ export function WeatherWidget() {
         }
         .ww-temp-unit button.active, .ww-temp-unit button:hover { opacity: 1; }
         .ww-sep { opacity: 0.25; padding: 0 1px; }
-        .ww-right { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .ww-right { display: flex; flex-direction: column; align-items: center; gap: 0; }
         .ww-icon  { width: 56px; height: 56px; }
         .ww-desc  {
           font-size: 10px; font-weight: 500; text-align: center;
