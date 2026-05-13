@@ -159,6 +159,7 @@ function FilterBar({ mode, onMode }: {
       position: "relative",
       display: "inline-flex",
       height: 26,
+	  marginLeft: "20px",
       alignItems: "center",
       borderRadius: 0,
       background: "#392D2B",
