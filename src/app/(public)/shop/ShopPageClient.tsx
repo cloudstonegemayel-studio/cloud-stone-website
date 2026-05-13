@@ -369,6 +369,7 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
 
       {/* Description */}
       <div style={{
+		position:absolute, bottom: 0,
         padding: "14px 15px 40px",
         fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
         fontSize: 10, lineHeight: 1.2, color: "#392D2B",
