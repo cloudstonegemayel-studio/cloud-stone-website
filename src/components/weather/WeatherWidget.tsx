@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 const API_KEY = "32a669c3ef56db4fe5bf8dd741657aff";
-const FALLBACK_LAT = 48.6239;
-const FALLBACK_LON = 22.295;
-const FALLBACK_CITY = "Uzhhorod";
+const DEFAULT_LAT = 40.7128;
+const DEFAULT_LON = -74.006;
+const DEFAULT_CITY = "New York";
 
 interface WeatherState {
   temp: number;
@@ -211,42 +211,21 @@ export function WeatherWidget() {
   const [celsius, setCelsius] = useState(true);
 
   useEffect(() => {
-    const fetchWeather = (lat: number, lon: number, cityFallback?: string) => {
-      const weatherUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,daily,alerts`;
-      const geoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`;
-
-      Promise.all([
-        fetch(weatherUrl).then((r) => r.json()),
-        cityFallback ? Promise.resolve(null) : fetch(geoUrl).then((r) => r.json()),
-      ])
-        .then(([data, geoData]) => {
-          const cur = data.current;
-          const city =
-            cityFallback ??
-            (Array.isArray(geoData) && geoData[0]?.local_names?.en) ??
-            (Array.isArray(geoData) && geoData[0]?.name) ??
-            "Unknown";
-          const isDay = (cur.dt as number) >= (cur.sunrise as number) && (cur.dt as number) < (cur.sunset as number);
-          setWeather({
-            temp: Math.round(cur.temp as number),
-            desc: cur.weather[0].description as string,
-            id: cur.weather[0].id as number,
-            isDay,
-            city: city as string,
-          });
-        })
-        .catch(() => {});
-    };
-
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-        () => fetchWeather(FALLBACK_LAT, FALLBACK_LON, FALLBACK_CITY),
-        { timeout: 5000 }
-      );
-    } else {
-      fetchWeather(FALLBACK_LAT, FALLBACK_LON, FALLBACK_CITY);
-    }
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${DEFAULT_LAT}&lon=${DEFAULT_LON}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,daily,alerts`;
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        const cur = data.current;
+        const isDay = (cur.dt as number) >= (cur.sunrise as number) && (cur.dt as number) < (cur.sunset as number);
+        setWeather({
+          temp: Math.round(cur.temp as number),
+          desc: cur.weather[0].description as string,
+          id: cur.weather[0].id as number,
+          isDay,
+          city: DEFAULT_CITY,
+        });
+      })
+      .catch(() => {});
   }, []);
 
   if (!weather) return null;
