@@ -499,8 +499,8 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
         <svg
           viewBox="0 0 16 16"
           fill="none"
-          width="11"
-          height="11"
+          width="20"
+          height="20"
           style={{ position: "relative", zIndex: 1 }}
           aria-hidden
         >
