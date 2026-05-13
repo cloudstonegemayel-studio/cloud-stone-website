@@ -116,11 +116,14 @@ function calcInitialPos(): Record<CardId, Pos> {
     const safeH  = vh - HEADER - FOOTER - CARD_H * (1 + s) / 2;
     const leftX  = pad - CARD_W * (1 - s) / 2;
     const rightX = (vw - pad) - CARD_W * (1 + s) / 2;
+    // On small-height portrait screens raise the top two cards
+    const designY    = vh < 750 ? 40  : HEADER + safeH * 0.04;
+    const bathroomsY = vh < 750 ? 100 : HEADER + safeH * 0.33;
     return {
-      design:    { x: leftX,  y: HEADER + safeH * 0.04 },
-      bathrooms: { x: rightX, y: HEADER + safeH * 0.33 },
+      design:    { x: leftX,  y: designY },
+      bathrooms: { x: rightX, y: bathroomsY },
       shop:      { x: leftX,  y: HEADER + safeH * 0.58 },
-      about:     { x: rightX, y: HEADER + safeH * 0.88 }, // 0.88 keeps bottom card above footer
+      about:     { x: rightX, y: HEADER + safeH * 0.88 },
     };
   }
 
@@ -281,14 +284,12 @@ interface ServiceCardProps {
 const ANIM_DUR = 1200; // ms — keyframe animation duration
 
 function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread, scale }: ServiceCardProps) {
-  const [hover,        setHover]        = useState(false);
-  const [dragging,     setDragging]     = useState(false);
-  const [cardTitle,    setCardTitle]    = useState(def.label.toUpperCase());
-  const [displayHover, setDisplayHover] = useState(false);
-  const [visible,      setVisible]      = useState(false); // animation running
-  const [settled,      setSettled]      = useState(false); // animation done
-  const dragStart    = useRef<{ mx: number; my: number; px: number; py: number } | null>(null);
-  const cloudFadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hover,    setHover]    = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [cardTitle, setCardTitle] = useState(def.label.toUpperCase());
+  const [visible,  setVisible]  = useState(false); // animation running
+  const [settled,  setSettled]  = useState(false); // animation done
+  const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null);
 
   // Staggered entrance: start animation, then mark settled after it completes
   useEffect(() => {
@@ -296,13 +297,6 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
     const t2 = setTimeout(() => setSettled(true), enterDelay + ANIM_DUR + 50);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Cloud text: fade out → swap content/size → fade in
-  useEffect(() => {
-    if (cloudFadeRef.current) clearTimeout(cloudFadeRef.current);
-    cloudFadeRef.current = setTimeout(() => setDisplayHover(hover), 130);
-    return () => { if (cloudFadeRef.current) clearTimeout(cloudFadeRef.current); };
-  }, [hover]);
 
   // Letter scramble on hover
   useEffect(() => {
@@ -502,22 +496,17 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
             strokeWidth="0.96"
           />
         </svg>
-        <span style={{
-          position:      "relative",
-          zIndex:        1,
-          fontFamily:    "var(--font-inter-tight,'Inter Tight','DM Sans',sans-serif)",
-          fontSize:      displayHover || dragging ? 8 : 22,
-          fontWeight:    displayHover || dragging ? 700 : 300,
-          letterSpacing: displayHover || dragging ? "0.12em" : "0",
-          textTransform: "uppercase" as const,
-          color:         "#392D2B",
-          lineHeight:    1,
-          marginTop:     displayHover || dragging ? 0 : -2,
-          opacity:       dragging || hover === displayHover ? 1 : 0,
-          transition:    "opacity 0.13s ease",
-        }}>
-          {dragging ? "Dragging" : displayHover ? "Drag me" : "+"}
-        </span>
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          width="11"
+          height="11"
+          style={{ position: "relative", zIndex: 1 }}
+          aria-hidden
+        >
+          <path d="M8 2L6 4.5H10L8 2ZM8 14L6 11.5H10L8 14ZM2 8L4.5 6V10L2 8ZM14 8L11.5 6V10L14 8Z" fill="#392D2B"/>
+          <path d="M8 4.5V11.5M4.5 8H11.5" stroke="#392D2B" strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
       </div>
 
       {/* Transparent link overlay on image */}

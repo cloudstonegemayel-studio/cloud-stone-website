@@ -376,18 +376,21 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
         <p style={{ margin: 0 }}>{item.desc}</p>
       </div>
 
-      {/* Cloud Details button */}
+      {/* Cloud Details button — bottom-right, matches HomeHero style */}
       <div
         style={{
           position: "absolute",
+          right: -18,
           bottom: -14,
-          left: "50%",
-          transform: hovered && !dragging ? "translateX(-50%) scale(1.18)" : "translateX(-50%) scale(1)",
-          transition: "transform 0.45s cubic-bezier(0.34,1.56,0.64,1)",
-          transformOrigin: "center bottom",
-          width: 80,
-          height: 54,
+          width: 56.155,
+          height: 37.731,
           cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transform: hovered && !dragging ? "scale(1.22)" : "scale(1)",
+          transition: "transform 0.45s cubic-bezier(0.34,1.56,0.64,1)",
+          transformOrigin: "center center",
           zIndex: 2,
         }}
         onClick={e => { e.stopPropagation(); onSelect(item); }}
@@ -401,11 +404,6 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
         <span style={{
           position: "relative",
           zIndex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100%",
-          paddingBottom: 6,
           fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
           fontWeight: 700,
           fontSize: 7,
@@ -413,6 +411,7 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
           textTransform: "uppercase",
           color: "#392D2B",
           lineHeight: 1,
+          marginTop: 2,
         }}>
           Details
         </span>
