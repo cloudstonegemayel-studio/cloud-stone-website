@@ -26,55 +26,75 @@ function conditionKey(id: number, isDay: boolean): string {
   return "cloudy";
 }
 
-function SunIcon() {
-  const rays = [0, 45, 90, 135, 180, 225, 270, 315];
+// ─── Cloud shape ──────────────────────────────────────────────────────────────
+// 7 circles projected from Three.js blob positions (scale=25px/unit, center=(60,55),
+// y-flipped so 3D +y = SVG -y). viewBox "0 0 120 100".
+function CloudCircles({ fill = "#AED0F0" }: { fill?: string }) {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <g style={{ transformOrigin: "28px 28px", animation: "ww-rays 8s linear infinite" }}>
-        {rays.map((a) => {
-          const rad = (a * Math.PI) / 180;
-          return (
-            <line
-              key={a}
-              x1={28 + Math.cos(rad) * 19}
-              y1={28 + Math.sin(rad) * 19}
-              x2={28 + Math.cos(rad) * 25}
-              y2={28 + Math.sin(rad) * 25}
-              stroke="#C86733"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-          );
-        })}
+    <g fill={fill}>
+      {/* Three.js blob: [-1.10,-0.30, r=0.80] → left base */}
+      <circle cx="33" cy="63" r="20" />
+      {/* [0.10,-0.40, r=1.00] → center base */}
+      <circle cx="63" cy="65" r="25" />
+      {/* [1.15,-0.20, r=0.75] → right base */}
+      <circle cx="89" cy="60" r="19" />
+      {/* [-0.70,0.45, r=0.55] → left top bump */}
+      <circle cx="43" cy="44" r="14" />
+      {/* [0.45,0.70, r=0.85] → right top bump */}
+      <circle cx="71" cy="38" r="21" />
+      {/* [0.10,0.00, r=0.85] → depth filler center */}
+      <circle cx="63" cy="55" r="21" />
+      {/* [0.00,-0.10, r=0.80] → depth filler center */}
+      <circle cx="60" cy="58" r="20" />
+    </g>
+  );
+}
+
+// ─── Icons ────────────────────────────────────────────────────────────────────
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" width="56" height="56">
+      <g className="ww-sun-rays" stroke="#C86733" strokeWidth="4" strokeLinecap="round">
+        {Array.from({ length: 8 }, (_, i) => (
+          <line key={i} x1="50" y1="22" x2="50" y2="12" transform={`rotate(${i * 45} 50 50)`} />
+        ))}
       </g>
-      <circle cx="28" cy="28" r="11" fill="#C86733" />
+      <circle className="ww-sun-core" cx="50" cy="50" r="18" fill="#C86733" />
     </svg>
   );
 }
 
 function MoonIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <path
-        d="M34 28c0 8.837-7.163 16-16 16-2.5 0-4.86-.576-6.96-1.6C13.44 45.3 18.95 48 25 48c9.941 0 18-8.059 18-18 0-6.05-2.7-11.56-6.6-15.04C37.424 17.14 38 19.5 38 22c0 3.314-1.686 6.25-4 8z"
-        fill="#392D2B"
-        style={{ transformOrigin: "28px 28px", animation: "ww-pulse 3s ease-in-out infinite" }}
-      />
+    <svg viewBox="0 0 100 100" width="56" height="56">
+      <defs>
+        <mask id="ww-moonMask">
+          <rect width="100" height="100" fill="white" />
+          <circle cx="60" cy="42" r="26" fill="black" />
+        </mask>
+      </defs>
+      <circle className="ww-moon" cx="50" cy="50" r="30" fill="#C86733" mask="url(#ww-moonMask)" />
     </svg>
   );
 }
 
-function FewCloudsIcon() {
+function FewCloudsIcon({ night }: { night: boolean }) {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <circle cx="40" cy="18" r="8" fill="#C86733" />
-      <g style={{ animation: "ww-drift 4s ease-in-out infinite" }}>
-        <path
-          d="M12 40c0-5.523 4.477-10 10-10 1.36 0 2.657.27 3.84.764A8 8 0 0142 36c0 4.418-3.582 8-8 8H18a6 6 0 01-6-4z"
-          fill="#F0EEE9"
-          stroke="rgba(57,45,43,0.12)"
-          strokeWidth="1"
-        />
+    <svg viewBox="0 0 130 100" fill="none" width="56" height="56">
+      {night ? (
+        <path d="M40 22 C28 22 20 32 23 44 C26 54 38 58 50 54 C58 48 59 32 52 26 C48 23 44 22 40 22Z" fill="#F0EEE9" />
+      ) : (
+        <>
+          <g className="ww-sun-rays-sm" stroke="#C86733" strokeWidth="3" strokeLinecap="round" fill="none">
+            {Array.from({ length: 8 }, (_, i) => (
+              <line key={i} x1="36" y1="10" x2="36" y2="4" transform={`rotate(${i * 45} 36 32)`} />
+            ))}
+          </g>
+          <circle className="ww-sun-core" cx="36" cy="32" r="12" fill="#C86733" />
+        </>
+      )}
+      <g className="ww-cloud" transform="translate(15 12)">
+        <CloudCircles fill="#AED0F0" />
       </g>
     </svg>
   );
@@ -82,19 +102,9 @@ function FewCloudsIcon() {
 
 function CloudyIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <g style={{ animation: "ww-drift 5s ease-in-out infinite", animationDelay: "0.4s" }}>
-        <path
-          d="M8 36c0-5.523 4.477-10 10-10 .46 0 .915.03 1.36.09A8 8 0 0136 30c0 4.418-3.582 8-8 8H14a6 6 0 01-6-2z"
-          fill="rgba(57,45,43,0.2)"
-        />
-      </g>
-      <g style={{ animation: "ww-drift 4s ease-in-out infinite" }}>
-        <path
-          d="M12 44c0-5.523 4.477-10 10-10 1.36 0 2.657.27 3.84.764A8 8 0 0142 40c0 4.418-3.582 8-8 8H18a6 6 0 01-6-4z"
-          fill="#392D2B"
-          opacity="0.55"
-        />
+    <svg viewBox="0 0 120 100" fill="none" width="56" height="56">
+      <g className="ww-cloud">
+        <CloudCircles fill="#AED0F0" />
       </g>
     </svg>
   );
@@ -102,102 +112,62 @@ function CloudyIcon() {
 
 function RainIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <path
-        d="M10 30c0-5.523 4.477-10 10-10 1.36 0 2.657.27 3.84.764A8 8 0 0140 26c0 4.418-3.582 8-8 8H16a6 6 0 01-6-4z"
-        fill="#392D2B"
-        opacity="0.55"
-      />
-      {[0, 1, 2].map((i) => (
-        <line
-          key={i}
-          x1={18 + i * 8}
-          y1="40"
-          x2={15 + i * 8}
-          y2="50"
-          stroke="#7AB6D9"
-          strokeWidth="2"
-          strokeLinecap="round"
-          style={{
-            animation: "ww-rain 1.2s ease-in infinite",
-            animationDelay: `${i * 0.35}s`,
-          }}
-        />
-      ))}
+    <svg viewBox="0 0 120 120" fill="none" width="56" height="56">
+      <g className="ww-cloud">
+        <CloudCircles fill="#AED0F0" />
+      </g>
+      <g className="ww-rain" stroke="#B7D1EA" strokeWidth="4" strokeLinecap="round">
+        <line x1="40" y1="86" x2="36" y2="104" />
+        <line x1="60" y1="88" x2="56" y2="108" />
+        <line x1="80" y1="86" x2="76" y2="104" />
+      </g>
     </svg>
   );
 }
 
 function ThunderIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <path
-        d="M8 28c0-5.523 4.477-10 10-10 1.36 0 2.657.27 3.84.764A8 8 0 0138 24c0 4.418-3.582 8-8 8H14a6 6 0 01-6-4z"
-        fill="#392D2B"
-        opacity="0.55"
-      />
-      <path
-        d="M27 33l-5 10h5l-4 9 11-14h-6l4-5z"
-        fill="#C86733"
-        style={{ animation: "ww-flash 2.4s ease-in-out infinite" }}
-      />
+    <svg viewBox="0 0 120 115" fill="none" width="56" height="56">
+      <g className="ww-cloud">
+        <CloudCircles fill="#BCB7B8" />
+      </g>
+      <polygon className="ww-bolt" points="60,66 50,86 64,82 56,104 78,76 64,78" fill="#C86733" />
     </svg>
   );
 }
 
 function SnowIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      <path
-        d="M10 26c0-5.523 4.477-10 10-10 1.36 0 2.657.27 3.84.764A8 8 0 0140 22c0 4.418-3.582 8-8 8H16a6 6 0 01-6-4z"
-        fill="#392D2B"
-        opacity="0.5"
-      />
-      {[0, 1, 2].map((i) => (
-        <g
-          key={i}
-          style={{
-            animation: "ww-snow 2s ease-in infinite",
-            animationDelay: `${i * 0.55}s`,
-          }}
-        >
-          <line x1={18 + i * 8} y1="36" x2={18 + i * 8} y2="48" stroke="#7AB6D9" strokeWidth="2" strokeLinecap="round" />
-          <line x1={14 + i * 8} y1="42" x2={22 + i * 8} y2="42" stroke="#7AB6D9" strokeWidth="2" strokeLinecap="round" />
-        </g>
-      ))}
+    <svg viewBox="0 0 120 115" fill="none" width="56" height="56">
+      <g className="ww-cloud">
+        <CloudCircles fill="#B7D1EA" />
+      </g>
+      <g className="ww-snowflakes" fill="#F0EEE9">
+        <circle cx="42" cy="90" r="3.5" />
+        <circle cx="62" cy="92" r="3.5" />
+        <circle cx="82" cy="90" r="3.5" />
+      </g>
     </svg>
   );
 }
 
 function FogIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-      {[0, 1, 2].map((i) => (
-        <line
-          key={i}
-          x1="8"
-          y1={20 + i * 9}
-          x2="48"
-          y2={20 + i * 9}
-          stroke="#392D2B"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          opacity={0.5 - i * 0.12}
-          style={{
-            animation: "ww-drift 3s ease-in-out infinite",
-            animationDelay: `${i * 0.3}s`,
-          }}
-        />
-      ))}
+    <svg viewBox="0 0 120 80" fill="none" width="56" height="56">
+      <g className="ww-fog">
+        <rect x="20" y="24" width="80" height="8" rx="4" fill="#BCB7B8" />
+        <rect x="30" y="42" width="65" height="8" rx="4" fill="#BCB7B8" />
+        <rect x="22" y="60" width="75" height="8" rx="4" fill="#BCB7B8" />
+      </g>
     </svg>
   );
 }
 
-function WeatherIcon({ condition }: { condition: string }) {
+function WeatherIcon({ condition, isDay }: { condition: string; isDay: boolean }) {
   switch (condition) {
     case "clear-day":   return <SunIcon />;
     case "clear-night": return <MoonIcon />;
-    case "few-clouds":  return <FewCloudsIcon />;
+    case "few-clouds":  return <FewCloudsIcon night={!isDay} />;
     case "cloudy":      return <CloudyIcon />;
     case "rain":        return <RainIcon />;
     case "thunder":     return <ThunderIcon />;
@@ -206,6 +176,7 @@ function WeatherIcon({ condition }: { condition: string }) {
   }
 }
 
+// ─── Widget ───────────────────────────────────────────────────────────────────
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherState | null>(null);
   const [celsius, setCelsius] = useState(true);
@@ -276,8 +247,8 @@ export function WeatherWidget() {
   if (!weather) return null;
 
   const displayTemp = celsius ? weather.temp : Math.round(weather.temp * 9 / 5 + 32);
-  const condition = conditionKey(weather.id, weather.isDay);
-  const desc = weather.desc.charAt(0).toUpperCase() + weather.desc.slice(1);
+  const condition   = conditionKey(weather.id, weather.isDay);
+  const desc        = weather.desc.charAt(0).toUpperCase() + weather.desc.slice(1);
 
   return (
     <div className="ww-widget" role="complementary" aria-label="Current weather">
@@ -290,25 +261,15 @@ export function WeatherWidget() {
         </div>
         <span className="ww-temp-num">{displayTemp}</span>
         <span className="ww-temp-unit">
-          <button
-            type="button"
-            className={celsius ? "active" : ""}
-            onClick={() => setCelsius(true)}
-            aria-label="Celsius"
-          >°C</button>
+          <button type="button" className={celsius ? "active" : ""} onClick={() => setCelsius(true)} aria-label="Celsius">°C</button>
           <span className="ww-sep">|</span>
-          <button
-            type="button"
-            className={!celsius ? "active" : ""}
-            onClick={() => setCelsius(false)}
-            aria-label="Fahrenheit"
-          >°F</button>
+          <button type="button" className={!celsius ? "active" : ""} onClick={() => setCelsius(false)} aria-label="Fahrenheit">°F</button>
         </span>
       </div>
 
       <div className="ww-right">
         <div className="ww-icon">
-          <WeatherIcon condition={condition} />
+          <WeatherIcon condition={condition} isDay={weather.isDay} />
         </div>
         <div className="ww-desc">{desc}</div>
       </div>
@@ -337,7 +298,7 @@ export function WeatherWidget() {
         .ww-left {
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 6px;
         }
         .ww-location {
           display: flex;
@@ -374,13 +335,8 @@ export function WeatherWidget() {
           pointer-events: auto;
         }
         .ww-temp-unit button.active,
-        .ww-temp-unit button:hover {
-          opacity: 1;
-        }
-        .ww-sep {
-          opacity: 0.25;
-          padding: 0 1px;
-        }
+        .ww-temp-unit button:hover { opacity: 1; }
+        .ww-sep { opacity: 0.25; padding: 0 1px; }
         .ww-right {
           display: flex;
           flex-direction: column;
@@ -390,6 +346,7 @@ export function WeatherWidget() {
         .ww-icon {
           width: 56px;
           height: 56px;
+          perspective: 200px;
         }
         .ww-desc {
           font-size: 10px;
@@ -399,37 +356,97 @@ export function WeatherWidget() {
           max-width: 72px;
           line-height: 1.3;
         }
-        @keyframes ww-rays {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
+
+        /* ── icon keyframes ── */
+        @keyframes ww-sun-scale {
+          0%, 100% { transform: scale(0.85); }
+          50%       { transform: scale(1.15); }
         }
-        @keyframes ww-pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50%       { transform: scale(1.1); opacity: 0.85; }
+        @keyframes ww-core-pulse {
+          0%, 100% { transform: scale(1); }
+          50%       { transform: scale(1.08); }
         }
-        @keyframes ww-drift {
-          0%, 100% { transform: translateX(0); }
-          50%       { transform: translateX(4px); }
+        @keyframes ww-spin-y {
+          from { transform: perspective(120px) rotateY(0deg); }
+          to   { transform: perspective(120px) rotateY(-360deg); }
         }
-        @keyframes ww-rain {
-          0%   { transform: translateY(0); opacity: 1; }
-          75%  { opacity: 0.8; }
+        @keyframes ww-rain-drop {
+          0%   { transform: translateY(-6px); opacity: 0; }
+          20%  { opacity: 1; }
+          80%  { opacity: 1; }
           100% { transform: translateY(10px); opacity: 0; }
         }
-        @keyframes ww-flash {
-          0%, 85%, 100% { opacity: 1; }
-          90%            { opacity: 0.08; }
-          95%            { opacity: 0.9; }
+        @keyframes ww-bolt-flash {
+          0%, 80%, 100% { opacity: 1; }
+          85%, 90%       { opacity: 0.35; }
         }
-        @keyframes ww-snow {
-          0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-          75%  { opacity: 0.9; }
-          100% { transform: translateY(12px) rotate(180deg); opacity: 0; }
+        @keyframes ww-snow-fall {
+          0%   { transform: translateY(-4px); opacity: 0; }
+          25%  { opacity: 1; }
+          100% { transform: translateY(8px); opacity: 0; }
         }
+        @keyframes ww-moon-pulse {
+          0%, 100% { transform: scale(1); }
+          50%       { transform: scale(1.06); }
+        }
+
+        /* ── sun ── */
+        .ww-sun-rays {
+          transform-origin: 50px 50px;
+          animation: ww-sun-scale 1.8s ease-in-out infinite;
+        }
+        .ww-sun-rays-sm {
+          transform-origin: 36px 32px;
+          animation: ww-sun-scale 1.8s ease-in-out infinite;
+        }
+        .ww-sun-core {
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+          animation: ww-core-pulse 2.6s ease-in-out infinite;
+        }
+
+        /* ── cloud spin ── */
+        .ww-cloud {
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+          animation: ww-spin-y 6s linear infinite;
+        }
+
+        /* ── rain ── */
+        .ww-rain line                  { animation: ww-rain-drop 1.2s linear infinite; }
+        .ww-rain line:nth-child(2)     { animation-delay: 0.35s; }
+        .ww-rain line:nth-child(3)     { animation-delay: 0.7s; }
+
+        /* ── thunder ── */
+        .ww-bolt {
+          animation: ww-bolt-flash 2.2s ease-in-out infinite;
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+        }
+
+        /* ── snow ── */
+        .ww-snowflakes circle             { animation: ww-snow-fall 2s ease-in-out infinite; }
+        .ww-snowflakes circle:nth-child(2){ animation-delay: 0.5s; }
+        .ww-snowflakes circle:nth-child(3){ animation-delay: 1s; }
+
+        /* ── fog ── */
+        .ww-fog rect {
+          animation: ww-spin-y 4s ease-in-out infinite;
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+        }
+        .ww-fog rect:nth-child(2) { animation-delay: 0.4s; }
+        .ww-fog rect:nth-child(3) { animation-delay: 0.8s; }
+
+        /* ── moon ── */
+        .ww-moon {
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+          animation: ww-moon-pulse 4s ease-in-out infinite;
+        }
+
         @media (max-width: 767px) {
-          .ww-widget {
-            display: none;
-          }
+          .ww-widget { display: none; }
         }
       `}</style>
     </div>
