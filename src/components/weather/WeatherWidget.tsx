@@ -211,21 +211,66 @@ export function WeatherWidget() {
   const [celsius, setCelsius] = useState(true);
 
   useEffect(() => {
-    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${DEFAULT_LAT}&lon=${DEFAULT_LON}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,daily,alerts`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => {
-        const cur = data.current;
-        const isDay = (cur.dt as number) >= (cur.sunrise as number) && (cur.dt as number) < (cur.sunset as number);
-        setWeather({
-          temp: Math.round(cur.temp as number),
-          desc: cur.weather[0].description as string,
-          id: cur.weather[0].id as number,
-          isDay,
-          city: DEFAULT_CITY,
-        });
-      })
-      .catch(() => {});
+    const applyWeather = (lat: number, lon: number, city: string) => {
+      fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&exclude=minutely,hourly,daily,alerts`)
+        .then((r) => r.json())
+        .then((data) => {
+          const cur = data.current;
+          const isDay = (cur.dt as number) >= (cur.sunrise as number) && (cur.dt as number) < (cur.sunset as number);
+          setWeather({
+            temp: Math.round(cur.temp as number),
+            desc: cur.weather[0].description as string,
+            id: cur.weather[0].id as number,
+            isDay,
+            city,
+          });
+        })
+        .catch(() => {});
+    };
+
+    const fallback = () => applyWeather(DEFAULT_LAT, DEFAULT_LON, DEFAULT_CITY);
+
+    const fromIP = () =>
+      fetch("https://ipapi.co/json/")
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.latitude && d.longitude && d.city) {
+            applyWeather(d.latitude, d.longitude, d.city);
+          } else {
+            fallback();
+          }
+        })
+        .catch(fallback);
+
+    if (typeof navigator === "undefined") { fallback(); return; }
+
+    if (navigator.permissions) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((result) => {
+          if (result.state === "granted") {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const { latitude: lat, longitude: lon } = pos.coords;
+                fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`)
+                  .then((r) => r.json())
+                  .then((geo) => {
+                    const city = (Array.isArray(geo) && (geo[0]?.local_names?.en || geo[0]?.name)) || DEFAULT_CITY;
+                    applyWeather(lat, lon, city);
+                  })
+                  .catch(() => applyWeather(lat, lon, DEFAULT_CITY));
+              },
+              fromIP,
+              { timeout: 5000 }
+            );
+          } else {
+            fromIP();
+          }
+        })
+        .catch(fromIP);
+    } else {
+      fromIP();
+    }
   }, []);
 
   if (!weather) return null;
