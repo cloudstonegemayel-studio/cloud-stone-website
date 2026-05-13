@@ -337,7 +337,7 @@ export function WeatherWidget() {
         .ww-left {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 2px;
         }
         .ww-location {
           display: flex;
