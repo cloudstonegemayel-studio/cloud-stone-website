@@ -846,7 +846,7 @@ export function HomeHero() {
       height:     isLandscapeMobile ? "200vh" : "100vh",
       overflowX:  "hidden",
       overflowY:  isLandscapeMobile ? "auto" : "hidden",
-      background: "#B7D1EA",
+      background: "#F6F5F2",
       userSelect: "none",
     }}>
 
@@ -868,7 +868,7 @@ export function HomeHero() {
           alignItems:      "center",
           padding:         "3.58vw 2.16vw 0.45vw 1.88vw",
           pointerEvents:   "none",
-          opacity:         entered ? 0.4 : 0,
+          opacity:         entered ? 0.24 : 0,
           filter:          "brightness(0)",
           transition:      "opacity 0.9s ease 1.0s",
         }}
@@ -902,7 +902,7 @@ export function HomeHero() {
           top:             "8.75vw",
           right:           "1.56vw",
           pointerEvents:   "none",
-          opacity:         entered ? 0.4 : 0,
+          opacity:         entered ? 0.24 : 0,
           filter:          "brightness(0)",
           transition:      "opacity 0.9s ease 1.2s",
         }}
@@ -935,7 +935,7 @@ export function HomeHero() {
           bottom:          "-0.44vw",
           right:           "27.34vw",
           pointerEvents:   "none",
-          opacity:         entered ? 0.4 : 0,
+          opacity:         entered ? 0.24 : 0,
           filter:          "brightness(0)",
           transition:      "opacity 0.9s ease 1.3s",
         }}
