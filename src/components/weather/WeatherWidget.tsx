@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const API_KEY = "32a669c3ef56db4fe5bf8dd741657aff";
 const DEFAULT_LAT = 40.7128;
@@ -26,31 +26,103 @@ function conditionKey(id: number, isDay: boolean): string {
   return "cloudy";
 }
 
-// ─── Cloud shape ──────────────────────────────────────────────────────────────
-// 7 circles projected from Three.js blob positions (scale=25px/unit, center=(60,55),
-// y-flipped so 3D +y = SVG -y). viewBox "0 0 120 100".
-function CloudCircles({ fill = "#AED0F0" }: { fill?: string }) {
+// ─── Three.js 3D cloud ────────────────────────────────────────────────────────
+// Blob positions from the reference Three.js script (unchanged).
+const BLOBS: Array<[number, number, number, number]> = [
+  [-1.10, -0.30,  0.05, 0.80],
+  [ 0.10, -0.40,  0.10, 1.00],
+  [ 1.15, -0.20, -0.05, 0.75],
+  [-0.70,  0.45,  0.05, 0.55],
+  [ 0.45,  0.70,  0.05, 0.85],
+  [ 0.10,  0.00, -0.75, 0.85],
+  [ 0.00, -0.10,  0.75, 0.80],
+];
+
+function Cloud3D({ color = "#AED0F0", size = 56 }: { color?: string; size?: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let destroyed = false;
+    let rafId    = 0;
+    let dispose: (() => void) | null = null;
+
+    import("three").then((THREE) => {
+      if (destroyed || !canvas) return;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(size, size);
+      renderer.setClearColor(0x000000, 0);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+      camera.position.set(0, 0.2, 8.5);
+      camera.lookAt(0, 0, 0);
+
+      const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) });
+      const geo = new THREE.SphereGeometry(1, 32, 24);
+      const cloud = new THREE.Group();
+      for (const [x, y, z, r] of BLOBS) {
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(x, y, z);
+        m.scale.setScalar(r);
+        cloud.add(m);
+      }
+      cloud.position.y = -0.1;
+      scene.add(cloud);
+
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        if (destroyed) return;
+        const t = (now - t0) / 1000;
+        cloud.rotation.y  = -(t / 6.0) * Math.PI * 2;
+        cloud.position.y  = -0.1 + Math.sin(t * 1.6) * 0.04;
+        renderer.render(scene, camera);
+        rafId = requestAnimationFrame(tick);
+      };
+      rafId = requestAnimationFrame(tick);
+
+      dispose = () => {
+        cancelAnimationFrame(rafId);
+        geo.dispose();
+        mat.dispose();
+        renderer.dispose();
+      };
+    });
+
+    return () => {
+      destroyed = true;
+      cancelAnimationFrame(rafId);
+      dispose?.();
+    };
+  }, [color, size]);
+
+  return <canvas ref={canvasRef} style={{ display: "block" }} />;
+}
+
+// Wrapper: Cloud3D canvas with optional SVG overlay for weather effects.
+// Effects SVG uses the same 56×56 coordinate space.
+function CloudIcon({ color = "#AED0F0", overlay }: { color?: string; overlay?: React.ReactNode }) {
   return (
-    <g fill={fill}>
-      {/* Three.js blob: [-1.10,-0.30, r=0.80] → left base */}
-      <circle cx="33" cy="63" r="20" />
-      {/* [0.10,-0.40, r=1.00] → center base */}
-      <circle cx="63" cy="65" r="25" />
-      {/* [1.15,-0.20, r=0.75] → right base */}
-      <circle cx="89" cy="60" r="19" />
-      {/* [-0.70,0.45, r=0.55] → left top bump */}
-      <circle cx="43" cy="44" r="14" />
-      {/* [0.45,0.70, r=0.85] → right top bump */}
-      <circle cx="71" cy="38" r="21" />
-      {/* [0.10,0.00, r=0.85] → depth filler center */}
-      <circle cx="63" cy="55" r="21" />
-      {/* [0.00,-0.10, r=0.80] → depth filler center */}
-      <circle cx="60" cy="58" r="20" />
-    </g>
+    <div style={{ position: "relative", width: 56, height: 56 }}>
+      <Cloud3D color={color} size={56} />
+      {overlay && (
+        <svg
+          viewBox="0 0 56 56"
+          fill="none"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+        >
+          {overlay}
+        </svg>
+      )}
+    </div>
   );
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
+// ─── Icon components ──────────────────────────────────────────────────────────
 function SunIcon() {
   return (
     <svg viewBox="0 0 100 100" fill="none" width="56" height="56">
@@ -78,76 +150,87 @@ function MoonIcon() {
   );
 }
 
+// Partly cloudy: small orb visible in top-left, cloud rotates in front
 function FewCloudsIcon({ night }: { night: boolean }) {
   return (
-    <svg viewBox="0 0 130 100" fill="none" width="56" height="56">
-      {night ? (
-        <path d="M40 22 C28 22 20 32 23 44 C26 54 38 58 50 54 C58 48 59 32 52 26 C48 23 44 22 40 22Z" fill="#F0EEE9" />
-      ) : (
-        <>
-          <g className="ww-sun-rays-sm" stroke="#C86733" strokeWidth="3" strokeLinecap="round" fill="none">
-            {Array.from({ length: 8 }, (_, i) => (
-              <line key={i} x1="36" y1="10" x2="36" y2="4" transform={`rotate(${i * 45} 36 32)`} />
-            ))}
-          </g>
-          <circle className="ww-sun-core" cx="36" cy="32" r="12" fill="#C86733" />
-        </>
-      )}
-      <g className="ww-cloud" transform="translate(15 12)">
-        <CloudCircles fill="#AED0F0" />
-      </g>
-    </svg>
+    <div style={{ position: "relative", width: 56, height: 56 }}>
+      {/* orb behind cloud */}
+      <svg viewBox="0 0 28 28" fill="none" style={{ position: "absolute", top: 0, left: 0, width: 28, height: 28, zIndex: 0 }}>
+        {night ? (
+          <>
+            <defs>
+              <mask id="ww-mMaskSm">
+                <rect width="28" height="28" fill="white" />
+                <circle cx="17" cy="11" r="7" fill="black" />
+              </mask>
+            </defs>
+            <circle className="ww-moon" cx="12" cy="14" r="9" fill="#C86733" mask="url(#ww-mMaskSm)" />
+          </>
+        ) : (
+          <>
+            <g className="ww-sun-rays-sm" stroke="#C86733" strokeWidth="1.8" strokeLinecap="round">
+              {Array.from({ length: 8 }, (_, i) => (
+                <line key={i} x1="14" y1="5" x2="14" y2="1.5" transform={`rotate(${i * 45} 14 14)`} />
+              ))}
+            </g>
+            <circle className="ww-sun-core" cx="14" cy="14" r="6" fill="#C86733" />
+          </>
+        )}
+      </svg>
+      {/* cloud in front */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
+        <Cloud3D color="#AED0F0" size={56} />
+      </div>
+    </div>
   );
 }
 
 function CloudyIcon() {
-  return (
-    <svg viewBox="0 0 120 100" fill="none" width="56" height="56">
-      <g className="ww-cloud">
-        <CloudCircles fill="#AED0F0" />
-      </g>
-    </svg>
-  );
+  return <CloudIcon color="#AED0F0" />;
 }
 
 function RainIcon() {
   return (
-    <svg viewBox="0 0 120 120" fill="none" width="56" height="56">
-      <g className="ww-cloud">
-        <CloudCircles fill="#AED0F0" />
-      </g>
-      <g className="ww-rain" stroke="#B7D1EA" strokeWidth="4" strokeLinecap="round">
-        <line x1="40" y1="86" x2="36" y2="104" />
-        <line x1="60" y1="88" x2="56" y2="108" />
-        <line x1="80" y1="86" x2="76" y2="104" />
-      </g>
-    </svg>
+    <CloudIcon
+      color="#AED0F0"
+      overlay={
+        <g className="ww-rain" stroke="#B7D1EA" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="18" y1="44" x2="15" y2="54" />
+          <line x1="28" y1="45" x2="25" y2="55" />
+          <line x1="38" y1="44" x2="35" y2="54" />
+        </g>
+      }
+    />
   );
 }
 
 function ThunderIcon() {
   return (
-    <svg viewBox="0 0 120 115" fill="none" width="56" height="56">
-      <g className="ww-cloud">
-        <CloudCircles fill="#BCB7B8" />
-      </g>
-      <polygon className="ww-bolt" points="60,66 50,86 64,82 56,104 78,76 64,78" fill="#C86733" />
-    </svg>
+    <CloudIcon
+      color="#BCB7B8"
+      overlay={
+        <polygon
+          className="ww-bolt"
+          points="29,40 22,52 29,49 23,56 38,44 31,46"
+          fill="#C86733"
+        />
+      }
+    />
   );
 }
 
 function SnowIcon() {
   return (
-    <svg viewBox="0 0 120 115" fill="none" width="56" height="56">
-      <g className="ww-cloud">
-        <CloudCircles fill="#B7D1EA" />
-      </g>
-      <g className="ww-snowflakes" fill="#F0EEE9">
-        <circle cx="42" cy="90" r="3.5" />
-        <circle cx="62" cy="92" r="3.5" />
-        <circle cx="82" cy="90" r="3.5" />
-      </g>
-    </svg>
+    <CloudIcon
+      color="#B7D1EA"
+      overlay={
+        <g className="ww-snowflakes" fill="#F0EEE9">
+          <circle cx="18" cy="50" r="2.5" />
+          <circle cx="28" cy="52" r="2.5" />
+          <circle cx="38" cy="50" r="2.5" />
+        </g>
+      }
+    />
   );
 }
 
@@ -155,9 +238,9 @@ function FogIcon() {
   return (
     <svg viewBox="0 0 120 80" fill="none" width="56" height="56">
       <g className="ww-fog">
-        <rect x="20" y="24" width="80" height="8" rx="4" fill="#BCB7B8" />
-        <rect x="30" y="42" width="65" height="8" rx="4" fill="#BCB7B8" />
-        <rect x="22" y="60" width="75" height="8" rx="4" fill="#BCB7B8" />
+        <rect x="20" y="18" width="80" height="8" rx="4" fill="#BCB7B8" />
+        <rect x="28" y="36" width="66" height="8" rx="4" fill="#BCB7B8" />
+        <rect x="22" y="54" width="74" height="8" rx="4" fill="#BCB7B8" />
       </g>
     </svg>
   );
@@ -179,7 +262,7 @@ function WeatherIcon({ condition, isDay }: { condition: string; isDay: boolean }
 // ─── Widget ───────────────────────────────────────────────────────────────────
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherState | null>(null);
-  const [celsius, setCelsius] = useState(true);
+  const [celsius, setCelsius]  = useState(true);
 
   useEffect(() => {
     const applyWeather = (lat: number, lon: number, city: string) => {
@@ -191,7 +274,7 @@ export function WeatherWidget() {
           setWeather({
             temp: Math.round(cur.temp as number),
             desc: cur.weather[0].description as string,
-            id: cur.weather[0].id as number,
+            id:   cur.weather[0].id as number,
             isDay,
             city,
           });
@@ -205,19 +288,15 @@ export function WeatherWidget() {
       fetch("https://ipapi.co/json/")
         .then((r) => r.json())
         .then((d) => {
-          if (d.latitude && d.longitude && d.city) {
-            applyWeather(d.latitude, d.longitude, d.city);
-          } else {
-            fallback();
-          }
+          if (d.latitude && d.longitude && d.city) applyWeather(d.latitude, d.longitude, d.city);
+          else fallback();
         })
         .catch(fallback);
 
     if (typeof navigator === "undefined") { fallback(); return; }
 
     if (navigator.permissions) {
-      navigator.permissions
-        .query({ name: "geolocation" })
+      navigator.permissions.query({ name: "geolocation" })
         .then((result) => {
           if (result.state === "granted") {
             navigator.geolocation.getCurrentPosition(
@@ -276,178 +355,79 @@ export function WeatherWidget() {
 
       <style jsx global>{`
         .ww-widget {
-          position: fixed;
-          top: 16px;
-          right: 16px;
-          z-index: 55;
+          position: fixed; top: 16px; right: 16px; z-index: 55;
           background: rgba(255,255,255,0.55);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border-radius: 16px;
-          padding: 6px 12px 8px;
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+          border-radius: 16px; padding: 6px 12px 8px;
           color: #392D2B;
           font-family: var(--font-inter-tight,"Inter Tight",system-ui,sans-serif);
           box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-          display: grid;
-          grid-template-columns: auto auto;
-          column-gap: 16px;
-          align-items: center;
-          pointer-events: auto;
-          user-select: none;
+          display: grid; grid-template-columns: auto auto;
+          column-gap: 16px; align-items: center;
+          pointer-events: auto; user-select: none;
         }
-        .ww-left {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
+        .ww-left  { display: flex; flex-direction: column; gap: 6px; }
         .ww-location {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 11px;
-          font-weight: 500;
-          opacity: 0.6;
+          display: flex; align-items: center; gap: 4px;
+          font-size: 11px; font-weight: 500; opacity: 0.6;
         }
-        .ww-temp-num {
-          font-size: 34px;
-          font-weight: 600;
-          line-height: 1;
-          letter-spacing: -1px;
-        }
-        .ww-temp-unit {
-          display: flex;
-          align-items: center;
-          gap: 1px;
-          font-size: 11px;
-          font-weight: 500;
-        }
+        .ww-temp-num { font-size: 34px; font-weight: 600; line-height: 1; letter-spacing: -1px; }
+        .ww-temp-unit { display: flex; align-items: center; gap: 1px; font-size: 11px; font-weight: 500; }
         .ww-temp-unit button {
-          background: none;
-          border: none;
-          padding: 0 2px;
-          cursor: pointer;
-          color: #392D2B;
-          opacity: 0.4;
-          font-size: 11px;
-          font-weight: 500;
-          font-family: inherit;
-          transition: opacity 0.2s;
-          pointer-events: auto;
+          background: none; border: none; padding: 0 2px; cursor: pointer;
+          color: #392D2B; opacity: 0.4; font-size: 11px; font-weight: 500;
+          font-family: inherit; transition: opacity 0.2s; pointer-events: auto;
         }
-        .ww-temp-unit button.active,
-        .ww-temp-unit button:hover { opacity: 1; }
+        .ww-temp-unit button.active, .ww-temp-unit button:hover { opacity: 1; }
         .ww-sep { opacity: 0.25; padding: 0 1px; }
-        .ww-right {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        }
-        .ww-icon {
-          width: 56px;
-          height: 56px;
-          perspective: 200px;
-        }
-        .ww-desc {
-          font-size: 10px;
-          font-weight: 500;
-          text-align: center;
-          opacity: 0.6;
-          max-width: 72px;
-          line-height: 1.3;
+        .ww-right { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .ww-icon  { width: 56px; height: 56px; }
+        .ww-desc  {
+          font-size: 10px; font-weight: 500; text-align: center;
+          opacity: 0.6; max-width: 72px; line-height: 1.3;
         }
 
-        /* ── icon keyframes ── */
-        @keyframes ww-sun-scale {
-          0%, 100% { transform: scale(0.85); }
-          50%       { transform: scale(1.15); }
-        }
-        @keyframes ww-core-pulse {
-          0%, 100% { transform: scale(1); }
-          50%       { transform: scale(1.08); }
-        }
-        @keyframes ww-spin-y {
-          from { transform: perspective(120px) rotateY(0deg); }
-          to   { transform: perspective(120px) rotateY(-360deg); }
-        }
-        @keyframes ww-rain-drop {
-          0%   { transform: translateY(-6px); opacity: 0; }
-          20%  { opacity: 1; }
-          80%  { opacity: 1; }
-          100% { transform: translateY(10px); opacity: 0; }
-        }
-        @keyframes ww-bolt-flash {
-          0%, 80%, 100% { opacity: 1; }
-          85%, 90%       { opacity: 0.35; }
-        }
-        @keyframes ww-snow-fall {
-          0%   { transform: translateY(-4px); opacity: 0; }
-          25%  { opacity: 1; }
-          100% { transform: translateY(8px); opacity: 0; }
-        }
-        @keyframes ww-moon-pulse {
-          0%, 100% { transform: scale(1); }
-          50%       { transform: scale(1.06); }
-        }
-
-        /* ── sun ── */
-        .ww-sun-rays {
-          transform-origin: 50px 50px;
-          animation: ww-sun-scale 1.8s ease-in-out infinite;
-        }
-        .ww-sun-rays-sm {
-          transform-origin: 36px 32px;
-          animation: ww-sun-scale 1.8s ease-in-out infinite;
-        }
-        .ww-sun-core {
-          transform-origin: 50% 50%;
-          transform-box: fill-box;
-          animation: ww-core-pulse 2.6s ease-in-out infinite;
-        }
-
-        /* ── cloud spin ── */
-        .ww-cloud {
-          transform-origin: 50% 50%;
-          transform-box: fill-box;
-          animation: ww-spin-y 6s linear infinite;
-        }
+        /* ── sun / moon ── */
+        @keyframes ww-sun-pulse { 0%,100%{transform:scale(0.85)} 50%{transform:scale(1.15)} }
+        @keyframes ww-core-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+        @keyframes ww-moon-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+        .ww-sun-rays    { transform-origin:50px 50px; animation:ww-sun-pulse 1.8s ease-in-out infinite; }
+        .ww-sun-rays-sm { transform-origin:14px 14px; animation:ww-sun-pulse 1.8s ease-in-out infinite; }
+        .ww-sun-core    { transform-box:fill-box; transform-origin:50% 50%; animation:ww-core-pulse 2.6s ease-in-out infinite; }
+        .ww-moon        { transform-box:fill-box; transform-origin:50% 50%; animation:ww-moon-pulse 4s ease-in-out infinite; }
 
         /* ── rain ── */
-        .ww-rain line                  { animation: ww-rain-drop 1.2s linear infinite; }
-        .ww-rain line:nth-child(2)     { animation-delay: 0.35s; }
-        .ww-rain line:nth-child(3)     { animation-delay: 0.7s; }
+        @keyframes ww-rain-drop {
+          0%  { transform:translateY(-5px); opacity:0; }
+          20% { opacity:1; }
+          80% { opacity:1; }
+          100%{ transform:translateY(8px); opacity:0; }
+        }
+        .ww-rain line                { animation:ww-rain-drop 1.2s linear infinite; }
+        .ww-rain line:nth-child(2)   { animation-delay:.35s; }
+        .ww-rain line:nth-child(3)   { animation-delay:.7s;  }
 
         /* ── thunder ── */
-        .ww-bolt {
-          animation: ww-bolt-flash 2.2s ease-in-out infinite;
-          transform-origin: 50% 50%;
-          transform-box: fill-box;
-        }
+        @keyframes ww-bolt-flash { 0%,80%,100%{opacity:1} 85%,90%{opacity:.3} }
+        .ww-bolt { transform-box:fill-box; transform-origin:50% 50%; animation:ww-bolt-flash 2.2s ease-in-out infinite; }
 
         /* ── snow ── */
-        .ww-snowflakes circle             { animation: ww-snow-fall 2s ease-in-out infinite; }
-        .ww-snowflakes circle:nth-child(2){ animation-delay: 0.5s; }
-        .ww-snowflakes circle:nth-child(3){ animation-delay: 1s; }
+        @keyframes ww-snow-fall {
+          0%  { transform:translateY(-4px); opacity:0; }
+          25% { opacity:1; }
+          100%{ transform:translateY(7px); opacity:0; }
+        }
+        .ww-snowflakes circle             { animation:ww-snow-fall 2s ease-in-out infinite; }
+        .ww-snowflakes circle:nth-child(2){ animation-delay:.5s; }
+        .ww-snowflakes circle:nth-child(3){ animation-delay:1s;  }
 
         /* ── fog ── */
-        .ww-fog rect {
-          animation: ww-spin-y 4s ease-in-out infinite;
-          transform-origin: 50% 50%;
-          transform-box: fill-box;
-        }
-        .ww-fog rect:nth-child(2) { animation-delay: 0.4s; }
-        .ww-fog rect:nth-child(3) { animation-delay: 0.8s; }
+        @keyframes ww-fog-shift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
+        .ww-fog rect              { animation:ww-fog-shift 3s ease-in-out infinite; }
+        .ww-fog rect:nth-child(2) { animation-delay:.4s; }
+        .ww-fog rect:nth-child(3) { animation-delay:.8s; }
 
-        /* ── moon ── */
-        .ww-moon {
-          transform-origin: 50% 50%;
-          transform-box: fill-box;
-          animation: ww-moon-pulse 4s ease-in-out infinite;
-        }
-
-        @media (max-width: 767px) {
-          .ww-widget { display: none; }
-        }
+        @media (max-width: 767px) { .ww-widget { display: none; } }
       `}</style>
     </div>
   );

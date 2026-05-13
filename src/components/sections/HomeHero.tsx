@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   { label: "Bathrooms",   href: "/bathrooms" },
   { label: "Objects",     href: "/shop" },
   { label: "About",       href: "/about" },
-  { label: "Contacts",    href: "/contacts" },
+  { label: "Contact",     href: "/contacts" },
 ] as const;
 
 const OVERLAY_LINKS = NAV_ITEMS.filter((n) => n.label !== "Cloud Stone");
