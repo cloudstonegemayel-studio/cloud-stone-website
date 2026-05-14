@@ -136,7 +136,7 @@ export function Navbar() {
     gap:             5,
     padding:         "0px 40px",
     height:          26,
-    marginRight:     29,
+    marginRight:     0,
     flexShrink:      0,
     background:      pillBg,
     transition:      "background-color 350ms ease",
