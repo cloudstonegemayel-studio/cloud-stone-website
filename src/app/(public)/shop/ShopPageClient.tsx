@@ -873,7 +873,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
         }
 
         .shop-filter-wrap {
-          position: fixed;
+          position: absolute;
           z-index: 5;
           left: 50%;
           bottom: 30px;
@@ -895,17 +895,15 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
         }
         @media (max-width: 767px), (orientation: portrait) {
           .shop-filter-wrap {
-            left: 16px;
-            right: 16px;
+            left: 50%;
+            transform: translateX(-50%);
             bottom: 16px;
-            transform: none;
-            justify-content: space-between;
+            justify-content: center;
             zoom: unset;
           }
           .shop-filter-wrap-static {
-            justify-content: space-between;
+            justify-content: center;
             zoom: unset;
-            padding: 0 16px;
           }
           .shop-filter-inner {
             zoom: unset;
