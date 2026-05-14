@@ -227,59 +227,15 @@
     background-position:     right center;
   }
 
-  /* Pixel-textured nav pill (MWPixel nav-left / nav-right assets) */
+  /* Nav pill */
   .nav-pixel {
     position:   relative;
     height:     26px;
     display:    flex;
     align-items: center;
     white-space: nowrap;
-    /* inner padding keeps content clear of the pixel-art end caps */
-    padding-left:  30px;
-    padding-right: 20px;
-  }
-  .nav-pixel::before,
-  .nav-pixel::after {
-    content:         "";
-    position:        absolute;
-    top:             0;
-    height:          26px;
-    background-repeat: no-repeat;
-    background-size:   auto 26px;
-    pointer-events:  none;
-    z-index:         -1;
-    transition:      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .nav-pixel::before {
-    left:                 20px;
-    width:                58px;
-    background-image:     url("/nav-right-texture.svg");
-    background-position:  left center;
-  }
-  .nav-pixel::after {
-    right:                0;
-    width:                100px;
-    background-image:     url("/nav-right-texture.svg");
-    background-position:  right center;
-  }
-  .nav-pixel:hover::before {
-    transform: translateX(-4px);
-  }
-  .nav-pixel:hover::after {
-    transform: translateX(4px);
-  }
-
-  /* Nav-pixel — light caps when header sits over a dark section */
-  .nav-pixel--light::before,
-  .nav-pixel--light::after {
-    filter: none;
-    background-image: url("/nav-right-texture-light.svg");
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* Filter bar variant — right cap extends beyond container */
-  .filter-nav-pixel::after {
-    right: -42px;
+    padding-left:  8px;
+    padding-right: 8px;
   }
 
   /* ── Design page: grid view layout ─────────────────────────── */

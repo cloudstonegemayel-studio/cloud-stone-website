@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const API_KEY = "32a669c3ef56db4fe5bf8dd741657aff";
 const DEFAULT_LAT = 40.7128;
@@ -261,6 +262,7 @@ function WeatherIcon({ condition, isDay }: { condition: string; isDay: boolean }
 
 // ─── Widget ───────────────────────────────────────────────────────────────────
 export function WeatherWidget() {
+  const pathname = usePathname();
   const [weather, setWeather] = useState<WeatherState | null>(null);
   const [celsius, setCelsius]  = useState(true);
 
@@ -323,7 +325,7 @@ export function WeatherWidget() {
     }
   }, []);
 
-  if (!weather) return null;
+  if (!weather || pathname !== "/") return null;
 
   const displayTemp = celsius ? weather.temp : Math.round(weather.temp * 9 / 5 + 32);
   const condition   = conditionKey(weather.id, weather.isDay);

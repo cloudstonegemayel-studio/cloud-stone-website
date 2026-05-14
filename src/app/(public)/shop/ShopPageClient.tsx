@@ -526,10 +526,12 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
           aria-labelledby="popup-title"
           style={{
             position: "relative",
-            width: "min(800px, calc(100vw - 40px))",
+            width: "min(70vw, calc(100vw - 40px))",
             background: "#F0EEE9",
             border: "1px solid #392D2B",
             boxShadow: "0 30px 90px rgba(57,45,43,0.16)",
+            maxHeight: "70vh",
+            overflowY: "auto",
             animation: "sc-popup-in 520ms cubic-bezier(0.16,1,0.3,1) both",
           }}
         >

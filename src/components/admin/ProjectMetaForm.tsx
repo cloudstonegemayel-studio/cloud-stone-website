@@ -146,9 +146,6 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
           <input style={inputStyle} {...txt("slug")} />
         </Field>
       </div>
-      <Field label="Short description (hero)">
-        <textarea style={{ ...inputStyle, minHeight: 60, resize: "vertical" }} {...txt("short_description")} />
-      </Field>
       <Field label="Description (section 2)">
         <textarea style={{ ...inputStyle, minHeight: 90, resize: "vertical" }} {...txt("description")} />
       </Field>
@@ -211,36 +208,14 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
       <p style={sectionLabel}>Page images</p>
       <ImageUpload
         projectId={projectId}
-        value={data.cover_image}
-        onChange={(u) => set("cover_image", u)}
-        alt={data.cover_image_alt}
-        onAltChange={(a) => set("cover_image_alt", a)}
-        scope="cover"
-        label="Hero / Cover image (Section 1 background)"
+        value={data.section4_image}
+        onChange={(u) => set("section4_image", u)}
+        alt={data.section4_image_alt}
+        onAltChange={(a) => set("section4_image_alt", a)}
+        scope="section4"
+        label="Section 4 image (end section)"
         aspect="wide"
       />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <ImageUpload
-          projectId={projectId}
-          value={data.section2_image}
-          onChange={(u) => set("section2_image", u)}
-          alt={data.section2_image_alt}
-          onAltChange={(a) => set("section2_image_alt", a)}
-          scope="section2"
-          label="Section 2 image (info block)"
-          aspect="portrait"
-        />
-        <ImageUpload
-          projectId={projectId}
-          value={data.section4_image}
-          onChange={(u) => set("section4_image", u)}
-          alt={data.section4_image_alt}
-          onAltChange={(a) => set("section4_image_alt", a)}
-          scope="section4"
-          label="Section 4 image (end section)"
-          aspect="wide"
-        />
-      </div>
 
       {/* ── Slider ──────────────────────────────────────────────────────── */}
       <p style={sectionLabel}>Hero slider</p>

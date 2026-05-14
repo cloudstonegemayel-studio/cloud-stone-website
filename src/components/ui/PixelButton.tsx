@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 
 interface PixelButtonProps {
@@ -30,16 +29,8 @@ export function PixelButton({
   type = "button",
   light = false,
 }: PixelButtonProps) {
-  const [hover,  setHover]  = useState(false);
-  const [active, setActive] = useState(false);
-
   const bodyBg    = light ? "#F0EEE9" : "#392D2B";
   const textColor = light ? "#392D2B" : "#F0EEE9";
-  const wingFilter = light ? "brightness(10)" : undefined;
-
-  // Wing offset — wings slide outward on hover, snap back on press
-  const wingShift = active ? 0 : hover ? 8 : 0;
-  const wingTrans = "transform 0.22s cubic-bezier(0.16,1,0.3,1)";
 
   const { transition: extTrans, ...restStyle } = style ?? {};
 
@@ -48,8 +39,6 @@ export function PixelButton({
     display:       "inline-flex",
     flexDirection: "column",
     alignItems:    "flex-start",
-    paddingLeft:   "max(20px,1.563vw)",
-    paddingRight:  "max(12px,0.885vw)",
     background:    "none",
     border:        "none",
     cursor:        "pointer",
@@ -61,49 +50,8 @@ export function PixelButton({
     ...restStyle,
   };
 
-  const handlers = {
-    onMouseEnter: () => setHover(true),
-    onMouseLeave: () => { setHover(false); setActive(false); },
-    onMouseDown:  () => setActive(true),
-    onMouseUp:    () => setActive(false),
-  };
-
   const inner = (
     <>
-      {/* Left pixel-dot wing — slides left on hover */}
-      <div aria-hidden style={{
-        position:            "absolute",
-        left:                0,
-        top:                 0,
-        width:               "max(65px,5.26vw)",
-        height:              26,
-        backgroundImage:     `url("/btn-left.svg")`,
-        backgroundRepeat:    "no-repeat",
-        backgroundSize:      "auto 26px",
-        backgroundPosition:  "left center",
-        pointerEvents:       "none",
-        transform:           `translateX(${-wingShift}px)`,
-        transition:          wingTrans,
-        filter:              wingFilter,
-      }} />
-
-      {/* Right pixel-dot wing — slides right on hover */}
-      <div aria-hidden style={{
-        position:            "absolute",
-        right:               0,
-        top:                 0,
-        width:               "max(65px,5.21vw)",
-        height:              26,
-        backgroundImage:     `url("/btn-right.svg")`,
-        backgroundRepeat:    "no-repeat",
-        backgroundSize:      "auto 26px",
-        backgroundPosition:  "right center",
-        pointerEvents:       "none",
-        transform:           `translateX(${wingShift}px)`,
-        transition:          wingTrans,
-        filter:              wingFilter,
-      }} />
-
       {/* Body rect */}
       <div style={{
         position:   "relative",
@@ -152,14 +100,14 @@ export function PixelButton({
 
   if (href) {
     return (
-      <Link href={href} style={wrapperStyle} {...handlers}>
+      <Link href={href} style={wrapperStyle}>
         {inner}
       </Link>
     );
   }
 
   return (
-    <button type={type} onClick={onClick} aria-label={ariaLabel} style={wrapperStyle} {...handlers}>
+    <button type={type} onClick={onClick} aria-label={ariaLabel} style={wrapperStyle}>
       {inner}
     </button>
   );

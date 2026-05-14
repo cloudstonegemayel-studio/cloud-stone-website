@@ -382,22 +382,23 @@ function FounderSection() {
         </div>
         <div className={`about-founder-bottom ${entered ? "in-view" : ""}`}>
           <div className="about-founder-copy">
-            <p>
-              <strong>Location:</strong> New York City
-              <br />
-              <strong>Experience:</strong> 10+ Years
-              <br />
-              <strong>Education:</strong> Architecture
-              <br />
-              <strong>Expertise:</strong> Design | Fabrication | Stone Masonry
-            </p>
-            <p>
-              Raised within a third-generation stone workshop, Antonio bridges architectural
-              design with hands-on fabrication. His work is defined by precision, material
-              understanding, and full control over execution.
-            </p>
+            <div className="about-founder-cols">
+              <p>
+                <strong>Location:</strong> New York City
+                <br />
+                <strong>Experience:</strong> 10+ Years
+                <br />
+                <strong>Education:</strong> Architecture
+                <br />
+                <strong>Expertise:</strong> Design | Fabrication | Stone Masonry
+              </p>
+              <p>
+                Raised within a third-generation stone workshop, Antonio bridges architectural
+                design with hands-on fabrication. His work is defined by precision, material
+                understanding, and full control over execution.
+              </p>
+            </div>
           </div>
-          <PixelButton label="Work with us" href="/contacts" />
         </div>
       </div>
     </section>
@@ -563,7 +564,7 @@ export function AboutPageClient() {
 
       <style jsx global>{`
         .about-page {
-          background: #B7D1EA;
+          background: #F0EEE9;
           color: var(--color-dark, #392d2b);
           overflow-x: hidden;
         }
@@ -652,7 +653,7 @@ export function AboutPageClient() {
           position: relative;
           min-height: 300vh;
           overflow-x: clip;
-          background: #B7D1EA;
+          background: #F0EEE9;
         }
 
         .about-dot-bg {
@@ -799,18 +800,24 @@ export function AboutPageClient() {
         }
 
         .about-founder-copy {
-          width: min(533px, 100%);
-          display: flex;
-          flex-direction: column;
-          gap: 40px;
+          width: 100%;
           font-family: var(--font-inter-tight, "Inter Tight", sans-serif);
           font-size: clamp(14px, 1.04vw, 20px);
           line-height: 1.2;
           color: var(--color-dark, #392d2b);
         }
 
-        .about-founder-copy p {
+        .about-founder-cols {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 40px;
+        }
+
+        .about-founder-cols > p {
           margin: 0;
+          flex: 1;
         }
 
         .about-founder-copy strong {
@@ -998,11 +1005,21 @@ export function AboutPageClient() {
           opacity: 0;
           transform: translateY(8px);
           transition: opacity 0.5s ease var(--item-delay, 0s), transform 0.5s cubic-bezier(0.16,1,0.3,1) var(--item-delay, 0s);
+          background: rgba(240,238,233,0.35);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
         }
 
         .about-faq-item.entered {
           opacity: 1;
           transform: translateY(0);
+        }
+
+        .about-faq-item:hover,
+        .about-faq-item.open {
+          background: transparent;
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
         }
 
         .about-faq-question {
@@ -1131,6 +1148,11 @@ export function AboutPageClient() {
 
 
           .about-founder-bottom {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .about-founder-cols {
             flex-direction: column;
             align-items: flex-start;
           }

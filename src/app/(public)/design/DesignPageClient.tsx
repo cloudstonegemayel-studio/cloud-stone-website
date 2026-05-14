@@ -756,16 +756,9 @@ export function DesignPageClient({ projects }: { projects: Project[] }) {
           : <GridView  projects={displayProjects} />
         }
 
-        {/* Filter bar + mobile button */}
+        {/* Filter bar */}
         <div className="design-filter-wrap">
           <FilterBar mode={mode} onMode={handleMode} />
-          <div className="design-mobile-btn">
-            <PixelButton href="/contacts" label="Inquire" />
-          </div>
-        </div>
-        {/* Desktop-only button — bottom right */}
-        <div className="design-desktop-btn" style={{ position: "absolute", right: 30, bottom: 30, zIndex: 10 }}>
-          <PixelButton href="#footer" label="Inquire" />
         </div>
       </section>
 

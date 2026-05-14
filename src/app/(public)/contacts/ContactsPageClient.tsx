@@ -225,7 +225,11 @@ export function ContactsPageClient() {
         {/* Contact form card */}
         <div style={{
           width: "min(485px, 100%)",
-          background: "#B7D1EA",
+          background: "rgba(255,255,255,0.25)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderRadius: 16,
+          border: "1px solid rgba(255,255,255,0.4)",
           padding: "30px 29px",
           display: "flex",
           flexDirection: "column",

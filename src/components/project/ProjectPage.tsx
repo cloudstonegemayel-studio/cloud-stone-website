@@ -82,10 +82,110 @@ function ArrowRight() {
   );
 }
 
+// ── Video embed helper ────────────────────────────────────────────────────────
+function getEmbedUrl(url: string): string | null {
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (ytMatch) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1`;
+  }
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1`;
+  }
+  // Google Drive
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveMatch) {
+    return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+  }
+  return null;
+}
+
+function SlideMedia({ slide }: { slide: SliderItem }) {
+  if (slide.type === "video") {
+    const embedUrl = getEmbedUrl(slide.url);
+    if (embedUrl) {
+      return (
+        <iframe
+          src={embedUrl}
+          allow="autoplay; fullscreen"
+          allowFullScreen
+          style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+          title="Project video"
+        />
+      );
+    }
+    // Fallback for direct video files
+    return (
+      <video
+        src={slide.url}
+        poster={slide.thumbnail}
+        autoPlay muted loop playsInline
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    );
+  }
+  return (
+    <Image
+      src={slide.url}
+      alt={slide.alt ?? ""}
+      fill
+      sizes="50vw"
+      style={{ objectFit: "cover", objectPosition: "center" }}
+    />
+  );
+}
+
+// ── Horizontal scroll slider (scrolls with the page) ─────────────────────────
+function HorizontalSlider({ slides }: { slides: SliderItem[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  // Sync active dot with scroll position
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || slides.length <= 1) return;
+    const onScroll = () => {
+      const idx = Math.round(el.scrollLeft / el.offsetWidth);
+      setActiveIdx(Math.min(idx, slides.length - 1));
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [slides.length]);
+
+  const goTo = (i: number) => {
+    containerRef.current?.scrollTo({ left: i * (containerRef.current.offsetWidth), behavior: "smooth" });
+  };
+
+  return (
+    <div className="proj-slider-wrap">
+      <div ref={containerRef} className="proj-slider-track">
+        {slides.map((slide, i) => (
+          <div className="proj-slider-slide" key={`${slide.url}-${i}`}>
+            <SlideMedia slide={slide} />
+          </div>
+        ))}
+      </div>
+      {slides.length > 1 && (
+        <div className="proj-slider-dots">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={`proj-slider-dot${i === activeIdx ? " active" : ""}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export function ProjectPage({ project, prevProject, nextProject }: Props) {
-  const maskCanvasRef  = useRef<HTMLCanvasElement | null>(null);
-  const dotGridRef     = useRef<HTMLDivElement | null>(null);
   const section2Ref    = useRef<HTMLElement | null>(null);
   const outroRef       = useRef<HTMLElement | null>(null);
   const parallaxBgRef  = useRef<HTMLDivElement | null>(null);
@@ -96,133 +196,10 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
       ? [{ type: "image" as const, url: project.cover_image, alt: project.title }]
       : [];
 
-  const [currentSlide,      setCurrentSlide]      = useState(0);
-  const [heroTitleVisible,  setHeroTitleVisible]  = useState(false);
-  const [heroTextVisible,   setHeroTextVisible]   = useState(false);
-  const [s2PhotoVisible,    setS2PhotoVisible]    = useState(false);
   const [s2TitleVisible,    setS2TitleVisible]    = useState(false);
   const [s2TextVisible,     setS2TextVisible]     = useState(false);
   const [outroTitleVisible, setOutroTitleVisible] = useState(false);
   const [gyroPermission,    setGyroPermission]    = useState<"idle" | "pending" | "granted" | "denied">("idle");
-
-  // Hero title / text entrance
-  useEffect(() => {
-    const t1 = window.setTimeout(() => setHeroTitleVisible(true), 200);
-    const t2 = window.setTimeout(() => setHeroTextVisible(true), 1750);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
-
-  // Auto-advance slider
-  useEffect(() => {
-    if (slides.length <= 1) return;
-    const t = window.setInterval(() => setCurrentSlide(s => (s + 1) % slides.length), 5000);
-    return () => clearInterval(t);
-  }, [slides.length]);
-
-  // Dot mask canvas (hero overlay)
-  useEffect(() => {
-    const canvas        = maskCanvasRef.current;
-    const dotGridElement = dotGridRef.current!;
-    if (!canvas || !dotGridRef.current) return;
-
-    const dotRadius  = 30;
-    const dotDiameter = dotRadius * 2;
-    const step       = dotDiameter + 1;
-    let cols = 0, rows = 0;
-    let holes        = new Set<string>();
-    let removedHoles = new Set<string>();
-
-    const drawMask = () => {
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgb(57,45,43)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = "destination-out";
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          if (!holes.has(`${col},${row}`)) continue;
-          ctx.beginPath();
-          ctx.arc(col * step + dotRadius, row * step + dotRadius, dotRadius, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      ctx.globalCompositeOperation = "source-over";
-    };
-
-    const spawnNewHole = () => {
-      for (let attempt = 0; attempt < 30; attempt++) {
-        const col = Math.floor(Math.random() * cols);
-        const row = Math.floor(Math.random() * rows);
-        const key = `${col},${row}`;
-        if (holes.has(key) || removedHoles.has(key)) continue;
-        holes.add(key);
-        const cx = col * step + dotRadius, cy = row * step + dotRadius;
-        let progress = 0;
-        const animate = () => {
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return;
-          progress += 0.1;
-          if (progress >= 1) { drawMask(); addClickTarget(key, col, row, cx, cy); return; }
-          ctx.globalCompositeOperation = "destination-out";
-          ctx.fillStyle = `rgba(0,0,0,${progress})`;
-          ctx.beginPath();
-          ctx.arc(cx, cy, dotRadius * progress, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.globalCompositeOperation = "source-over";
-          requestAnimationFrame(animate);
-        };
-        requestAnimationFrame(animate);
-        break;
-      }
-    };
-
-    const removeHole = (key: string, cx: number, cy: number, target: HTMLDivElement) => {
-      if (!holes.has(key)) return;
-      holes.delete(key); removedHoles.add(key); target.remove();
-      let progress = 1;
-      const animate = () => {
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        progress -= 0.12;
-        if (progress <= 0) { drawMask(); spawnNewHole(); return; }
-        ctx.fillStyle = "rgb(57,45,43)";
-        ctx.beginPath();
-        ctx.arc(cx, cy, dotRadius * (1 - progress), 0, Math.PI * 2);
-        ctx.fill();
-        requestAnimationFrame(animate);
-      };
-      requestAnimationFrame(animate);
-    };
-
-    function addClickTarget(key: string, _col: number, _row: number, cx: number, cy: number) {
-      const target = document.createElement("div");
-      target.style.cssText = `position:absolute;left:${cx-dotRadius}px;top:${cy-dotRadius}px;width:${dotDiameter}px;height:${dotDiameter}px;border-radius:50%;cursor:pointer;pointer-events:auto;`;
-      target.dataset.key = key;
-      target.addEventListener("click", () => removeHole(key, cx, cy, target));
-      dotGridElement.appendChild(target);
-    }
-
-    const setup = () => {
-      const w = window.innerWidth, h = window.innerHeight;
-      canvas.width = w; canvas.height = h;
-      cols = Math.ceil(w / step) + 1; rows = Math.ceil(h / step) + 1;
-      holes = new Set<string>(); removedHoles = new Set<string>();
-      dotGridElement.innerHTML = "";
-      for (let row = 0; row < rows; row++)
-        for (let col = 0; col < cols; col++)
-          if (Math.random() < 0.9) holes.add(`${col},${row}`);
-      drawMask();
-      holes.forEach(key => {
-        const [col, row] = key.split(",").map(Number);
-        addClickTarget(key, col, row, col * step + dotRadius, row * step + dotRadius);
-      });
-    };
-
-    setup();
-    window.addEventListener("resize", setup);
-    return () => { window.removeEventListener("resize", setup); dotGridElement.innerHTML = ""; };
-  }, []);
 
   // Section 2 & outro intersection observer
   useEffect(() => {
@@ -234,18 +211,17 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         entries.forEach(e => {
           if (e.intersectionRatio < 0.5) return;
           if (e.target === s2) {
-            setS2PhotoVisible(true); setS2TitleVisible(true);
-            window.setTimeout(() => setS2TextVisible(true), 1350);
+            setS2TitleVisible(true);
+            window.setTimeout(() => setS2TextVisible(true), 800);
           }
           if (e.target === outro) {
             setOutroTitleVisible(true);
-            // Mobile: check if gyroscope permission is needed
             if (window.matchMedia("(hover: none)").matches && gyroPermission === "idle") {
               type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
               if (typeof (DeviceOrientationEvent as DOE).requestPermission === "function") {
-                setGyroPermission("pending"); // iOS: need user gesture to request
+                setGyroPermission("pending");
               } else {
-                setGyroPermission("granted"); // Android: auto-available
+                setGyroPermission("granted");
               }
             }
           }
@@ -257,12 +233,12 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
     return () => obs.disconnect();
   }, [gyroPermission]);
 
-  // Parallax on outro: cursor on desktop, gyroscope on mobile
+  // Parallax on outro: cursor on desktop
   useEffect(() => {
     const section = outroRef.current;
     const bg      = parallaxBgRef.current;
     if (!section || !bg) return;
-    if (window.matchMedia("(hover: none)").matches) return; // mobile handled separately
+    if (window.matchMedia("(hover: none)").matches) return;
     let tx = 0, ty = 0, cx2 = 0, cy2 = 0, frame = 0;
     const strength = 18;
     const onMove = (e: MouseEvent) => {
@@ -304,8 +280,6 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
     };
   }, [gyroPermission]);
 
-  const goToSlide = (i: number) => setCurrentSlide((i + slides.length) % slides.length);
-
   const requestGyroPermission = async () => {
     type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
     try {
@@ -325,111 +299,10 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
 
   return (
     <article className="project-page">
-      {/* ── Section 1: Hero ───────────────────────────────────────────── */}
-      <section id="hero" className="project-hero" data-nav-dark>
-        {project.cover_image && (
-          <Image
-            className="project-hero-bg-photo"
-            src={project.cover_image}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            style={{ objectFit: "cover", objectPosition: "bottom" }}
-          />
-        )}
-        <div className="project-hero-bg-overlay" />
-        <canvas ref={maskCanvasRef} className="project-dot-mask-canvas" aria-hidden="true" />
-        <div ref={dotGridRef} className="project-dot-grid" aria-hidden="true" />
-
-        <div className="project-hero-slider" aria-label="Project image slider">
-          {slides.map((slide, index) => (
-            <div className={`project-hero-slide ${index === currentSlide ? "active" : ""}`} key={`${slide.url}-${index}`}>
-              {slide.type === "video" ? (
-                <video
-                  src={slide.url}
-                  poster={slide.thumbnail}
-                  autoPlay muted loop playsInline
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <Image
-                  src={slide.url}
-                  alt={slide.alt ?? ""}
-                  fill
-                  priority={index === 0}
-                  sizes="(max-width:768px) 70vw, 33vw"
-                  style={{ objectFit: "cover", objectPosition: "center" }}
-                />
-              )}
-            </div>
-          ))}
-
-          {slides.length > 1 && (
-            <>
-              <button className="project-slider-arrow left" type="button" aria-label="Previous slide" onClick={() => goToSlide(currentSlide - 1)}>
-                <svg viewBox="0 0 9 17" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><polyline points="6,1 1,8.5 6,16" /></svg>
-              </button>
-              <button className="project-slider-arrow right" type="button" aria-label="Next slide" onClick={() => goToSlide(currentSlide + 1)}>
-                <svg viewBox="0 0 9 17" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><polyline points="3,1 8,8.5 3,16" /></svg>
-              </button>
-              <div className="project-slider-dots" aria-label="Choose project image">
-                {slides.map((s, i) => (
-                  <button
-                    className={`project-slider-dot ${i === currentSlide ? "active" : ""}`}
-                    key={`dot-${i}`}
-                    type="button"
-                    aria-label={`Show slide ${i + 1}`}
-                    aria-current={i === currentSlide}
-                    onClick={() => goToSlide(i)}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        <h1 className="project-hero-title">
-          <RevealTitle text={project.title} active={heroTitleVisible} />
-        </h1>
-        {project.short_description && (
-          <p className={`project-hero-desc ${heroTextVisible ? "text-visible" : ""}`}>
-            {project.short_description}
-          </p>
-        )}
-
-        <div className="project-hero-nav">
-          {prevProject ? (
-            <Link className="project-nav-btn" href={`/design/${prevProject.slug}`}>
-              <ArrowLeft />prev project
-            </Link>
-          ) : <span />}
-          {nextProject ? (
-            <Link className="project-nav-btn" href={`/design/${nextProject.slug}`}>
-              next project<ArrowRight />
-            </Link>
-          ) : <span />}
-        </div>
-
-        <div style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
-          <PixelButton href="/contacts" label="Inquire" light />
-        </div>
-      </section>
-
-      {/* ── Section 2: Info ───────────────────────────────────────────── */}
+      {/* ── Section 2: Slider + Info ──────────────────────────────── */}
       <section ref={section2Ref} id="section2" className="project-section-2">
         <div className="project-s2-photo-wrap">
-          <div className={`project-s2-photo ${s2PhotoVisible ? "in-view" : ""}`}>
-            {(project.section2_image || project.cover_image) && (
-              <Image
-                src={project.section2_image ?? project.cover_image!}
-                alt={project.section2_image_alt ?? project.title}
-                fill
-                sizes="(max-width:768px) 100vw, 50vw"
-                style={{ objectFit: "cover", position: "absolute", objectPosition: "bottom", bottom: 0, minHeight: "50vh" }}
-              />
-            )}
-          </div>
+          <HorizontalSlider slides={slides} />
         </div>
         <div className="project-s2-info">
           <h2 className="project-s2-title">
@@ -452,12 +325,12 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         </div>
       </section>
 
-      {/* ── Sections 3+: Dynamic content blocks ──────────────────────── */}
+      {/* ── Sections 3+: Dynamic content blocks ──────────────────── */}
       {project.content_blocks.length > 0 && (
         <ProjectRenderer blocks={project.content_blocks} />
       )}
 
-      {/* ── Outro ─────────────────────────────────────────────────────── */}
+      {/* ── Outro ─────────────────────────────────────────────────── */}
       <section ref={outroRef} id="outro" className="project-section-4">
         <div ref={parallaxBgRef} className="project-s4-bg">
           {(project.section4_image || project.cover_image) && (
@@ -497,69 +370,59 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
             Enable motion
           </button>
         )}
-        <button
-          type="button"
-          className="project-s4-start-btn"
-          onClick={() => { window.location.href = "/contacts"; }}
-        >
-          <span>Start</span>
-          <span>your</span>
-          <span>project</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="9" height="79" viewBox="0 0 9 79" fill="none" style={{ marginTop: 6 }} aria-hidden="true">
-            <path d="M4.29687 0L4.29687 77.6003M8.69687 73.2003L4.29687 77.6003L0.296875 73.2003" stroke="#F0EEE9" strokeWidth="0.8"/>
-          </svg>
-        </button>
+        <div style={{ position: "absolute", bottom: "clamp(40px,8.6vh,93px)", left: "50%", transform: "translateX(-50%)", zIndex: 3 }}>
+          <PixelButton href="/contacts" label="Inquire" light />
+        </div>
       </section>
 
       <Footer />
 
-      {/* ── CSS (preserved exactly from original) ────────────────────── */}
       <style jsx global>{`
         .project-page { background:var(--color-dark,#392d2b); color:var(--color-dark,#392d2b); overflow-x:hidden; }
-        .project-hero { position:relative; width:100vw; height:100vh; overflow:hidden; background:var(--color-dark,#392d2b); contain:strict; }
-        .project-hero-bg-photo,.project-hero-bg-overlay,.project-dot-mask-canvas,.project-dot-grid { position:absolute; inset:0;  }
-        .project-hero-bg-photo { z-index:0; transform:scaleX(-1); max-height: 100vh; }
-        .project-hero-bg-overlay { background:rgba(0,0,0,0.5); z-index:1; pointer-events:none; }
-        .project-dot-mask-canvas { z-index:2; pointer-events:none; width:100%; height:100%; max-width:100vw; max-height:100vh; }
-        .project-dot-grid { z-index:4; pointer-events:auto; overflow:hidden; width:100%; height:100%; max-width:100vw; max-height:100vh; }
-        .project-hero-title { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(60px,12.4vh,150px); margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(36px,3.65vw,70px); line-height:0.9; color:var(--color-surface,#f0eee9); z-index:10; pointer-events:none; }
-        .project-hero-desc { position:relative; left:clamp(16px,1.56vw,30px); top:clamp(90px,13.5vh,140px); width:clamp(200px,20vw,360px); margin:0; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-size:clamp(11px,1.04vw,20px); line-height:1.2; color:var(--color-surface,#f0eee9); z-index:10; opacity:0; transition:opacity 0.8s ease; }
-        .project-hero-desc.text-visible { opacity:1; }
-        .project-hero-slider { position:absolute; right:5%; top:50%; transform:translateY(-50%); width:33%; height:75vh; z-index:9; overflow:hidden; }
-        .project-hero-slide { position:absolute; inset:0; opacity:0; transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1); pointer-events:none; }
-        .project-hero-slide.active { opacity:1; pointer-events:auto; }
-        .project-slider-arrow { position:absolute; top:50%; transform:translateY(-50%); z-index:12; width:clamp(32px,2.3vw,44px); height:clamp(32px,2.3vw,44px); border:1px solid rgba(240,238,233,0.6); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; background:rgba(57,45,43,0.25); color:var(--color-surface,#f0eee9); transition:background 250ms ease,transform 250ms ease; }
-        .project-slider-arrow:hover { background:rgba(57,45,43,0.5); transform:translateY(-50%) scale(1.04); }
-        .project-slider-arrow.left { left:10px; }
-        .project-slider-arrow.right { right:10px; }
-        .project-slider-arrow svg { width:9px; height:17px; }
-        .project-slider-dots { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:12; }
-        .project-slider-dot { width:5px; height:5px; border-radius:50%; border:0; padding:0; background:rgba(240,238,233,0.4); cursor:pointer; transition:background 0.3s ease,transform 0.3s ease; }
-        .project-slider-dot.active,.project-slider-dot:hover { background:rgba(240,238,233,0.95); transform:scale(1.2); }
-        .project-hero-nav { position:absolute; bottom:clamp(20px,3.7vh,40px); left:clamp(16px,1.56vw,30px); right:clamp(16px,1.56vw,30px); display:flex; justify-content:space-between; align-items:center; z-index:10; }
-        .project-nav-btn { display:flex; align-items:center; gap:8px; background:none; border:none; cursor:pointer; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-weight:700; font-size:clamp(7px,0.47vw,9px); letter-spacing:1.17px; color:var(--color-surface,#f0eee9); text-transform:uppercase; text-decoration:none; transition:opacity 250ms ease,transform 250ms ease; }
-        .project-nav-btn:hover { opacity:0.72; transform:translateY(-1px); }
-        .project-section-2 { width:100vw; height:100vh; min-height:600px; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; background:var(--color-grey-light,#e7e6e4); contain:layout; }
-        .project-s2-photo-wrap { overflow:hidden; position:relative; }
-        .project-s2-photo { position:absolute; inset:0; transform:translateY(60px); opacity:0; transition:transform 1.1s cubic-bezier(0.16,1,0.3,1),opacity 1.1s cubic-bezier(0.16,1,0.3,1); object-position: center bottom; }
-        .project-s2-photo.in-view { transform:translateY(0); opacity:1; }
+
+        /* ── Section 2: Slider + Info ─────────────── */
+        .project-section-2 { width:100vw; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; background:var(--color-grey-light,#e7e6e4); }
+        .project-s2-photo-wrap { overflow:hidden; position:relative; min-height:100vh; }
         .project-s2-info { background:var(--color-surface,#f0eee9); display:flex; flex-direction:column; padding:clamp(40px,5.2vh,100px) clamp(20px,1.56vw,30px) clamp(20px,2.8vh,30px); justify-content:space-between; }
         .project-s2-title { margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(28px,3.65vw,70px); line-height:0.9; color:var(--color-dark,#392d2b); text-align:right; }
         .project-s2-bottom { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; }
         .project-s2-details,.project-s2-desc { font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-size:clamp(11px,1.04vw,20px); line-height:1.2; color:var(--color-dark,#392d2b); flex:1; opacity:0; transition:opacity 0.9s ease; }
         .project-s2-details.text-visible,.project-s2-desc.text-visible { opacity:1; }
         .project-s2-desc { margin:0; padding-top:clamp(10px,2.5vh,24px); }
-        .project-section-4 { width:100vw; height:100vh; min-height:600px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; contain:layout; }
+
+        /* ── Horizontal slider ─────────────────────── */
+        .proj-slider-wrap { position:relative; width:100%; height:100%; min-height:100vh; }
+        .proj-slider-track {
+          display:flex; width:100%; height:100%; min-height:100vh;
+          overflow-x:scroll; scroll-snap-type:x mandatory;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .proj-slider-track::-webkit-scrollbar { display:none; }
+        .proj-slider-slide {
+          flex:0 0 100%; width:100%; height:100%; min-height:100vh;
+          scroll-snap-align:start; position:relative;
+          overflow:hidden;
+        }
+        .proj-slider-dots {
+          position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+          display:flex; gap:6px; z-index:4;
+        }
+        .proj-slider-dot {
+          width:5px; height:5px; border-radius:50%; border:0; padding:0;
+          background:rgba(240,238,233,0.4); cursor:pointer;
+          transition:background 0.3s ease, transform 0.3s ease;
+        }
+        .proj-slider-dot.active,.proj-slider-dot:hover {
+          background:rgba(240,238,233,0.95); transform:scale(1.2);
+        }
+
+        /* ── Outro ─────────────────────────────────── */
+        .project-section-4 { width:100vw; height:100vh; min-height:600px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }
         .project-s4-bg { position:absolute; inset:-6%; will-change:transform; transition:transform 0.12s ease-out; }
         .project-s4-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.22); z-index:1; }
         .project-s4-content { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:clamp(16px,2vh,28px); }
         .project-s4-nav { display:flex; gap:clamp(60px,8vw,160px); align-items:center; }
         .project-s4-title { margin:0; font-family:var(--font-rader,"PP Rader",sans-serif); font-weight:400; font-size:clamp(28px,3.65vw,70px); line-height:0.9; color:var(--color-surface,#f0eee9); text-align:center; }
-        .project-s4-start-btn { position:absolute; bottom:clamp(40px,8.6vh,93px); display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; cursor:pointer; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-weight:700; font-size:clamp(7px,0.47vw,9px); letter-spacing:1.17px; color:var(--color-surface,#f0eee9); text-transform:uppercase; text-decoration:none; z-index:2; transition:opacity 250ms ease; }
-        .project-s4-start-btn:hover { opacity:0.72; }
-        .project-word { display:inline-block; margin-right:0.28em; white-space:nowrap; }
-        .project-char { display:inline-block; opacity:0; filter:blur(8px); transform:translateY(6px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),filter 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
-        .project-char.visible { opacity:1; filter:blur(0); transform:translateY(0); }
         .project-s4-gyro-btn {
           position:absolute; bottom:clamp(180px,23vh,230px);
           background:rgba(240,238,233,0.15); border:1px solid rgba(240,238,233,0.4);
@@ -570,14 +433,20 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           transition:background 250ms ease;
         }
         .project-s4-gyro-btn:hover { background:rgba(240,238,233,0.25); }
+
+        /* ── Shared ─────────────────────────────────── */
+        .project-nav-btn { display:flex; align-items:center; gap:8px; background:none; border:none; cursor:pointer; font-family:var(--font-inter-tight,"Inter Tight",sans-serif); font-weight:700; font-size:clamp(7px,0.47vw,9px); letter-spacing:1.17px; color:var(--color-surface,#f0eee9); text-transform:uppercase; text-decoration:none; transition:opacity 250ms ease,transform 250ms ease; }
+        .project-nav-btn:hover { opacity:0.72; transform:translateY(-1px); }
+        .project-word { display:inline-block; margin-right:0.28em; white-space:nowrap; }
+        .project-char { display:inline-block; opacity:0; filter:blur(8px); transform:translateY(6px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),filter 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+        .project-char.visible { opacity:1; filter:blur(0); transform:translateY(0); }
+
         @media (max-width:767px),(orientation:portrait) {
-          .project-section-2 { grid-template-columns:1fr; height:auto; min-height:100vh; }
-          .project-s2-photo-wrap { height:50vh; min-height:220px; }
+          .project-section-2 { grid-template-columns:1fr; min-height:auto; }
+          .project-s2-photo-wrap { min-height:50vh; height:50vh; }
+          .proj-slider-wrap,.proj-slider-track,.proj-slider-slide { min-height:50vh; height:50vh; }
           .project-s2-info { min-height:50vh; }
           .project-s2-bottom { flex-direction:column; align-items:stretch; }
-        }
-        @media (max-width:767px) {
-          .project-hero-slider { width:min(80vw,360px); height:60vh; left:50%; right:auto; top:auto; bottom:70px; transform:translateX(-50%); }
           .project-s4-nav { gap:clamp(18px,5vw,40px); }
         }
       `}</style>
