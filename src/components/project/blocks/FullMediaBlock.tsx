@@ -32,9 +32,9 @@ export function FullMediaBlockView({ block }: { block: FullMediaBlock }) {
         background: "#000",
       }}
     >
-      {isVideoUrl(block.url, block.media_type) ? (
+      {block.url && isVideoUrl(block.url, block.media_type) ? (
         (() => {
-          const embedUrl = getEmbedUrl(block.url);
+          const embedUrl = getEmbedUrl(block.url!);
           return embedUrl ? (
             <iframe
               src={embedUrl}

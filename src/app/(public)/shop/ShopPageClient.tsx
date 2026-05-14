@@ -668,7 +668,7 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
           </div>
 
           {/* Description bar */}
-          <div style={{
+          <div className="shop-popup-desc-bar" style={{
             position: "relative",
             padding: "20px 15px 28px",
             borderTop: "1px solid rgba(57,45,43,0.2)",
@@ -856,6 +856,10 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
       <style jsx global>{`
         .shop-popup-card { max-height: 80vh; }
         @media (max-height: 700px) { .shop-popup-card { max-height: 85vh; } }
+        @media (max-width: 767px), (orientation: portrait) {
+          .shop-popup-card { width: 90vw !important; }
+          .shop-popup-desc-bar { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+        }
 
         @keyframes sc-enter {
           to { opacity: 1; transform: translate3d(0,0,0); }

@@ -33,9 +33,9 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
 
   const mediaSide = (
     <div style={{ position: "relative", overflow: "hidden" }}>
-      {isVideoUrl(block.url, block.media_type) ? (
+      {block.url && isVideoUrl(block.url, block.media_type) ? (
         (() => {
-          const embedUrl = getEmbedUrl(block.url);
+          const embedUrl = getEmbedUrl(block.url!);
           return embedUrl ? (
             <iframe
               src={embedUrl}
