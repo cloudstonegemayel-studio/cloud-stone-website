@@ -7,6 +7,7 @@ import { PageTransitionOverlay } from "@/components/layout/PageTransitionOverlay
 import { TransitionProvider } from "@/lib/transitionContext";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
+import { CookieBanner } from "@/components/layout/CookieBanner";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -87,6 +88,7 @@ export default function RootLayout({
         />
         <CustomCursor />
         <WeatherWidget />
+        <CookieBanner />
         <Preloader />
         <TransitionProvider>
           <PageTransitionOverlay />
