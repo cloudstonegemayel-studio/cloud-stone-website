@@ -762,6 +762,14 @@ export function HomeHero() {
     return () => clearTimeout(t);
   }, [entered]);
 
+  // ── Re-sync canvas size when section height changes (landscape ↔ portrait) ─
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    canvas.height = canvas.offsetHeight || window.innerHeight;
+  }, [isLandscapeMobile]);
+
   // ── Animated canvas ───────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
