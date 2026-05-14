@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { ContentBlock, SliderItem } from "@/types/blocks";
+import { getEmbedUrl, VIDEO_EXT } from "@/lib/videoEmbed";
 import { ProjectRenderer } from "./ProjectRenderer";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { Footer } from "@/components/layout/Footer";
@@ -82,27 +83,6 @@ function ArrowRight() {
   );
 }
 
-// ── Video embed helper ────────────────────────────────────────────────────────
-function getEmbedUrl(url: string): string | null {
-  // YouTube
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  if (ytMatch) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1`;
-  }
-  // Vimeo
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1`;
-  }
-  // Google Drive
-  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if (driveMatch) {
-    return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
-  }
-  return null;
-}
-
-const VIDEO_EXT = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i;
 
 function SlideMedia({ slide }: { slide: SliderItem }) {
   const isVideo = slide.type === "video" || VIDEO_EXT.test(slide.url);

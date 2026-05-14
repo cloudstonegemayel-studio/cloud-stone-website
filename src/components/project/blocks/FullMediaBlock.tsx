@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { FullMediaBlock } from "@/types/blocks";
+import { getEmbedUrl, isVideoUrl } from "@/lib/videoEmbed";
 
 export function FullMediaBlockView({ block }: { block: FullMediaBlock }) {
   const ref    = useRef<HTMLElement | null>(null);
@@ -31,24 +32,38 @@ export function FullMediaBlockView({ block }: { block: FullMediaBlock }) {
         background: "#000",
       }}
     >
-      {block.media_type === "video" ? (
-        <video
-          src={block.url}
-          poster={block.poster}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: inView ? 1 : 0,
-            transition: "opacity 1.2s ease",
-          }}
-        />
+      {isVideoUrl(block.url, block.media_type) ? (
+        (() => {
+          const embedUrl = getEmbedUrl(block.url);
+          return embedUrl ? (
+            <iframe
+              src={embedUrl}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              style={{
+                position: "absolute", inset: 0,
+                width: "100%", height: "100%",
+                border: "none",
+                opacity: inView ? 1 : 0,
+                transition: "opacity 1.2s ease",
+              }}
+              title="Project video"
+            />
+          ) : (
+            <video
+              src={block.url}
+              poster={block.poster}
+              autoPlay muted loop playsInline
+              style={{
+                position: "absolute", inset: 0,
+                width: "100%", height: "100%",
+                objectFit: "cover",
+                opacity: inView ? 1 : 0,
+                transition: "opacity 1.2s ease",
+              }}
+            />
+          );
+        })()
       ) : (
         block.url && (
           <Image

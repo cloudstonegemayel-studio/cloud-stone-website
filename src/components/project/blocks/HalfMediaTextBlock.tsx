@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { HalfMediaTextBlock } from "@/types/blocks";
+import { getEmbedUrl, isVideoUrl } from "@/lib/videoEmbed";
 
 export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock }) {
   const ref = useRef<HTMLElement | null>(null);
@@ -32,20 +33,40 @@ export function HalfMediaTextBlockView({ block }: { block: HalfMediaTextBlock })
 
   const mediaSide = (
     <div style={{ position: "relative", overflow: "hidden" }}>
-      {block.media_type === "video" ? (
-        <video
-          src={block.url}
-          poster={block.poster}
-          autoPlay muted loop playsInline
-          style={{
-            position: "absolute", inset: "-10%",
-            width: "120%", height: "120%",
-            objectFit: "contain",
-            transform: inView ? "translateY(0)" : "translateY(60px)",
-            opacity: inView ? 1 : 0,
-            transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 1.2s ease",
-          }}
-        />
+      {isVideoUrl(block.url, block.media_type) ? (
+        (() => {
+          const embedUrl = getEmbedUrl(block.url);
+          return embedUrl ? (
+            <iframe
+              src={embedUrl}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              style={{
+                position: "absolute", inset: 0,
+                width: "100%", height: "100%",
+                border: "none",
+                transform: inView ? "translateY(0)" : "translateY(60px)",
+                opacity: inView ? 1 : 0,
+                transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 1.2s ease",
+              }}
+              title="Block video"
+            />
+          ) : (
+            <video
+              src={block.url}
+              poster={block.poster}
+              autoPlay muted loop playsInline
+              style={{
+                position: "absolute", inset: "-10%",
+                width: "120%", height: "120%",
+                objectFit: "contain",
+                transform: inView ? "translateY(0)" : "translateY(60px)",
+                opacity: inView ? 1 : 0,
+                transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1), opacity 1.2s ease",
+              }}
+            />
+          );
+        })()
       ) : (
         block.url && (
           <div style={{
