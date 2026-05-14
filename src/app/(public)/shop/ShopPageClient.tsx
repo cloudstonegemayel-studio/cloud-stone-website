@@ -339,7 +339,7 @@ function ProductCard({ item, position, index, onSelect, onPositionChange, stageR
             alt=""
             aria-hidden
             style={{
-              position: "absolute", left: 15, top: "-10px",
+              position: "absolute", left: 0, top: "-10px", paddingLeft: "15px",
               height: "120%", width: "auto",
 	      zIndex: "-1",
               pointerEvents: "none",
