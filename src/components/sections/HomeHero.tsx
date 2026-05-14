@@ -762,20 +762,20 @@ export function HomeHero() {
     return () => clearTimeout(t);
   }, [entered]);
 
-  // ── Re-sync canvas size when section height changes (landscape ↔ portrait) ─
+  // ── Re-sync canvas size when landscape state resolves after mount ────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    canvas.height = canvas.offsetHeight || window.innerHeight;
+    canvas.width  = window.innerWidth;
+    canvas.height = isLandscapeMobile ? window.innerHeight * 2 : window.innerHeight;
   }, [isLandscapeMobile]);
 
   // ── Animated canvas ───────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    canvas.height = canvas.offsetHeight || window.innerHeight;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
     t0Ref.current = performance.now();
 
     function frame(now: number) {
@@ -797,7 +797,7 @@ export function HomeHero() {
     rafRef.current = requestAnimationFrame(frame);
 
     const onResize = () => {
-      if (canvas) { canvas.width = canvas.offsetWidth || window.innerWidth; canvas.height = canvas.offsetHeight || window.innerHeight; }
+      if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     };
     // ── Shared trail-push helper ────────────────────────────────────────────
     function pushTrail(x: number, y: number) {
