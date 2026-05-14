@@ -50,7 +50,7 @@ const CARD_DEFS = [
     label:    "Objects",
     href:     "/shop",
     img:      "/images/Shop.png",
-    subtitle: "Designed objects and made-to-order pieces - from our atelier",
+    subtitle: "Designed objects and made-to-order pieces from our atelier",
     vwLeft:   0.25,
     vhBot:    0.093,
   },
@@ -67,7 +67,7 @@ const CARD_DEFS = [
 
 const CARD_W      = 284;
 const CARD_H      = 311;
-const IMG_OVF_TOP = 46;   // image overflows this many px above card top border
+const IMG_OVF_TOP = 46;   // image overflows this many px above card top border 
 const IMG_LEFT    = 22;
 const IMG_W       = 240;
 const IMG_H       = 313;
