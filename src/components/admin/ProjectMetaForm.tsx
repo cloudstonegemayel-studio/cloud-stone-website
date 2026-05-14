@@ -90,6 +90,12 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
   function updateSlide(i: number, patch: Partial<SliderItem>) {
     set("slider_items", data.slider_items.map((s, idx) => idx === i ? { ...s, ...patch } : s));
   }
+  function moveSlide(from: number, to: number) {
+    const items = [...data.slider_items];
+    const [moved] = items.splice(from, 1);
+    items.splice(to, 0, moved);
+    set("slider_items", items);
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -232,9 +238,26 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
           <div key={i} style={{
             background: "#F5F1EC", border: "1.5px solid #DDD7CF",
             borderRadius: 6, padding: 12,
-            display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10,
+            display: "grid", gridTemplateColumns: "auto 1fr 1fr auto", gap: 10,
             alignItems: "start",
           }}>
+            {/* Reorder handle */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingTop: 20 }}>
+              <button type="button" onClick={() => i > 0 && moveSlide(i, i - 1)}
+                disabled={i === 0}
+                title="Move up"
+                style={{
+                  background: "none", border: "none", cursor: i === 0 ? "default" : "pointer",
+                  fontSize: 10, color: i === 0 ? "#DDD7CF" : "#887870", padding: "2px 4px", lineHeight: 1,
+                }}>▲</button>
+              <button type="button" onClick={() => i < data.slider_items.length - 1 && moveSlide(i, i + 1)}
+                disabled={i === data.slider_items.length - 1}
+                title="Move down"
+                style={{
+                  background: "none", border: "none", cursor: i === data.slider_items.length - 1 ? "default" : "pointer",
+                  fontSize: 10, color: i === data.slider_items.length - 1 ? "#DDD7CF" : "#887870", padding: "2px 4px", lineHeight: 1,
+                }}>▼</button>
+            </div>
             <Field label={`Slide ${i + 1} — type`}>
               <select style={inputStyle} value={slide.type}
                 onChange={(e) => updateSlide(i, { type: e.target.value as "image" | "video" })}>

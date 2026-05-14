@@ -137,12 +137,20 @@ function SlideMedia({ slide }: { slide: SliderItem }) {
   );
 }
 
-// ── Horizontal scroll slider (scrolls with the page) ─────────────────────────
-function HorizontalSlider({ slides }: { slides: SliderItem[] }) {
+// ── Horizontal slider — controlled by forcedIndex (page scroll) ──────────────
+function HorizontalSlider({ slides, forcedIndex = 0 }: { slides: SliderItem[]; forcedIndex?: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Sync active dot with scroll position
+  // Drive slide from page-scroll position
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.scrollTo({ left: forcedIndex * el.offsetWidth, behavior: "smooth" });
+    setActiveIdx(forcedIndex);
+  }, [forcedIndex]);
+
+  // Also sync dot when user manually swipes on touch devices
   useEffect(() => {
     const el = containerRef.current;
     if (!el || slides.length <= 1) return;
@@ -155,7 +163,7 @@ function HorizontalSlider({ slides }: { slides: SliderItem[] }) {
   }, [slides.length]);
 
   const goTo = (i: number) => {
-    containerRef.current?.scrollTo({ left: i * (containerRef.current.offsetWidth), behavior: "smooth" });
+    containerRef.current?.scrollTo({ left: i * (containerRef.current?.offsetWidth ?? 0), behavior: "smooth" });
   };
 
   return (
@@ -189,6 +197,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
   const section2Ref    = useRef<HTMLElement | null>(null);
   const outroRef       = useRef<HTMLElement | null>(null);
   const parallaxBgRef  = useRef<HTMLDivElement | null>(null);
+  const sliderWrapRef  = useRef<HTMLDivElement | null>(null);
 
   const slides = project.slider_items.length > 0
     ? project.slider_items
@@ -200,6 +209,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
   const [s2TextVisible,     setS2TextVisible]     = useState(false);
   const [outroTitleVisible, setOutroTitleVisible] = useState(false);
   const [gyroPermission,    setGyroPermission]    = useState<"idle" | "pending" | "granted" | "denied">("idle");
+  const [currentSlide,      setCurrentSlide]      = useState(0);
 
   // Section 2 & outro intersection observer
   useEffect(() => {
@@ -280,6 +290,23 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
     };
   }, [gyroPermission]);
 
+  // Drive slider via page scroll (sticky section technique)
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const onScroll = () => {
+      const wrapper = sliderWrapRef.current;
+      if (!wrapper) return;
+      const rect     = wrapper.getBoundingClientRect();
+      const scrolled = Math.max(0, -rect.top);
+      const maxScroll = wrapper.offsetHeight - window.innerHeight;
+      if (maxScroll <= 0) return;
+      const idx = Math.min(slides.length - 1, Math.round((scrolled / maxScroll) * (slides.length - 1)));
+      setCurrentSlide(idx);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [slides.length]);
+
   const requestGyroPermission = async () => {
     type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
     try {
@@ -299,10 +326,15 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
 
   return (
     <article className="project-page">
-      {/* ── Section 2: Slider + Info ──────────────────────────────── */}
+      {/* ── Section 2: Sticky scroll wrapper + Slider + Info ─────── */}
+      <div
+        ref={sliderWrapRef}
+        className="proj-sticky-wrapper"
+        style={{ "--slide-count": slides.length } as React.CSSProperties}
+      >
       <section ref={section2Ref} id="section2" className="project-section-2">
         <div className="project-s2-photo-wrap">
-          <HorizontalSlider slides={slides} />
+          <HorizontalSlider slides={slides} forcedIndex={currentSlide} />
         </div>
         <div className="project-s2-info">
           <h2 className="project-s2-title">
@@ -324,6 +356,7 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           </div>
         </div>
       </section>
+      </div>{/* end proj-sticky-wrapper */}
 
       {/* ── Sections 3+: Dynamic content blocks ──────────────────── */}
       {project.content_blocks.length > 0 && (
@@ -379,6 +412,14 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
 
       <style jsx global>{`
         .project-page { background:var(--color-dark,#392d2b); color:var(--color-dark,#392d2b); overflow-x:hidden; }
+
+        /* ── Sticky scroll wrapper (desktop landscape only) ───────── */
+        .proj-sticky-wrapper { height: calc(var(--slide-count, 1) * 100vh); }
+        .proj-sticky-wrapper .project-section-2 { position:sticky; top:0; height:100vh; min-height:unset; }
+        @media (max-width:767px),(orientation:portrait) {
+          .proj-sticky-wrapper { height:auto !important; }
+          .proj-sticky-wrapper .project-section-2 { position:static; height:auto; min-height:auto; }
+        }
 
         /* ── Section 2: Slider + Info ─────────────── */
         .project-section-2 { width:100vw; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; background:var(--color-grey-light,#e7e6e4); }

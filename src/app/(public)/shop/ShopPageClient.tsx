@@ -524,14 +524,17 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
           role="dialog"
           aria-modal
           aria-labelledby="popup-title"
+          className="shop-popup-card"
           style={{
             position: "relative",
-            width: "min(70vw, calc(100vw - 40px))",
+            width: "min(60vw, calc(100vw - 40px))",
             background: "#F0EEE9",
             border: "1px solid #392D2B",
             boxShadow: "0 30px 90px rgba(57,45,43,0.16)",
-            maxHeight: "70vh",
+            display: "flex",
+            flexDirection: "column",
             overflowY: "auto",
+            minHeight: "60vh",
             animation: "sc-popup-in 520ms cubic-bezier(0.16,1,0.3,1) both",
           }}
         >
@@ -541,6 +544,7 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
             padding: "15px 15px 20px",
             borderBottom: "1px solid rgba(57,45,43,0.2)",
             height: 55,
+            flexShrink: 0,
           }}>
             {/* Prev product */}
             <button
@@ -608,10 +612,11 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
           {/* Image slider */}
           <div style={{
             position: "relative",
-            width: "100%", minHeight: 400,
+            width: "100%", minHeight: 200,
             background: "rgba(183,209,234,0.2)",
             overflow: "hidden",
             display: "flex", alignItems: "center", justifyContent: "center",
+            flexGrow: 1,
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -691,11 +696,13 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
             gridTemplateColumns: "1fr auto",
             gap: 20,
             alignItems: "end",
+            flexShrink: 0,
           }}>
             <p style={{
               margin: 0,
               fontFamily: "var(--font-inter-tight, 'Inter Tight', sans-serif)",
               fontSize: 8.532, lineHeight: 1.5, color: "#392D2B",
+              maxWidth: 600,
             }}>
               {item.longDesc}
             </p>
@@ -875,6 +882,9 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
       )}
 
       <style jsx global>{`
+        .shop-popup-card { max-height: 80vh; }
+        @media (max-height: 700px) { .shop-popup-card { max-height: 85vh; } }
+
         @keyframes sc-enter {
           to { opacity: 1; transform: translate3d(0,0,0); }
         }

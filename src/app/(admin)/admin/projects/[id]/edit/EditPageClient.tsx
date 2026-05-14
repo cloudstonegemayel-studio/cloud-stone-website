@@ -234,7 +234,7 @@ export function EditPageClient({
       </div>
 
       {/* ── Center: editor ───────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0, minHeight: 0 }}>
 
         {/* Toolbar */}
         <div style={{
@@ -317,7 +317,7 @@ export function EditPageClient({
         </div>
 
         {/* Editor body */}
-        <div style={{ flex: 1, overflow: "auto", padding: "24px 28px" }}>
+        <div style={{ flex: 1, overflow: "auto", padding: "24px 28px", minHeight: 0 }}>
           {activeTab === "meta" ? (
             <div style={{ maxWidth: 680, margin: "0 auto" }}>
               <ProjectMetaForm projectId={projectId} data={meta} onChange={setMeta} />
