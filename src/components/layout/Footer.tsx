@@ -20,7 +20,7 @@ const NAV = [
   { href: "/design",    label: "Design"       },
   { href: "/bathrooms", label: "Bathrooms"    },
   { href: "/shop",      label: "Objects"      },
-  { href: "/contact",   label: "Contact"      },
+  { href: "/contacts",   label: "Contact"      },
 ] as const;
 
 // ── Icon paths ─────────────────────────────────────────────────────────────────
