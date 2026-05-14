@@ -318,9 +318,10 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
     return () => clearInterval(id);
   }, [hover, def.label]);
 
-  // Pointer drag
+  // Pointer drag (used by cloud handle — immediate start)
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // don't bubble to card root touch handler
     dragStart.current = { mx: e.clientX, my: e.clientY, px: pos.x, py: pos.y };
     setDragging(true);
     function onMove(ev: PointerEvent) {
@@ -341,11 +342,40 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
     window.addEventListener("pointerup",   onUp);
   }, [def.id, pos, onDragMove]);
 
+  // Touch drag from anywhere on the card — threshold-based so taps still navigate
+  const onCardTouchDown = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType !== "touch") return;
+    const startX = e.clientX, startY = e.clientY;
+    const startPX = pos.x, startPY = pos.y;
+    let active = false;
+
+    function onMove(ev: PointerEvent) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!active) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        active = true;
+        dragStart.current = { mx: startX, my: startY, px: startPX, py: startPY };
+        setDragging(true);
+      }
+      ev.preventDefault();
+      onDragMove(def.id, startPX + dx, startPY + dy);
+    }
+    function onUp() {
+      if (active) { dragStart.current = null; setDragging(false); }
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup",   onUp);
+    }
+    window.addEventListener("pointermove", onMove, { passive: false });
+    window.addEventListener("pointerup",   onUp);
+  }, [def.id, pos, onDragMove]);
+
   return (
     <div
       className="cs-service-card"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onPointerDown={onCardTouchDown}
       style={{
         ["--cs-scale" as string]: scale,
         position:   "absolute",
