@@ -289,7 +289,7 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
   const [cardTitle, setCardTitle] = useState(def.label.toUpperCase());
   const [visible,  setVisible]  = useState(false); // animation running
   const [settled,  setSettled]  = useState(false); // animation done
-  const dragStart = useRef<{ mx: number; my: number; px: number; py: number } | null>(null);
+  const dragRef = useRef<{ startX: number; startY: number; startPX: number; startPY: number; active: boolean } | null>(null);
 
   // Staggered entrance: start animation, then mark settled after it completes
   useEffect(() => {
@@ -318,64 +318,41 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
     return () => clearInterval(id);
   }, [hover, def.label]);
 
-  // Pointer drag (used by cloud handle — immediate start)
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation(); // don't bubble to card root touch handler
-    dragStart.current = { mx: e.clientX, my: e.clientY, px: pos.x, py: pos.y };
-    setDragging(true);
-    function onMove(ev: PointerEvent) {
-      if (!dragStart.current) return;
-      onDragMove(
-        def.id,
-        dragStart.current.px + (ev.clientX - dragStart.current.mx),
-        dragStart.current.py + (ev.clientY - dragStart.current.my),
-      );
-    }
-    function onUp() {
-      dragStart.current = null;
-      setDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup",   onUp);
-    }
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup",   onUp);
-  }, [def.id, pos, onDragMove]);
+  // Unified drag — same approach as shop (setPointerCapture + element handlers)
+  // immediate=true for cloud handle; immediate=false (8px threshold) for card touch
+  const handleDragDown = useCallback((e: React.PointerEvent<HTMLElement>, immediate: boolean) => {
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = { startX: e.clientX, startY: e.clientY, startPX: pos.x, startPY: pos.y, active: immediate };
+    if (immediate) { e.preventDefault(); setDragging(true); }
+  }, [pos]);
 
-  // Touch drag from anywhere on the card — threshold-based so taps still navigate
-  const onCardTouchDown = useCallback((e: React.PointerEvent) => {
-    if (e.pointerType !== "touch") return;
-    const startX = e.clientX, startY = e.clientY;
-    const startPX = pos.x, startPY = pos.y;
-    let active = false;
+  const handleDragMove = useCallback((e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    if (!d.active) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      d.active = true;
+      setDragging(true);
+    }
+    onDragMove(def.id, d.startPX + dx, d.startPY + dy);
+  }, [def.id, onDragMove]);
 
-    function onMove(ev: PointerEvent) {
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
-      if (!active) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-        active = true;
-        dragStart.current = { mx: startX, my: startY, px: startPX, py: startPY };
-        setDragging(true);
-      }
-      ev.preventDefault();
-      onDragMove(def.id, startPX + dx, startPY + dy);
-    }
-    function onUp() {
-      if (active) { dragStart.current = null; setDragging(false); }
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup",   onUp);
-    }
-    window.addEventListener("pointermove", onMove, { passive: false });
-    window.addEventListener("pointerup",   onUp);
-  }, [def.id, pos, onDragMove]);
+  const handleDragUp = useCallback(() => {
+    if (dragRef.current?.active) setDragging(false);
+    dragRef.current = null;
+  }, []);
 
   return (
     <div
       className="cs-service-card"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onPointerDown={onCardTouchDown}
+      onPointerDown={(e) => { if (e.pointerType === "touch") handleDragDown(e, false); }}
+      onPointerMove={handleDragMove}
+      onPointerUp={handleDragUp}
+      onPointerCancel={handleDragUp}
       style={{
         ["--cs-scale" as string]: scale,
         position:   "absolute",
@@ -389,6 +366,7 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
         zIndex:     dragging ? 20 : 1,
         cursor:     dragging ? "grabbing" : "default",
         userSelect: "none",
+        touchAction: "none",
         // settled: inline styles take over; animating: keyframe runs; pre: invisible
         // scale prop drives responsive sizing so CSS zoom isn't needed (zoom scales left/top visually)
         opacity:                 settled ? 1 : (visible ? undefined : 0),
@@ -497,7 +475,7 @@ function ServiceCard({ def, pos, onDragMove, entered, enterDelay, animKf, spread
 
       {/* Cloud drag handle — bottom-right */}
       <div
-        onPointerDown={onPointerDown}
+        onPointerDown={(e) => { e.stopPropagation(); handleDragDown(e, true); }}
         style={{
           position:        "absolute",
           right:           -18,
