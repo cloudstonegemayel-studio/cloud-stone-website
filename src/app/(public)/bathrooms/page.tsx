@@ -352,7 +352,6 @@ export default function BathroomsPage() {
         }
       `}</style>
     </section>
-    <div style={{ height: 28 }} aria-hidden />
     <Footer />
     </>
   );

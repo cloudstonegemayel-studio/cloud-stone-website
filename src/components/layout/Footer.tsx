@@ -19,7 +19,7 @@ const NAV = [
   { href: "/",          label: "Cloud Stone" },
   { href: "/design",    label: "Design"       },
   { href: "/bathrooms", label: "Bathrooms"    },
-  { href: "/shop",      label: "Shop"         },
+  { href: "/shop",      label: "Objects"      },
   { href: "/contact",   label: "Contact"      },
 ] as const;
 
@@ -89,7 +89,7 @@ function TrimIcon({
 }
 
 // ── Text mask — which grid cells are inside the phrase text ───────────────────
-function buildTextMask(phrase: string, W: number, H: number, COLS: number, ROWS: number): Uint8Array {
+function buildTextMask(phrase: string, W: number, H: number, COLS: number, ROWS: number, stride: number): Uint8Array {
   const off = document.createElement("canvas");
   off.width  = Math.max(1, Math.floor(W));
   off.height = Math.max(1, Math.floor(H));
@@ -114,8 +114,8 @@ function buildTextMask(phrase: string, W: number, H: number, COLS: number, ROWS:
 
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
-      const cx = Math.round((col + 0.5) * STRIDE);
-      const cy = Math.round((row + 0.5) * STRIDE);
+      const cx = Math.round((col + 0.5) * stride);
+      const cy = Math.round((row + 0.5) * stride);
       if (cx < W && cy < H) {
         const i = (cy * Math.floor(W) + cx) * 4;
         if (imgData[i + 3] > 60) mask[row * COLS + col] = 1;
@@ -137,6 +137,7 @@ function FooterDotCanvas() {
   const S = useRef({
     W: 0, H: 0,
     COLS: 0, ROWS: 0,
+    stride: STRIDE, dotR: DOT_R,
     mode:      "idle" as "idle" | "forming" | "formed" | "dissolving",
     t:         0,        // 0 = idle, 1 = fully formed
     phraseIdx: 0,
@@ -158,20 +159,23 @@ function FooterDotCanvas() {
       const rect = canvas.getBoundingClientRect();
       s.W = Math.max(1, rect.width);
       s.H = Math.max(1, rect.height);
-      s.COLS = gridCols(s.W);
-      s.ROWS = gridRows(s.H);
+      // Smaller dots on narrow screens for legible phrases
+      s.stride = s.W < 800 ? 4.5 : STRIDE;
+      s.dotR   = s.W < 800 ? 2.0 : DOT_R;
+      s.COLS = Math.ceil(s.W / s.stride);
+      s.ROWS = Math.ceil(s.H / s.stride);
       canvas.width  = Math.floor(s.W * dpr);
       canvas.height = Math.floor(s.H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // Rebuild mask if in phrase mode
       if (s.mask) {
-        s.mask = buildTextMask(PHRASES[s.phraseIdx], s.W, s.H, s.COLS, s.ROWS);
+        s.mask = buildTextMask(PHRASES[s.phraseIdx], s.W, s.H, s.COLS, s.ROWS, s.stride);
       }
     };
 
-    // nx/ny helpers (same normalisation as circleGrid)
-    const nx = (col: number, offX: number) => col * STRIDE / 1920 * 4.5 + offX;
-    const ny = (row: number, offY: number) => row * STRIDE / 1080 * 3.2 + offY;
+    // nx/ny helpers — use dynamic stride for noise coordinate normalization
+    const nx = (col: number, offX: number) => col * s.stride / 1920 * 4.5 + offX;
+    const ny = (row: number, offY: number) => row * s.stride / 1080 * 3.2 + offY;
 
     const SIGMA  = 90;
     const SIGMA2 = SIGMA * SIGMA;
@@ -213,12 +217,12 @@ function FooterDotCanvas() {
       const mask   = s.mask;
 
       for (let row = 0; row < s.ROWS; row++) {
-        const cy = (row + 0.5) * STRIDE;
-        if (cy > s.H + DOT_R) break;
+        const cy = (row + 0.5) * s.stride;
+        if (cy > s.H + s.dotR) break;
 
         for (let col = 0; col < s.COLS; col++) {
-          const cx = (col + 0.5) * STRIDE;
-          if (cx > s.W + DOT_R) break;
+          const cx = (col + 0.5) * s.stride;
+          if (cx > s.W + s.dotR) break;
 
           // Noise alpha for idle background (dimmed ×0.40 for dark bg)
           const n        = fbm(nx(col, offX), ny(row, offY));
@@ -261,8 +265,8 @@ function FooterDotCanvas() {
         ctx.globalAlpha = alpha;
         ctx.beginPath();
         for (const { cx, cy } of batch) {
-          ctx.moveTo(cx + DOT_R, cy);
-          ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
+          ctx.moveTo(cx + s.dotR, cy);
+          ctx.arc(cx, cy, s.dotR, 0, Math.PI * 2);
         }
         ctx.fill();
       }
@@ -305,7 +309,7 @@ function FooterDotCanvas() {
     // Build mask and start forming
     s.pausedOffX = s.prevNow * 0.000035;
     s.pausedOffY = s.prevNow * 0.000025;
-    s.mask = buildTextMask(PHRASES[s.phraseIdx], s.W, s.H, s.COLS, s.ROWS);
+    s.mask = buildTextMask(PHRASES[s.phraseIdx], s.W, s.H, s.COLS, s.ROWS, s.stride);
     s.mode = "forming";
     s.t    = 0;
 
@@ -369,10 +373,7 @@ export function Footer() {
         background: "#392D2B",
         height: "min(840px, 100vh)",
         maxHeight: "min(840px, 100vh)",
-        borderRadius: "20px 20px 0 0",
-        marginTop: -28,
         overflow: "hidden",
-        boxShadow: "0 -4px 24px rgba(0,0,0,0.22)",
       }}
     >
       {/* ── Animated dot canvas (top 70%) ─────────────────────────────────── */}

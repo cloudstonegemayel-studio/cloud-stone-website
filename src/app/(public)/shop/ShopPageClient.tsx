@@ -873,7 +873,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
         }
 
         .shop-filter-wrap {
-          position: absolute;
+          position: fixed;
           z-index: 5;
           left: 50%;
           bottom: 30px;

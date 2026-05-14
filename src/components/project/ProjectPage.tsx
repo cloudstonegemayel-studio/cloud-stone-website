@@ -394,7 +394,6 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
         </div>
       </section>
 
-      <div style={{ height: 28 }} aria-hidden />
       <Footer />
 
       <style jsx global>{`

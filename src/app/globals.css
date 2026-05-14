@@ -322,7 +322,7 @@
 
   /* ── Design page: filter bar + CTA button responsive layout ──── */
   .design-filter-wrap {
-    position:  absolute;
+    position:  fixed;
     bottom:    30px;
     left:      50%;
     transform: translateX(-50%);
