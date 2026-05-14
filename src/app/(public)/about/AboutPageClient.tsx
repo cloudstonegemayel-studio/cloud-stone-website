@@ -760,9 +760,9 @@ export function AboutPageClient() {
         }
 
         .about-founder-heading {
-          width: min(418px, 100%);
+          width: min(450px, 100%);
           text-align: right;
-          margin-top: 80px;
+          margin-top: 40px;
         }
 
         .about-founder-heading p {
