@@ -270,7 +270,7 @@ function CanvasView({ projects }: { projects: Project[] }) {
         position: "absolute",
         top: 0, left: 0, right: 0,
         height: isLandscapeMobile ? "200vh" : "100%",
-        overflow: "hidden",
+        overflow: isLandscapeMobile ? "visible" : "hidden",
         cursor: "grab",
       }}
       onPointerDown={onPointerDown}

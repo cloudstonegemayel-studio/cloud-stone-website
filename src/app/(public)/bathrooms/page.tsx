@@ -104,13 +104,15 @@ export default function BathroomsPage() {
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    // Fallback: reveal after short delay in case observer fires late
+    const fallback = setTimeout(() => setRevealed(true), 400);
+    if (!section) return () => clearTimeout(fallback);
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.intersectionRatio >= 0.4 || entry.isIntersecting) { setRevealed(true); observer.disconnect(); } },
-      { threshold: [0, 0.4, 0.8] },
+      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); clearTimeout(fallback); observer.disconnect(); } },
+      { threshold: 0 },
     );
     observer.observe(section);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); clearTimeout(fallback); };
   }, []);
 
   useEffect(() => {

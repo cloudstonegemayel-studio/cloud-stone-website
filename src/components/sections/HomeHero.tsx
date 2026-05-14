@@ -766,8 +766,8 @@ export function HomeHero() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    canvas.height = canvas.offsetHeight || window.innerHeight;
     t0Ref.current = performance.now();
 
     function frame(now: number) {
@@ -789,7 +789,7 @@ export function HomeHero() {
     rafRef.current = requestAnimationFrame(frame);
 
     const onResize = () => {
-      if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      if (canvas) { canvas.width = canvas.offsetWidth || window.innerWidth; canvas.height = canvas.offsetHeight || window.innerHeight; }
     };
     // ── Shared trail-push helper ────────────────────────────────────────────
     function pushTrail(x: number, y: number) {
@@ -994,10 +994,11 @@ export function HomeHero() {
         <div
           className="hero-weather"
           style={{
-            opacity:    entered ? 1 : 0,
+            opacity:    entered && !navOpen ? 1 : 0,
             transition: "opacity 0.7s ease 1.3s",
             marginTop:  -4,
             overflow:   "hidden",
+            pointerEvents: navOpen ? "none" : "auto",
           }}
         >
           <div style={{ marginBottom: -44 }}>
@@ -1130,11 +1131,11 @@ export function HomeHero() {
           padding:        "30px 30px 0",
         }}>
           <Link href="/" onClick={() => setNavOpen(false)} aria-label="Home">
-            <Image
-              src="/LOGO.svg"
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/Logo-light.svg"
               alt="Cloud Stone Studio"
-              width={80} height={70}
-              style={{ width: "clamp(58px,4.2vw,80px)", height: "auto", filter: "brightness(10)" }}
+              style={{ width: "clamp(58px,4.2vw,80px)", height: "auto" }}
             />
           </Link>
           <button

@@ -701,12 +701,16 @@ function ProductPopup({ item, onClose, onNext, onPrevious }: {
 
 // ── Main page component ──────────────────────────────────────────────────────
 export function ShopPageClient({ items }: { items: ShopItem[] }) {
-  const [mode,     setMode]     = useState<ViewMode>("grid");
-  const [selected, setSelected] = useState<ShopItem | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [mode,             setMode]             = useState<ViewMode>("grid");
+  const [selected,         setSelected]         = useState<ShopItem | null>(null);
+  const [isMobile,         setIsMobile]         = useState(false);
+  const [isLandscapeMobile, setIsLandscapeMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsLandscapeMobile(window.innerWidth >= 768 && window.innerHeight < 500);
+    };
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -750,8 +754,8 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
     <section style={{
       position: "relative",
       minHeight: "100vh",
-      height: isStaticGrid ? "auto" : "100svh",
-      overflow: isStaticGrid ? "visible" : "hidden",
+      height: isStaticGrid || isLandscapeMobile ? "auto" : "100svh",
+      overflow: isStaticGrid || isLandscapeMobile ? "visible" : "hidden",
       background: "#B7D1EA",
       color: "#392D2B",
       isolation: "isolate",
@@ -810,7 +814,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
             zIndex: 2,
             ...(mode === "chaos" ? { left: "min(30px, 4vw)", top: "clamp(100px, 13vw, 240px)" } : {}),
             width: mode === "chaos" ? "calc(100vw - 60px)" : "100%",
-            height: "min(680px, max(300px, calc(100svh - 370px)))",
+            height: isLandscapeMobile ? "min(680px, 500px)" : "min(680px, max(300px, calc(100svh - 370px)))",
             zoom: isMobile ? "0.75" : undefined,
           }}
         >
