@@ -36,10 +36,15 @@ export async function POST(request: NextRequest) {
         ? `<p><strong>Source:</strong> ${validated.source_page}</p>`
         : "";
 
+      const ownerTo = Array.from(new Set([
+        "antonio@cloudstonestudio.com",
+        ...(process.env.OWNER_EMAIL ? [process.env.OWNER_EMAIL] : []),
+      ]));
+
       await Promise.all([
         resend.emails.send({
           from:    `Cloud Stone <noreply@${domain}>`,
-          to:      process.env.OWNER_EMAIL!,
+          to:      ownerTo,
           subject: `New inquiry from ${validated.name}${validated.source_page ? ` (${validated.source_page})` : ""}`,
           html: `
             <p><strong>Name:</strong> ${validated.name}</p>
