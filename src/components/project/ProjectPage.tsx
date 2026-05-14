@@ -111,18 +111,17 @@ function SlideMedia({ slide }: { slide: SliderItem }) {
           src={embedUrl}
           allow="autoplay; fullscreen"
           allowFullScreen
-          style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }}
           title="Project video"
         />
       );
     }
-    // Fallback for direct video files
     return (
       <video
         src={slide.url}
         poster={slide.thumbnail}
         autoPlay muted loop playsInline
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
       />
     );
   }
@@ -411,10 +410,10 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
       <Footer />
 
       <style jsx global>{`
-        .project-page { background:var(--color-dark,#392d2b); color:var(--color-dark,#392d2b); overflow-x:hidden; }
+        .project-page { background:var(--color-dark,#392d2b); color:var(--color-dark,#392d2b); overflow-x:clip; }
 
         /* ── Sticky scroll wrapper (desktop landscape only) ───────── */
-        .proj-sticky-wrapper { height: calc(var(--slide-count, 1) * 100vh); }
+        .proj-sticky-wrapper { height: calc(var(--slide-count, 1) * 100vh); background:var(--color-grey-light,#e7e6e4); }
         .proj-sticky-wrapper .project-section-2 { position:sticky; top:0; height:100vh; min-height:unset; }
         @media (max-width:767px),(orientation:portrait) {
           .proj-sticky-wrapper { height:auto !important; }

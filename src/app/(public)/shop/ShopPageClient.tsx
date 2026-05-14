@@ -159,30 +159,10 @@ function FilterBar({ mode, onMode }: {
       position: "relative",
       display: "inline-flex",
       height: 26,
-	  marginLeft: "20px",
       alignItems: "center",
-      borderRadius: 0,
       background: "#392D2B",
-      padding: "0 8px 0 8px",
-      overflow: "visible",
+      padding: "0 12px",
     }}>
-      {/* Left pixel cap */}
-      <div style={{
-        position: "absolute", left: -26, top: 0, width: 83, height: 26,
-        backgroundImage: "url(/nav-right-texture.svg)",
-        backgroundSize: "auto 26px", backgroundRepeat: "no-repeat",
-        backgroundPosition: "right center",
-        transform: "scaleX(-1)", pointerEvents: "none", zIndex: 1,
-      }} />
-      {/* Right pixel cap */}
-      <div style={{
-        position: "absolute", right: -40, top: 0, width: 100, height: 26,
-        backgroundImage: "url(/nav-right-texture.svg)",
-        backgroundSize: "auto 26px", backgroundRepeat: "no-repeat",
-        backgroundPosition: "right center",
-        pointerEvents: "none", zIndex: 1,
-      }} />
-
       {/* Chaos / Grid toggle — hidden on mobile via CSS */}
       <div className="shop-view-toggle" style={{ display: "flex", alignItems: "center", gap: 6, position: "relative", zIndex: 2 }}>
         <span style={{

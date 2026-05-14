@@ -167,7 +167,7 @@ export function EditPageClient({
   }
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 56px)", overflow: "hidden" }}>
+    <div style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}>
 
       {/* ── Left sidebar: project list ───────────────────────────────────────── */}
       <div style={S.sidebar}>

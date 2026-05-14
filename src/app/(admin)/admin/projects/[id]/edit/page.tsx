@@ -93,7 +93,7 @@ export default async function EditProjectPage({
   const initialBlocks = parseContentBlocks(raw.content_blocks);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F1EC" }}>
+    <div style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", background: "#F5F1EC" }}>
       <header style={{
         background: "#392D2B",
         padding: "0 24px",
