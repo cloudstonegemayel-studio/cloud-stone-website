@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 export const metadata = { title: "Inquiries — Admin" };
 
 export default async function AdminContactsPage() {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
