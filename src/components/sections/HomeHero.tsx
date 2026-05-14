@@ -1148,8 +1148,7 @@ export function HomeHero() {
               textTransform: "uppercase",
             }}
           >
-            Close
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
               <path d="M1 1L15 15M15 1L1 15" stroke="#F0EEE9" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </button>
