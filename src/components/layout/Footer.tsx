@@ -445,7 +445,8 @@ export function Footer() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{
             fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)",
-            fontWeight: 400, fontSize: 16, lineHeight: 1.2, color: "#F0EEE9", whiteSpace: "nowrap",
+            fontWeight: 600, fontSize: 9, letterSpacing: "1.17px",
+            textTransform: "uppercase", color: "#F0EEE9", whiteSpace: "nowrap",
           }}>Brooklyn, NY 11249</span>
           <TrimIcon paths={MAP_PIN} label="Location" size={32} />
         </div>

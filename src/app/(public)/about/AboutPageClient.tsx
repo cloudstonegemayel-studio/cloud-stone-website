@@ -302,6 +302,28 @@ function ProjectDotHero() {
           ))}
         </h1>
       </div>
+
+      {/* Bottom text blocks */}
+      <div className="about-hero-bottom">
+        {[
+          { label: "Studio", value: "Cloud Stone Studio" },
+          { label: "Location", value: "Brooklyn, NY" },
+          { label: "Focus", value: "Design & Fabrication" },
+        ].map(({ label, value }, i) => (
+          <div
+            key={label}
+            className="about-hero-bottom-item"
+            style={{
+              opacity: entered ? 1 : 0,
+              transform: entered ? "translateY(0)" : "translateY(12px)",
+              transition: `opacity 0.7s ease ${0.9 + i * 0.1}s, transform 0.8s cubic-bezier(0.16,1,0.3,1) ${0.9 + i * 0.1}s`,
+            }}
+          >
+            <span className="about-hero-bottom-label">{label}</span>
+            <span className="about-hero-bottom-value">{value}</span>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -647,6 +669,42 @@ export function AboutPageClient() {
           color: var(--color-surface, #f0eee9);
           text-align: center;
           text-wrap: balance;
+        }
+
+        .about-hero-bottom {
+          position: absolute;
+          bottom: 30px;
+          left: 30px;
+          right: 30px;
+          z-index: 5;
+          display: flex;
+          align-items: flex-end;
+          gap: clamp(24px, 4vw, 60px);
+          pointer-events: none;
+        }
+
+        .about-hero-bottom-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .about-hero-bottom-label {
+          font-family: var(--font-inter-tight, "Inter Tight", sans-serif);
+          font-weight: 600;
+          font-size: 8px;
+          letter-spacing: 1.3px;
+          text-transform: uppercase;
+          color: rgba(240,238,233,0.50);
+        }
+
+        .about-hero-bottom-value {
+          font-family: var(--font-inter-tight, "Inter Tight", sans-serif);
+          font-weight: 600;
+          font-size: 9px;
+          letter-spacing: 1.17px;
+          text-transform: uppercase;
+          color: #F0EEE9;
         }
 
         .about-dotted-content {
@@ -1090,6 +1148,8 @@ export function AboutPageClient() {
           max-height: 0;
           background: var(--color-surface, #f0eee9);
           transition: max-height 0.45s var(--ease-expo-out);
+          border-left: 1px solid #392D2B;
+          border-right: 1px solid #392D2B;
         }
 
         .about-faq-item.open .about-faq-answer {
