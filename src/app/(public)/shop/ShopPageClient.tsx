@@ -836,18 +836,10 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
 
       
 
-      {/* Inquire button — desktop only */}
-      <div className="shop-inquire-desktop" style={{ position: "absolute", right: 30, bottom: 30, zIndex: 5 }}>
-        <PixelButton href="/contacts" label="Inquire" />
-      </div>
-
-      {/* Filter bar + mobile Inquire row */}
+      {/* Filter bar */}
       <div className={isStaticGrid ? "shop-filter-wrap-static" : "shop-filter-wrap"}>
         <div className="shop-filter-inner">
           <FilterBar mode={mode} onMode={setMode} />
-        </div>
-        <div className="shop-inquire-mobile">
-          <PixelButton href="/contacts" label="Inquire" />
         </div>
       </div>
 
@@ -897,12 +889,7 @@ export function ShopPageClient({ items }: { items: ShopItem[] }) {
           zoom: 0.82;
           margin-top: -30px;
         }
-        .shop-inquire-mobile { display: none; }
-
         @media (max-width: 767px), (orientation: portrait) {
-          .shop-inquire-desktop { display: none; }
-          .shop-inquire-mobile { display: block; }
-
           .shop-filter-wrap {
             left: 16px;
             right: 16px;

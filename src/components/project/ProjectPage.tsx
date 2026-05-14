@@ -102,8 +102,11 @@ function getEmbedUrl(url: string): string | null {
   return null;
 }
 
+const VIDEO_EXT = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i;
+
 function SlideMedia({ slide }: { slide: SliderItem }) {
-  if (slide.type === "video") {
+  const isVideo = slide.type === "video" || VIDEO_EXT.test(slide.url);
+  if (isVideo) {
     const embedUrl = getEmbedUrl(slide.url);
     if (embedUrl) {
       return (
@@ -342,9 +345,13 @@ export function ProjectPage({ project, prevProject, nextProject }: Props) {
           <div className="project-s2-bottom">
             {detailRows.length > 0 && (
               <div className={`project-s2-details ${s2TextVisible ? "text-visible" : ""}`}>
-                {detailRows.map((row, i) => (
-                  <span key={i}>{row}<br /></span>
-                ))}
+                {detailRows.map((row, i) => {
+                  const colonIdx = row.indexOf(": ");
+                  if (colonIdx === -1) return <span key={i}>{row}<br /></span>;
+                  const label = row.slice(0, colonIdx);
+                  const value = row.slice(colonIdx + 2);
+                  return <span key={i}><span style={{ fontWeight: 600 }}>{label}:</span> {value}<br /></span>;
+                })}
               </div>
             )}
             {project.description && (
