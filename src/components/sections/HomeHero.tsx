@@ -1080,7 +1080,7 @@ export function HomeHero() {
         }}
       >
         <span>© CLOUDSTONESTUDIO.COM 2026</span>
-        <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>PRIVACY POLICY</Link>
+        <Link href="/privacy-policy" style={{ color: "inherit", textDecoration: "none" }}>PRIVACY POLICY</Link>
         <Link href="/terms"   style={{ color: "inherit", textDecoration: "none" }}>TERMS OF SERVICE</Link>
       </div>
 

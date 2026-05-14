@@ -51,6 +51,7 @@ export default async function ShopPage() {
   return (
     <>
       <ShopPageClient items={items} />
+      <div style={{ height: 28 }} aria-hidden />
       <Footer />
     </>
   );

@@ -42,6 +42,7 @@ export default async function DesignPage() {
   return (
     <>
       <DesignPageClient projects={projects} />
+      <div style={{ height: 28 }} aria-hidden />
       <Footer />
     </>
   );

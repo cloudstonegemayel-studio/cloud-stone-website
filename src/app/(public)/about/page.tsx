@@ -18,6 +18,7 @@ export default function AboutPage() {
   return (
     <>
       <AboutPageClient />
+      <div style={{ height: 28 }} aria-hidden />
       <Footer />
     </>
   );
