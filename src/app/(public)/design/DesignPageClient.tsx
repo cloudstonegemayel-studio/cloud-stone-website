@@ -321,7 +321,7 @@ function FilterBar({ mode, onMode }: {
 }) {
   return (
     <div className="nav-pixel filter-nav-pixel" style={{ paddingRight: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 2, background: "#392D2B", height: 26, paddingLeft: 4, paddingRight: 4, flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 2, background: "#392D2B", height: 26, paddingLeft: 16, paddingRight: 16, flexShrink: 0 }}>
         <div className="design-view-toggle" style={{ display: "contents" }}>
           <span style={{
             fontFamily: "var(--font-inter-tight,'Inter Tight',sans-serif)", fontWeight: 600,
