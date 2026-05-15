@@ -154,13 +154,13 @@ export function Navbar() {
         maxWidth:    expanded ? 600 : 0,
         background:  pillBg,
         opacity:     expanded ? 1 : 0,
-        paddingLeft: 10,
+        paddingLeft: 0,
         height:      26,
         transition:  "max-width 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease, background-color 350ms ease",
         display:     "flex",
       }}
     >
-      <div style={{ display: "flex", gap: 2, paddingRight: 4 }}>
+      <div style={{ display: "flex", gap: 2, paddingRight: 0 }}>
         {NAV_LINKS.map(({ label, href }) => {
           const active = isActive(href);
           return (
