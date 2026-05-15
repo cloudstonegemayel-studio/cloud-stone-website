@@ -234,8 +234,8 @@
     display:    flex;
     align-items: center;
     white-space: nowrap;
-    padding-left:  8px;
-    padding-right: 8px;
+    padding-left:  0px;
+    padding-right: 0px;
   }
 
   /* ── Design page: grid view layout ─────────────────────────── */
