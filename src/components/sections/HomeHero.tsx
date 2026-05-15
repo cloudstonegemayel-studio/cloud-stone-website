@@ -195,7 +195,7 @@ function NavPill({ entered, navOpen, onMenuOpen }: NavPillProps) {
         maxWidth:    expanded ? 600 : 0,
         background:  "#392D2B",
         opacity:     expanded ? 1 : 0,
-        paddingLeft: 10,
+        paddingLeft: 0,
         height:      26,
         transition:  "max-width 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease",
         display:     "flex",
