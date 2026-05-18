@@ -9,6 +9,8 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -100,6 +102,8 @@ export default function RootLayout({
             {children}
           </LenisProvider>
         </TransitionProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
