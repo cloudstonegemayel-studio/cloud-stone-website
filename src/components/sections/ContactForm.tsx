@@ -38,6 +38,15 @@ export function ContactForm({ sourcePage, onSuccess, compact }: ContactFormProps
 
       if (!res.ok) throw new Error("Server error");
 
+      // GA4 event via GTM dataLayer
+      if (typeof window !== "undefined") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "contact_form_submit",
+          form_location: sourcePage ?? "unknown",
+        });
+      }
+
       setState("success");
       reset();
       onSuccess?.();
