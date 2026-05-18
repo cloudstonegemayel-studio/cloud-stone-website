@@ -8,6 +8,7 @@ import { TransitionProvider } from "@/lib/transitionContext";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { WeatherWidget } from "@/components/weather/WeatherWidget";
 import { CookieBanner } from "@/components/layout/CookieBanner";
+import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -51,12 +52,14 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cloudstonestudio.com";
+
 const ORG_SCHEMA = {
   "@context": "https://schema.org",
   "@type": ["Organization", "LocalBusiness"],
   "name": "Cloud Stone Studio",
-  "url": "https://cloudstonestudio.com",
-  "logo": "https://cloudstonestudio.com/Logo-light.svg",
+  "url": SITE_URL,
+  "logo": `${SITE_URL}/Logo-light.svg`,
   "description": "Cloud Stone Studio — premium interior design and architecture studio in Brooklyn, NY. We think like craftsmen and design like storytellers.",
   "address": {
     "@type": "PostalAddress",
@@ -86,6 +89,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_SCHEMA) }}
         />
+        <GoogleTagManager />
         <CustomCursor />
         <WeatherWidget />
         <CookieBanner />

@@ -42,10 +42,14 @@ export async function generateMetadata({
   return {
     title: data.title,
     description: data.short_description ?? undefined,
+    alternates: { canonical: `/design/${slug}` },
     openGraph: {
       title: data.title,
       description: data.short_description ?? undefined,
-      ...(data.cover_image ? { images: [{ url: data.cover_image, alt: data.title }] } : {}),
+      url: `/design/${slug}`,
+      ...(data.cover_image
+        ? { images: [{ url: data.cover_image, width: 1200, height: 800, alt: data.title }] }
+        : {}),
     },
     twitter: { card: "summary_large_image" },
   };

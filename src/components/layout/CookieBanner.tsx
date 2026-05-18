@@ -15,6 +15,8 @@ export function CookieBanner() {
   const accept = () => {
     localStorage.setItem(STORAGE_KEY, "accepted");
     setVisible(false);
+    // Сповіщаємо GoogleTagManager в тій самій вкладці
+    window.dispatchEvent(new Event("css:cookie-accepted"));
   };
 
   const decline = () => {
