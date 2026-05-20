@@ -72,6 +72,7 @@ export interface Database {
           status:     "new" | "read" | "replied" | "archived";
           ip_address: string | null;
           user_agent: string | null;
+          source_page: string | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["contact_submissions"]["Row"], "id" | "created_at">;

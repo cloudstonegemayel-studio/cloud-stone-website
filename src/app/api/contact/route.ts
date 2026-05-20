@@ -7,28 +7,42 @@ export async function POST(request: NextRequest) {
     const body      = await request.json();
     const validated = contactSchema.parse(body);
 
-    // Save to Supabase (only when configured)
-    if (
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_URL !== "https://YOUR_PROJECT.supabase.co"
-    ) {
-      const { createClient } = await import("@/lib/supabase/server");
-      const supabase = await createClient();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from("contact_submissions").insert({
-        name:        validated.name,
-        email:       validated.email,
-        phone:       validated.phone ?? null,
-        subject:     validated.subject ?? null,
-        message:     validated.message,
-        source_page: validated.source_page ?? null,
-        ip_address:  request.headers.get("x-forwarded-for") ?? null,
-        user_agent:  request.headers.get("user-agent") ?? null,
-        status:      "new",
-      });
+    // ── 1. Save to Supabase ────────────────────────────────────────────────
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const isSupabaseConfigured =
+      supabaseUrl &&
+      supabaseUrl !== "https://YOUR_PROJECT.supabase.co";
+
+    if (isSupabaseConfigured) {
+      try {
+        const { createClient } = await import("@/lib/supabase/server");
+        const supabase = await createClient();
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error: dbError } = await (supabase as any)
+          .from("contact_submissions")
+          .insert({
+            name:        validated.name,
+            email:       validated.email,
+            phone:       validated.phone        ?? null,
+            subject:     validated.subject      ?? null,
+            message:     validated.message,
+            source_page: validated.source_page  ?? null,
+            ip_address:  request.headers.get("x-forwarded-for") ?? null,
+            user_agent:  request.headers.get("user-agent")      ?? null,
+            status:      "new",
+          });
+
+        if (dbError) {
+          // Log but don't block the request — email will still be sent
+          console.error("[contact-api] Supabase insert error:", dbError.message, dbError.details);
+        }
+      } catch (dbErr) {
+        console.error("[contact-api] Supabase client error:", dbErr);
+      }
     }
 
-    // Send emails (only when Resend is configured)
+    // ── 2. Send emails via Resend ──────────────────────────────────────────
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_...") {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const domain = process.env.RESEND_DOMAIN ?? "cloudstonestudio.com";
