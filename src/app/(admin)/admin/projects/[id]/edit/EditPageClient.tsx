@@ -102,6 +102,7 @@ export function EditPageClient({
   const [meta,      setMeta]      = useState<MetaData>(initialMeta);
   const [blocks,    setBlocks]    = useState<ContentBlock[]>(initialBlocks);
   const [saving,    setSaving]    = useState(false);
+  const [deleting,  setDeleting]  = useState(false);
   const [saved,     setSaved]     = useState(false);
   const [error,     setError]     = useState("");
   const [activeTab, setActiveTab] = useState<"meta" | "blocks">("meta");
@@ -163,6 +164,24 @@ export function EditPageClient({
       setError(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm(`Delete "${meta.title || "this project"}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/projects/${projectId}`, { method: "DELETE" });
+      if (!res.ok && res.status !== 204) {
+        const text = await res.text();
+        throw new Error(text || "Delete failed");
+      }
+      router.push("/admin/projects");
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed");
+      setDeleting(false);
     }
   }
 
@@ -293,10 +312,32 @@ export function EditPageClient({
             {saved  && <span style={{ fontSize: 11, color: "#2ECC71" }}>Saved ✓</span>}
             {error  && <span style={{ fontSize: 11, color: "#C0392B" }}>{error}</span>}
 
+            {/* Delete button */}
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting || saving}
+              title="Delete this project"
+              style={{
+                padding: "7px 16px",
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: "0.07em",
+                background: "transparent",
+                color: deleting ? "#A09890" : "#C0392B",
+                border: "1.5px solid currentColor",
+                borderRadius: 4,
+                cursor: deleting ? "wait" : "pointer",
+                opacity: deleting ? 0.6 : 1,
+              }}
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </button>
+
             <button
               type="button"
               onClick={save}
-              disabled={saving}
+              disabled={saving || deleting}
               style={{
                 padding: "7px 22px",
                 fontSize: 11,
@@ -319,7 +360,12 @@ export function EditPageClient({
         <div style={{ overflow: "auto", padding: "24px 28px" }}>
           {activeTab === "meta" ? (
             <div style={{ maxWidth: 680, margin: "0 auto" }}>
-              <ProjectMetaForm projectId={projectId} data={meta} onChange={setMeta} />
+              <ProjectMetaForm
+                projectId={projectId}
+                data={meta}
+                onChange={setMeta}
+                allProjects={projectList.map(p => ({ id: p.id, sort_order: p.sort_order }))}
+              />
             </div>
           ) : (
             <div style={{ maxWidth: 780, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>

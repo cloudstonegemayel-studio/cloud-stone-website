@@ -87,6 +87,15 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
     }));
   }
 
+  function movePopupImage(from: number, to: number) {
+    setData(d => {
+      const items = [...d.popup_images];
+      const [moved] = items.splice(from, 1);
+      items.splice(to, 0, moved);
+      return { ...d, popup_images: items };
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -233,9 +242,39 @@ export function ShopItemForm({ initialData, itemId }: ShopItemFormProps) {
             <div key={i} style={{
               background: "#F5F1EC", border: "1.5px solid #DDD7CF",
               borderRadius: 6, padding: 12,
-              display: "grid", gridTemplateColumns: "1fr auto", gap: 10,
+              display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 10,
               alignItems: "start",
             }}>
+              {/* Reorder handle */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingTop: 20 }}>
+                <button
+                  type="button"
+                  onClick={() => i > 0 && movePopupImage(i, i - 1)}
+                  disabled={i === 0}
+                  title="Move up"
+                  style={{
+                    background: "none", border: "none",
+                    cursor: i === 0 ? "default" : "pointer",
+                    fontSize: 10,
+                    color: i === 0 ? "#DDD7CF" : "#887870",
+                    padding: "2px 4px", lineHeight: 1,
+                  }}
+                >▲</button>
+                <button
+                  type="button"
+                  onClick={() => i < data.popup_images.length - 1 && movePopupImage(i, i + 1)}
+                  disabled={i === data.popup_images.length - 1}
+                  title="Move down"
+                  style={{
+                    background: "none", border: "none",
+                    cursor: i === data.popup_images.length - 1 ? "default" : "pointer",
+                    fontSize: 10,
+                    color: i === data.popup_images.length - 1 ? "#DDD7CF" : "#887870",
+                    padding: "2px 4px", lineHeight: 1,
+                  }}
+                >▼</button>
+              </div>
+
               <ImageUpload
                 value={img.url}
                 onChange={(u) => updatePopupImage(i, { url: u })}

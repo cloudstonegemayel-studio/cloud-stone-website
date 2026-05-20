@@ -40,9 +40,11 @@ export interface MetaData {
 }
 
 interface Props {
-  projectId: string;
-  data:      MetaData;
-  onChange:  (data: MetaData) => void;
+  projectId:    string;
+  data:         MetaData;
+  onChange:     (data: MetaData) => void;
+  /** List of all other projects for sort_order uniqueness check */
+  allProjects?: { id: string; sort_order: number }[];
 }
 
 const inputStyle: React.CSSProperties = {
@@ -50,6 +52,12 @@ const inputStyle: React.CSSProperties = {
   fontSize: 13, color: "#392D2B",
   background: "#F5F1EC", border: "1.5px solid #DDD7CF",
   borderRadius: 5, outline: "none", boxSizing: "border-box",
+};
+
+const inputWarningStyle: React.CSSProperties = {
+  ...inputStyle,
+  border: "1.5px solid #E67E22",
+  background: "#FFF8F3",
 };
 
 const sectionLabel: React.CSSProperties = {
@@ -69,7 +77,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function ProjectMetaForm({ projectId, data, onChange }: Props) {
+export function ProjectMetaForm({ projectId, data, onChange, allProjects }: Props) {
   function set<K extends keyof MetaData>(key: K, val: MetaData[K]) {
     onChange({ ...data, [key]: val });
   }
@@ -80,6 +88,11 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
         set(key, e.target.value as MetaData[typeof key]),
     };
   }
+
+  // Check if sort_order conflicts with another project
+  const sortOrderConflict = allProjects?.find(
+    (p) => p.id !== projectId && p.sort_order === data.sort_order
+  );
 
   function addSlide() {
     set("slider_items", [...data.slider_items, { type: "image", url: "", alt: "" }]);
@@ -110,9 +123,22 @@ export function ProjectMetaForm({ projectId, data, onChange }: Props) {
           </select>
         </Field>
         <Field label="Sort order">
-          <input style={inputStyle} type="number"
-            value={data.sort_order}
-            onChange={(e) => set("sort_order", parseInt(e.target.value, 10) || 0)} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <input
+              style={sortOrderConflict ? inputWarningStyle : inputStyle}
+              type="number"
+              value={data.sort_order}
+              onChange={(e) => set("sort_order", parseInt(e.target.value, 10) || 0)}
+            />
+            {sortOrderConflict && (
+              <span style={{
+                fontSize: 10, color: "#E67E22",
+                display: "flex", alignItems: "center", gap: 4,
+              }}>
+                ⚠ Conflict — another project uses {data.sort_order}
+              </span>
+            )}
+          </div>
         </Field>
         <Field label="Project № (card badge)">
           <input style={inputStyle} {...txt("project_number")} placeholder="1" />

@@ -9,6 +9,17 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Auto-assign sort_order = max existing + 1
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: maxRow } = await (supabase as any)
+      .from("projects")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .single();
+
+    const nextSortOrder = maxRow ? (maxRow.sort_order ?? 0) + 1 : 1;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from("projects")
@@ -16,7 +27,7 @@ export async function POST(request: NextRequest) {
         title:          body.title,
         slug:           body.slug,
         status:         "draft",
-        sort_order:     0,
+        sort_order:     nextSortOrder,
         content_blocks: [],
         slider_items:   [],
       })
